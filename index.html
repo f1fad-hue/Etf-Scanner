@@ -1,0 +1,814 @@
+<title>Hiking-Cycle ETF Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    color-scheme: light;
+    --paper:#F6F7F9;
+    --surface:#FFFFFF;
+    --surface-sunk:#EFF2F6;
+    --ink:#111823;
+    --ink-2:#56606E;
+    --ink-3:#8A94A2;
+    --rule:#E3E7ED;
+    --rule-strong:#CBD2DC;
+    --accent:#0C4F4A;
+    --accent-soft:#E6F0EF;
+
+    /* Validated categorical series (light, surface #FFFFFF) */
+    --s-vea:#2A5FD6;
+    --s-vtip:#00908A;
+    --s-rsp:#7A4A9E;
+    --s-ita:#C9820A;
+    --s-xle:#BE3A2B;
+
+    /* Status — always shipped with a glyph + label, never colour alone */
+    --pos:#17714C;
+    --neg:#A8261A;
+    --warn:#8A5A00;
+
+    --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --serif:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.55;
+    margin:0;
+    -webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:100%;
+  }
+
+  .wrap{
+    max-width:680px;
+    margin:0 auto;
+    padding-left:18px;
+    padding-right:18px;
+    padding-block:0 56px;
+  }
+
+  /* ---------- sticky header ---------- */
+  .topbar{
+    position:sticky;
+    top:env(safe-area-inset-top, 0px);
+    z-index:20;
+    background:rgba(246,247,249,.93);
+    backdrop-filter:saturate(180%) blur(12px);
+    -webkit-backdrop-filter:saturate(180%) blur(12px);
+    border-bottom:1px solid var(--rule);
+  }
+  .topbar-in{
+    max-width:680px;margin:0 auto;
+    padding:10px 18px;
+    display:flex;align-items:center;gap:12px;justify-content:space-between;
+  }
+  .mark{
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+    display:flex;align-items:center;gap:7px;
+  }
+  .mark .dot{
+    width:7px;height:7px;border-radius:50%;background:var(--accent);
+    flex:none;
+  }
+  .asof{
+    font-family:var(--mono);font-size:11px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+
+  /* ---------- masthead ---------- */
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(30px,8.6vw,46px);
+    line-height:1.08;
+    letter-spacing:-.018em;
+    text-wrap:balance;
+    margin:28px 0 0;
+  }
+  .standfirst{
+    font-family:var(--serif);
+    font-size:clamp(17px,4.4vw,20px);
+    line-height:1.45;
+    color:var(--ink-2);
+    margin:14px 0 0;
+    text-wrap:pretty;
+  }
+  .byline{
+    font-family:var(--mono);font-size:11px;color:var(--ink-3);
+    border-top:1px solid var(--rule);
+    margin-top:20px;padding-top:12px;
+    display:flex;flex-wrap:wrap;gap:4px 0;
+  }
+  .byline span + span::before{content:"·";margin:0 9px;color:var(--rule-strong)}
+
+  /* ---------- KPI strip ---------- */
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:2px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:24px;
+  }
+  @media(min-width:560px){ .kpis{grid-template-columns:repeat(4,1fr)} }
+  .kpi{background:var(--surface);padding:13px 14px 14px}
+  .kpi-k{
+    font-family:var(--mono);font-size:10px;font-weight:500;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+    margin-bottom:6px;
+  }
+  .kpi-v{
+    font-family:var(--mono);font-size:21px;font-weight:600;
+    letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1;
+  }
+  .kpi-d{
+    font-family:var(--mono);font-size:11px;margin-top:5px;
+    font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:4px;
+  }
+  .kpi-d{color:var(--ink-2)}
+  .kpi-d .g{color:var(--ink-3);font-size:9px;line-height:1}
+
+  /* ---------- section scaffolding ---------- */
+  section{margin-top:44px}
+  h2{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(23px,5.6vw,29px);
+    letter-spacing:-.015em;line-height:1.15;
+    margin:0 0 6px;text-wrap:balance;
+  }
+  .sec-note{color:var(--ink-2);font-size:14px;margin:0 0 20px;max-width:60ch}
+  .rule-top{border-top:2px solid var(--ink);padding-top:14px}
+
+  /* ---------- three lenses ---------- */
+  .lens{
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:10px;
+    padding:16px;
+    margin-bottom:12px;
+  }
+  .lens-h{
+    display:flex;align-items:baseline;gap:9px;
+    margin-bottom:10px;flex-wrap:wrap;
+  }
+  .lens-n{
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);
+    padding:2px 7px;border-radius:4px;letter-spacing:.08em;
+  }
+  .lens-t{font-weight:600;font-size:16px;letter-spacing:-.01em}
+  .lens p{margin:0;color:var(--ink-2);font-size:14px}
+  .lens p + p{margin-top:9px}
+  .lens .verdict{
+    color:var(--ink);font-size:13.5px;
+    border-left:2px solid var(--accent);
+    padding-left:11px;margin-top:12px;
+  }
+  .lens .verdict b{font-weight:600}
+
+  .figrow{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin:12px 0 2px;
+  }
+  .fig{
+    background:var(--surface-sunk);
+    border-radius:7px;padding:7px 10px;
+    flex:1 1 auto;min-width:104px;
+  }
+  .fig-v{
+    font-family:var(--mono);font-size:15px;font-weight:600;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+  }
+  .fig-k{
+    font-family:var(--mono);font-size:9.5px;color:var(--ink-3);
+    text-transform:uppercase;letter-spacing:.07em;margin-top:2px;
+  }
+
+  /* ---------- horizon switch ---------- */
+  .horizon{
+    position:sticky;
+    top:calc(env(safe-area-inset-top, 0px) + var(--topbar-h, 43px));
+    z-index:15;
+    background:var(--paper);
+    box-shadow:0 0 0 18px var(--paper);
+    padding-block:10px 12px;
+    margin-bottom:6px;
+  }
+  .horizon-lbl{
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+    margin-bottom:7px;
+  }
+  .seg{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:3px;background:var(--surface-sunk);
+    border:1px solid var(--rule);
+    border-radius:9px;padding:3px;
+  }
+  .seg button{
+    font-family:var(--mono);font-size:12.5px;font-weight:600;
+    letter-spacing:.02em;
+    border:0;border-radius:6px;padding:8px 2px;
+    background:transparent;color:var(--ink-2);
+    cursor:pointer;transition:background .15s,color .15s;
+    min-height:38px;
+  }
+  .seg button:hover{color:var(--ink)}
+  .seg button[aria-selected="true"]{
+    background:var(--ink);color:#fff;
+  }
+  .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- ranked cards ---------- */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:0;margin-bottom:14px;
+    overflow:hidden;
+  }
+  .card-top{
+    display:flex;gap:13px;align-items:flex-start;
+    padding:16px 16px 0;
+  }
+  .rank{
+    font-family:var(--mono);font-size:12px;font-weight:600;
+    color:#fff;background:var(--ink);
+    width:23px;height:23px;flex:none;
+    border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+    margin-top:3px;
+  }
+  .idblock{flex:1;min-width:0}
+  .tick{
+    font-family:var(--mono);font-size:20px;font-weight:600;
+    letter-spacing:.01em;line-height:1.15;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .swatch{width:11px;height:11px;border-radius:3px;flex:none}
+  .fullname{
+    font-size:13px;color:var(--ink-2);margin-top:2px;
+    overflow-wrap:anywhere;
+  }
+  .role{
+    display:inline-block;margin-top:8px;
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 8px;border-radius:4px;
+    border:1px solid currentColor;
+  }
+
+  .stats{
+    display:flex;flex-wrap:wrap;gap:0;
+    border-top:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);
+    margin-top:15px;
+  }
+  .stat{
+    flex:1 1 33.33%;padding:10px 14px;
+    border-right:1px solid var(--rule);
+  }
+  .stat:last-child{border-right:0}
+  .stat-v{
+    font-family:var(--mono);font-size:14px;font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-k{
+    font-family:var(--mono);font-size:9.5px;color:var(--ink-3);
+    text-transform:uppercase;letter-spacing:.07em;margin-top:2px;
+  }
+
+  .card-body{padding:15px 16px 16px}
+
+  .conv{
+    display:flex;align-items:center;gap:11px;
+    flex-wrap:wrap;margin-bottom:13px;
+  }
+  .meter{display:flex;gap:2px;align-items:flex-end}
+  .meter i{
+    display:block;width:15px;height:17px;border-radius:4px;
+    background:var(--surface-sunk);
+  }
+  .meter i.on{background:var(--mk)}
+  .conv-lbl{
+    font-family:var(--mono);font-size:11.5px;font-weight:500;
+    color:var(--ink-2);font-variant-numeric:tabular-nums;
+  }
+  .conv-lbl b{color:var(--ink);font-weight:600}
+
+  .band{
+    background:var(--surface-sunk);
+    border-radius:8px;padding:11px 13px;margin-bottom:13px;
+  }
+  .band-k{
+    font-family:var(--mono);font-size:9.5px;color:var(--ink-3);
+    text-transform:uppercase;letter-spacing:.07em;
+  }
+  .band-v{
+    font-family:var(--mono);font-size:17px;font-weight:600;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin-top:3px;
+  }
+  .band-n{font-size:13px;color:var(--ink-2);margin-top:7px;line-height:1.5}
+
+  .thesis{font-size:14px;color:var(--ink-2);margin:0 0 11px}
+  .thesis b{color:var(--ink);font-weight:600}
+  .risk{
+    font-size:13px;color:var(--ink-2);
+    border-left:2px solid var(--rule-strong);
+    padding-left:11px;margin:0;
+  }
+  .risk b{
+    color:var(--warn);font-weight:600;
+    font-family:var(--mono);font-size:10px;
+    letter-spacing:.08em;text-transform:uppercase;
+    display:block;margin-bottom:2px;
+  }
+
+  /* ---------- allocation ---------- */
+  .allocbar{
+    display:flex;gap:2px;height:34px;
+    margin:16px 0 12px;
+  }
+  .allocbar span{
+    display:block;border-radius:3px;
+    min-width:3px;
+  }
+  .alloclegend{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(118px,1fr));
+    gap:2px;background:var(--rule);
+    border:1px solid var(--rule);border-radius:9px;overflow:hidden;
+  }
+  .alloclegend div{
+    background:var(--surface);padding:9px 11px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .alloclegend .swatch{width:9px;height:9px;border-radius:2px}
+  .alloclegend b{
+    font-family:var(--mono);font-size:12.5px;font-weight:600;
+  }
+  .alloclegend em{
+    font-family:var(--mono);font-style:normal;font-size:12.5px;
+    color:var(--ink-2);margin-left:auto;font-variant-numeric:tabular-nums;
+  }
+
+  /* ---------- matrix table ---------- */
+  .tablewrap{
+    overflow-x:auto;
+    border:1px solid var(--rule);border-radius:10px;
+    background:var(--surface);
+    -webkit-overflow-scrolling:touch;
+  }
+  table{border-collapse:collapse;width:100%;min-width:430px}
+  caption{
+    text-align:left;font-size:12.5px;color:var(--ink-3);
+    padding:11px 13px 0;caption-side:top;
+  }
+  th,td{
+    padding:9px 12px;text-align:right;
+    border-bottom:1px solid var(--rule);
+    font-family:var(--mono);font-size:12.5px;
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  th:first-child,td:first-child{text-align:left}
+  thead th{
+    font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;
+    border-bottom:1px solid var(--rule-strong);
+  }
+  tbody tr:last-child td{border-bottom:0}
+  td.on{background:var(--accent-soft);color:var(--ink);font-weight:600}
+  thead th.on{background:var(--accent-soft);color:var(--accent)}
+  .tk{display:flex;align-items:center;gap:7px;font-weight:600}
+  .tk .swatch{width:9px;height:9px;border-radius:2px}
+
+  /* ---------- exclusions ---------- */
+  .ex{
+    border-top:1px solid var(--rule);
+    padding:14px 0;
+    display:grid;gap:4px;
+  }
+  .ex:last-of-type{border-bottom:1px solid var(--rule)}
+  .ex-h{
+    display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;
+  }
+  .ex-t{font-family:var(--mono);font-size:14px;font-weight:600}
+  .ex-m{
+    font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
+  .ex p{margin:0;font-size:13.5px;color:var(--ink-2)}
+
+  /* ---------- footer ---------- */
+  .disclaim{
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-left:3px solid var(--warn);
+    border-radius:8px;padding:14px 15px;
+    font-size:13px;color:var(--ink-2);margin-top:26px;
+  }
+  .disclaim b{
+    color:var(--warn);font-family:var(--mono);font-size:10px;
+    letter-spacing:.08em;text-transform:uppercase;
+    display:block;margin-bottom:5px;
+  }
+  .srcs{margin-top:22px;font-size:12.5px;color:var(--ink-3)}
+  .srcs h3{
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+    margin:0 0 9px;
+  }
+  .srcs ul{margin:0;padding-left:17px;display:grid;gap:4px}
+  .srcs a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+  .srcs a:hover{color:var(--accent)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  }
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="mark"><span class="dot"></span>ETF Scanner</div>
+    <div class="asof">19 Sep 2026</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <h1>Calm tape, frightened investors, a hiking Fed</h1>
+    <p class="standfirst">The S&amp;P sits near a record and the VIX reads 14.81 — yet Fear &amp; Greed says 29, and on 16 September the Fed raised rates for the first time since 2023. Five ETFs built for the regime that actually exists, not the one that ended.</p>
+    <div class="byline">
+      <span>Data through 18 Sep 2026</span>
+      <span>Horizons 3M / 6M / 12M / 10Y</span>
+      <span>Educational — not investment advice</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-k">S&amp;P 500</div>
+        <div class="kpi-v">7,650</div>
+        <div class="kpi-d"><span class="g">▲</span> +11.7% YTD</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-k">VIX</div>
+        <div class="kpi-v">14.81</div>
+        <div class="kpi-d"><span class="g">▼</span> from 21.5 in Jun</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-k">10-yr UST</div>
+        <div class="kpi-v">4.93%</div>
+        <div class="kpi-d"><span class="g">▲</span> touched 5.01%</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-k">CPI y/y</div>
+        <div class="kpi-v">3.4%</div>
+        <div class="kpi-d"><span class="g">■</span> 2nd month at 3.4</div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="rule-top">
+      <h2>Three readings of the same tape</h2>
+      <p class="sec-note">Trend, sentiment and volatility disagree right now. That disagreement is the whole investment case — it is what makes the five picks below look different from a 2025 portfolio.</p>
+    </div>
+
+    <div class="lens">
+      <div class="lens-h"><span class="lens-n">01</span><span class="lens-t">Market trend — strong index, thin participation</span></div>
+      <p>The index level flatters the market. The S&amp;P closed at 7,650.50 on 18 September, up roughly 11.7% on price this year, and Goldman Sachs lifted its year-end target to 8,000 on 2026 EPS of about $340. But only ~33% of members sit above their 50-day average and ~53% above their 200-day.</p>
+      <p>Leadership has quietly moved offshore. Developed international is beating the S&amp;P by a wide margin in 2026, helped by cheaper multiples and a dollar that weakened for most of the year.</p>
+      <div class="figrow">
+        <div class="fig"><div class="fig-v">33%</div><div class="fig-k">Above 50-DMA</div></div>
+        <div class="fig"><div class="fig-v">53%</div><div class="fig-k">Above 200-DMA</div></div>
+        <div class="fig"><div class="fig-v">33.9%</div><div class="fig-k">Mag 7 weight</div></div>
+        <div class="fig"><div class="fig-v">8,000</div><div class="fig-k">GS year-end</div></div>
+      </div>
+      <p class="verdict"><b>Read:</b> an uptrend carried by fewer and fewer stocks. Own the trend, but stop paying up for the narrow part of it.</p>
+    </div>
+
+    <div class="lens">
+      <div class="lens-h"><span class="lens-n">02</span><span class="lens-t">Broad sentiment — defensive at the highs</span></div>
+      <p>CNN's Fear &amp; Greed Index printed 29 on 18 September — "Fear" — with the index within a few percent of its record. The S&amp;P Global Investment Manager Index fell 19 points for September, a sharp drop in stated risk appetite.</p>
+      <p>Flows corroborate the anxiety. Gold ETFs absorbed roughly $2bn in the five sessions before the Fed meeting, after a record-adjacent $18bn month in August that lifted global gold ETF assets 16% to $615bn.</p>
+      <div class="figrow">
+        <div class="fig"><div class="fig-v">29</div><div class="fig-k">Fear &amp; Greed</div></div>
+        <div class="fig"><div class="fig-v">−19 pt</div><div class="fig-k">Mgr risk appetite</div></div>
+        <div class="fig"><div class="fig-v">$18bn</div><div class="fig-k">Aug gold ETF flow</div></div>
+      </div>
+      <p class="verdict"><b>Read:</b> nobody trusts this tape. Positioning that defensive near a high argues for broadening, not for a top — but it also means the crowd is paying up for protection.</p>
+    </div>
+
+    <div class="lens">
+      <div class="lens-h"><span class="lens-n">03</span><span class="lens-t">Volatility — cheap in stocks, expensive in bonds</span></div>
+      <p>Equity vol has drained away: the VIX closed 14.81 on 18 September, down from 17.71 two sessions earlier, 20.66 in late July and 21.51 in early June. It sits near its own ten-year average.</p>
+      <p>The bond market is where the stress lives. The 10-year touched 5.01% on 14 September — the highest since October 2023 — before the Fed hiked 25bp to 3.75–4.00%. Futures now price roughly 4.2% by December and 4.6% by September 2027.</p>
+      <div class="figrow">
+        <div class="fig"><div class="fig-v">14.81</div><div class="fig-k">VIX, 18 Sep</div></div>
+        <div class="fig"><div class="fig-v">5.01%</div><div class="fig-k">10-yr peak</div></div>
+        <div class="fig"><div class="fig-v">3.75–4.00%</div><div class="fig-k">Fed funds</div></div>
+        <div class="fig"><div class="fig-v">4.6%</div><div class="fig-k">Priced Sep-27</div></div>
+      </div>
+      <p class="verdict"><b>Read:</b> the risk has been repriced in rates, not in equities. Portfolios should be short duration and long real assets — the two things a hiking cycle rewards.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule-top">
+      <h2>The five</h2>
+      <p class="sec-note">Ranked by blended conviction across all four horizons. Switch the horizon to see how each case strengthens or decays — three of the five change materially, and one inverts.</p>
+    </div>
+
+    <div class="horizon">
+      <div class="horizon-lbl">Forecast horizon</div>
+      <div class="seg" role="tablist" aria-label="Forecast horizon">
+        <button role="tab" id="h-3m"  aria-selected="false" data-h="3m">3 mo</button>
+        <button role="tab" id="h-6m"  aria-selected="false" data-h="6m">6 mo</button>
+        <button role="tab" id="h-12m" aria-selected="true"  data-h="12m">12 mo</button>
+        <button role="tab" id="h-10y" aria-selected="false" data-h="10y">10 yr</button>
+      </div>
+    </div>
+
+    <div id="cards"></div>
+  </section>
+
+  <section>
+    <div class="rule-top">
+      <h2>How they sit together</h2>
+      <p class="sec-note">A worked sleeve, not a whole portfolio. The weights are chosen so the two hedges pay for the two growth engines when the regime turns against them.</p>
+    </div>
+    <div class="allocbar" id="allocbar" role="img" aria-label="Sleeve allocation: VEA 30 percent, VTIP 23 percent, RSP 22 percent, ITA 13 percent, XLE 12 percent"></div>
+    <div class="alloclegend" id="alloclegend"></div>
+    <div class="figrow" style="margin-top:12px">
+      <div class="fig"><div class="fig-v">0.12%</div><div class="fig-k">Blended fee</div></div>
+      <div class="fig"><div class="fig-v">~2.0%</div><div class="fig-k">Blended yield</div></div>
+      <div class="fig"><div class="fig-v">35%</div><div class="fig-k">In hedges</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule-top">
+      <h2>Conviction by horizon</h2>
+      <p class="sec-note">Scores are 1–5. The column you selected above is highlighted. Note the shape of the last row.</p>
+    </div>
+    <div class="tablewrap">
+      <table id="matrix">
+        <caption>Conviction score, 1 (low) to 5 (high)</caption>
+        <thead>
+          <tr><th scope="col">Fund</th><th scope="col" data-h="3m">3 mo</th><th scope="col" data-h="6m">6 mo</th><th scope="col" data-h="12m">12 mo</th><th scope="col" data-h="10y">10 yr</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="sec-note" style="margin-top:13px">XLE is the only holding whose score falls as the horizon lengthens. That is deliberate: it is insurance bought for a live geopolitical event, and insurance should get less attractive the further out you look.</p>
+  </section>
+
+  <section>
+    <div class="rule-top">
+      <h2>What was left out, and why</h2>
+      <p class="sec-note">The near-misses matter as much as the picks — most were excluded on price or on rate sensitivity, not on the strength of their story.</p>
+    </div>
+
+    <div class="ex">
+      <div class="ex-h"><span class="ex-t">SMH · SOXX</span><span class="ex-m">+82% / +113% in H1 2026</span></div>
+      <p>Excluded on price, not on thesis. Nvidia alone is near a fifth of SMH, and the bull case needs hyperscaler capex to hold above the $1trn global data-centre projection — Microsoft, Alphabet, Meta and Amazon are guiding past $400bn for 2026 against roughly $230bn in 2024. If two of the four trim, the multiple has no support. RSP and VEA already carry diffuse exposure.</p>
+    </div>
+
+    <div class="ex">
+      <div class="ex-h"><span class="ex-t">GLD</span><span class="ex-m">−4.8% YTD</span></div>
+      <p>Gold peaked at $5,589 in January, then fell about 14% in Q2 — its worst quarter in a decade — and Goldman cut its year-end target to $4,900 from $5,400. A hiking Fed raises the carry cost of a zero-yield asset. VTIP does the same defensive job and pays a coupon.</p>
+    </div>
+
+    <div class="ex">
+      <div class="ex-h"><span class="ex-t">XLU</span><span class="ex-m">+16.2% YTD</span></div>
+      <p>Right story, wrong rate regime. US data-centre capacity is set to rise 197% by 2030, but utilities are bond proxies and the 10-year is near 4.9%. The AI-power trade works better through the companies building the capacity than through the regulated operators financing it.</p>
+    </div>
+
+    <div class="ex">
+      <div class="ex-h"><span class="ex-t">TLT · long duration</span><span class="ex-m">Hiking cycle</span></div>
+      <p>The Fed has just started raising, with another ~85bp priced by September 2027. There is no reason to own the long end into that.</p>
+    </div>
+
+    <div class="ex">
+      <div class="ex-h"><span class="ex-t">USO</span><span class="ex-m">+103.8% YTD</span></div>
+      <p>The single best-performing fund of 2026, and still the wrong vehicle. USO owns futures, so roll mechanics — not oil companies — drive the result. XLE expresses the same macro with free cash flow and a ~3.1% dividend behind it.</p>
+    </div>
+  </section>
+
+  <div class="disclaim">
+    <b>Before you act on any of this</b>
+    This is an educational summary of publicly reported market data, not investment advice, and nothing here is a recommendation to buy or sell any security. The forecast ranges are scenario estimates produced from the sources listed below — they are not predictions, and the 10-year figures in particular are probability-weighted model outputs that no one can guarantee. Figures are as reported through 18 September 2026 and some sources disagree at the decimal; verify current prices, yields and holdings before trading. ETFs can lose value, past performance does not indicate future results, and your own tax position, time horizon and risk tolerance should drive any decision. Consider speaking to a licensed financial adviser.
+  </div>
+
+  <div class="srcs">
+    <h3>Sources</h3>
+    <ul>
+      <li><a href="https://www.goldmansachs.com/insights/articles/s-and-p-500-forecast-to-climb-as-earnings-growth-powers-stocks-higher">Goldman Sachs — S&amp;P 500 forecast raised to 8,000</a></li>
+      <li><a href="https://am.gs.com/en-us/advisors/insights/article/market-pulse">Goldman Sachs Asset Management — US Market Pulse, September 2026</a></li>
+      <li><a href="https://edition.cnn.com/markets/fear-and-greed">CNN — Fear &amp; Greed Index</a></li>
+      <li><a href="https://www.macroradar.io/vix">MacroRadar — VIX level and history</a></li>
+      <li><a href="https://www.cnbc.com/2026/09/17/treasury-yields-move-lower-after-fed-kicks-off-hiking-cycle.html">CNBC — Treasury yields after the Fed opens its hiking cycle</a></li>
+      <li><a href="https://www.cnbc.com/2026/09/14/10-year-us-treasury-is-closing-in-on-5percent.html">CNBC — 10-year Treasury yield hits 5%</a></li>
+      <li><a href="https://www.cnbc.com/2026/09/11/cpi-inflation-breakdown-august-2026.html">CNBC — August 2026 CPI breakdown</a></li>
+      <li><a href="https://www.etf.com/sections/features/best-performing-etfs-2026-0">ETF.com — Best performing ETFs of 2026</a></li>
+      <li><a href="https://www.etf.com/sections/features/why-intl-stocks-are-pulling-ahead-us-stocks-2026">ETF.com — Why international stocks are pulling ahead</a></li>
+      <li><a href="https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/pressroom/press-release-vanguard-releases-2026-economic-and-market-outlook-121025.html">Vanguard — 2026 Economic and Market Outlook (VCMM 10-year forecasts)</a></li>
+      <li><a href="https://investor.vanguard.com/investment-products/etfs/profile/vea">Vanguard — VEA fund profile</a></li>
+      <li><a href="https://investor.vanguard.com/investment-products/etfs/profile/vtip">Vanguard — VTIP fund profile</a></li>
+      <li><a href="https://www.invesco.com/us/en/financial-products/etfs/invesco-sp-500-equal-weight-etf.html">Invesco — RSP fund page</a></li>
+      <li><a href="https://www.ishares.com/us/products/239502/ishares-us-aerospace-defense-etf">iShares — ITA fund page</a></li>
+      <li><a href="https://www.ssga.com/us/en/intermediary/etfs/state-street-energy-select-sector-spdr-etf-xle">State Street — XLE fund page</a></li>
+      <li><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2026/08">World Gold Council — Gold ETF flows</a></li>
+      <li><a href="https://www.etf.com/sections/news/smh-vs-soxx-which-semiconductor-etf-should-you-buy-2026">ETF.com — SMH vs SOXX in 2026</a></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var FUNDS = [
+    {
+      tk:"VEA", mk:"var(--s-vea)", w:30,
+      name:"Vanguard FTSE Developed Markets ETF",
+      role:"Core equity engine", roleColor:"var(--s-vea)",
+      stats:[["+16.5%","YTD to 17 Sep"],["0.03%","Expense ratio"],["2.36%","Yield"]],
+      thesis:"<b>The cheapest leadership in the market.</b> Developed international is beating the S&amp;P by roughly five points this year across 3,895 holdings, and it does it on lower multiples — international value trades near 12&times; earnings against US large-cap well above that. Vanguard's own capital markets model puts non-US developed among the strongest risk-return profiles in public markets over the next decade, against just 3.9–5.9% annualised for US equities.",
+      risk:"A hiking Fed is dollar-positive. Currency did much of the heavy lifting in 2025–26 — roughly three-quarters of MSCI EAFE's 2025 outperformance — and an unhedged fund gives that back just as quickly if the dollar turns.",
+      h:{
+        "3m":{c:3,b:"−4% to +7%",n:"Near-term the FX tailwind is the whole risk. A dollar bid on the back of the hike could stall this for a quarter even if the earnings case holds."},
+        "6m":{c:4,b:"−3% to +11%",n:"Half a year is long enough for the valuation gap to reassert itself once the initial rate shock is absorbed."},
+        "12m":{c:4,b:"+2% to +16%",n:"The rotation out of concentrated US mega-cap is the base case, and this is the cleanest, cheapest way to own the other side of it."},
+        "10y":{c:5,b:"+6.0% to +8.5% p.a.",n:"The strongest long-run case of the five. Relative valuation gaps this wide have historically been cyclical, and the starting multiple does most of the work over a decade."}
+      }
+    },
+    {
+      tk:"VTIP", mk:"var(--s-vtip)", w:23,
+      name:"Vanguard Short-Term Inflation-Protected Securities ETF",
+      role:"Ballast", roleColor:"var(--s-vtip)",
+      stats:[["2.21%","30-day SEC yield"],["0.03%","Expense ratio"],["&lt;5 yr","Maturities"]],
+      thesis:"<b>The regime-correct defensive asset.</b> CPI has held at 3.4% for two months with petrol up 27.4% year-on-year, and PPI accelerated to 5.4%. Short-dated TIPS capture that CPI adjustment while carrying only about 2.4 years of duration — so they collect the inflation accrual without the mark-to-market damage that longer TIPS funds take when real yields rise. In a hiking cycle that distinction is the entire point.",
+      risk:"If inflation rolls over faster than the Fed tightens, plain T-bills out-earn this with less complexity. It is insurance against an inflation surprise, and insurance has a cost when the surprise does not arrive.",
+      h:{
+        "3m":{c:5,b:"+0.7% to +1.6%",n:"Highest near-term conviction of the five. Energy-driven CPI prints are already in the pipeline and duration risk is minimal."},
+        "6m":{c:5,b:"+1.4% to +3.0%",n:"The sweet spot. Inflation accrual compounds while the short maturity keeps rate risk contained through the hiking path priced to December."},
+        "12m":{c:4,b:"+3.0% to +5.5%",n:"Still strong, but by late 2027 the market expects funds at ~4.6% — at that point cash competes hard with this."},
+        "10y":{c:2,b:"+3.5% to +4.5% p.a.",n:"Deliberately low. Over a decade this protects the rest of the sleeve rather than growing it; do not mistake ballast for an engine."}
+      }
+    },
+    {
+      tk:"RSP", mk:"var(--s-rsp)", w:22,
+      name:"Invesco S&amp;P 500 Equal Weight ETF",
+      role:"Concentration hedge", roleColor:"var(--s-rsp)",
+      stats:[["~1.4%","Mag 7 weight"],["0.20%","Expense ratio"],["500","Equal holdings"]],
+      thesis:"<b>The same index, without the crowding.</b> The Magnificent Seven peaked at 35% of S&amp;P market cap in June 2026 — a record — and still sit near 33.9%. The index's Herfindahl concentration measure reached 185 against a five-year average of 142, leaving an effective 54 independent positions inside 503 holdings. In RSP those seven names total about 1.4%. It has led the cap-weighted index this year as the mega-cap rally showed cracks.",
+      risk:"Equal weight has been the wrong bet for a decade — SPY returned 251% over ten years against RSP's 207%. This is explicitly a mean-reversion trade, and mean reversion has repeatedly arrived late.",
+      h:{
+        "3m":{c:3,b:"−6% to +6%",n:"Breadth at 33% above the 50-day can keep narrowing before it broadens. No near-term catalyst beyond exhaustion."},
+        "6m":{c:3,b:"−5% to +9%",n:"Improving: non-Mag-7 names have already supplied a majority of this year's return, which is the first crack in the concentration trade."},
+        "12m":{c:4,b:"0% to +14%",n:"Higher funding costs hurt long-duration mega-cap multiples most. That is the mechanism by which breadth usually returns."},
+        "10y":{c:4,b:"+5.5% to +7.5% p.a.",n:"Starting from record concentration, the equal-weight version of the same 500 companies is the better-priced way to own US large-cap."}
+      }
+    },
+    {
+      tk:"ITA", mk:"var(--s-ita)", w:13,
+      name:"iShares U.S. Aerospace &amp; Defense ETF",
+      role:"Structural policy",  roleColor:"#8A5A00",
+      stats:[["+34%","1-year return"],["$13.3bn","Net assets"],["0.40%","Expense ratio"]],
+      thesis:"<b>A spending cycle written into treaty commitments.</b> NATO members agreed to lift defence budgets from 2% of GDP toward 5%, and the EU's ReArm Europe plan adds more than €800bn. That reaches US primes — RTX, Boeing, Lockheed — through foreign military sales, co-production and direct commercial contracts, so a Polish Apache order lands in the same revenue line as Pentagon procurement. Crucially, the driver is legislated budgets rather than interest rates.",
+      risk:"Procurement is political and lumpy; budgets get re-phased. A credible Iran settlement would compress the multiple quickly, and much of the rearmament story is already in a 34% one-year return.",
+      h:{
+        "3m":{c:3,b:"−7% to +8%",n:"Momentum is extended and headline-sensitive. Any de-escalation signal hits this before it hits the fundamentals."},
+        "6m":{c:4,b:"−4% to +13%",n:"European budget authorisations convert into orders on roughly this timeline, which is when the backlog becomes visible."},
+        "12m":{c:4,b:"+2% to +18%",n:"Backlog conversion plus a US budget cycle. The revenue is contracted, which is rare among the things working in 2026."},
+        "10y":{c:4,b:"+7% to +10% p.a.",n:"Rearmament runs on decade-long procurement programmes. Of the five, this has the longest-dated visible demand — and it is insensitive to the rate path."}
+      }
+    },
+    {
+      tk:"XLE", mk:"var(--s-xle)", w:12,
+      name:"Energy Select Sector SPDR Fund",
+      role:"Inflation hedge", roleColor:"var(--s-xle)",
+      stats:[["+46.9%","YTD to 1 Sep"],["~3.1%","Yield"],["0.08%","Expense ratio"]],
+      thesis:"<b>The hedge that pays when the others hurt.</b> Brent cleared $100 and touched $109 as the Strait of Hormuz stayed contested; petrol supplied over a third of August's monthly CPI increase. That is the mechanism: the thing driving the inflation that threatens the rest of the sleeve is the thing this owns. S&amp;P energy earnings are forecast up 57% in 2026, on a forward multiple near 17–18&times; with a ~3.1% dividend.",
+      risk:"Consensus already has 2027 sector earnings contracting about 5% as comparisons harden. Over 40% of the fund is Exxon and Chevron, and a Middle East de-escalation would produce a fast, violent drawdown. Size it as insurance.",
+      h:{
+        "3m":{c:4,b:"−8% to +14%",n:"Strongest window. The supply premium is live, comparisons are easy, and this is the direct offset to an energy-led CPI surprise."},
+        "6m":{c:3,b:"−12% to +15%",n:"Decaying. Strategic reserves have cushioned the shock and that cushion is finite — but so is the disruption."},
+        "12m":{c:2,b:"−15% to +16%",n:"Consensus sees 2027 earnings turning negative. Holding this for a year is a bet the geopolitics do not resolve, which is not a bet to make at size."},
+        "10y":{c:2,b:"+4% to +6% p.a.",n:"Lowest long-run score of the five. A decade of terminal-demand uncertainty is not compensated by a 3% yield — this is a position to hold for a reason, and to sell when the reason ends."}
+      }
+    }
+  ];
+
+  var HLABEL = {"3m":"3-month","6m":"6-month","12m":"12-month","10y":"10-year"};
+  var current = "12m";
+
+  function meter(score, mk){
+    var out = '<span class="meter" style="--mk:'+mk+'" role="img" aria-label="Conviction '+score+' of 5">';
+    for(var i=1;i<=5;i++) out += '<i class="'+(i<=score?"on":"")+'"></i>';
+    return out + '</span>';
+  }
+
+  function cardHTML(f){
+    var h = f.h[current];
+    var stats = f.stats.map(function(s){
+      return '<div class="stat"><div class="stat-v">'+s[0]+'</div><div class="stat-k">'+s[1]+'</div></div>';
+    }).join("");
+
+    return '<article class="card">'
+      + '<div class="card-top">'
+        + '<div class="rank">'+(FUNDS.indexOf(f)+1)+'</div>'
+        + '<div class="idblock">'
+          + '<div class="tick"><span class="swatch" style="background:'+f.mk+'"></span>'+f.tk+'</div>'
+          + '<div class="fullname">'+f.name+'</div>'
+          + '<div class="role" style="color:'+f.roleColor+'">'+f.role+'</div>'
+        + '</div>'
+      + '</div>'
+      + '<div class="stats">'+stats+'</div>'
+      + '<div class="card-body">'
+        + '<div class="conv">'+meter(h.c,f.mk)
+          + '<span class="conv-lbl"><b>'+h.c+'/5</b> conviction · '+HLABEL[current]+'</span>'
+        + '</div>'
+        + '<div class="band">'
+          + '<div class="band-k">'+HLABEL[current]+' scenario range</div>'
+          + '<div class="band-v">'+h.b+'</div>'
+          + '<div class="band-n">'+h.n+'</div>'
+        + '</div>'
+        + '<p class="thesis">'+f.thesis+'</p>'
+        + '<p class="risk"><b>The risk</b>'+f.risk+'</p>'
+      + '</div>'
+    + '</article>';
+  }
+
+  function renderCards(){
+    document.getElementById("cards").innerHTML = FUNDS.map(cardHTML).join("");
+  }
+
+  function renderAlloc(){
+    document.getElementById("allocbar").innerHTML = FUNDS.map(function(f){
+      return '<span style="background:'+f.mk+';flex:'+f.w+'"></span>';
+    }).join("");
+    document.getElementById("alloclegend").innerHTML = FUNDS.map(function(f){
+      return '<div><span class="swatch" style="background:'+f.mk+'"></span><b>'+f.tk+'</b><em>'+f.w+'%</em></div>';
+    }).join("");
+  }
+
+  function renderMatrix(){
+    var body = document.querySelector("#matrix tbody");
+    body.innerHTML = FUNDS.map(function(f){
+      var cells = ["3m","6m","12m","10y"].map(function(k){
+        return '<td class="'+(k===current?"on":"")+'">'+f.h[k].c+'</td>';
+      }).join("");
+      return '<tr><td><span class="tk"><span class="swatch" style="background:'+f.mk+'"></span>'+f.tk+'</span></td>'+cells+'</tr>';
+    }).join("");
+
+    var heads = document.querySelectorAll("#matrix thead th[data-h]");
+    Array.prototype.forEach.call(heads, function(th){
+      th.className = th.getAttribute("data-h") === current ? "on" : "";
+    });
+  }
+
+  function setHorizon(h){
+    current = h;
+    Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+      b.setAttribute("aria-selected", String(b.getAttribute("data-h") === h));
+    });
+    renderCards();
+    renderMatrix();
+  }
+
+  document.querySelector(".seg").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-h]");
+    if(btn) setHorizon(btn.getAttribute("data-h"));
+  });
+
+  function syncTopbar(){
+    var tb = document.querySelector('.topbar');
+    if(tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight + 'px');
+  }
+
+  renderCards();
+  renderAlloc();
+  renderMatrix();
+  syncTopbar();
+  window.addEventListener('resize', syncTopbar);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(syncTopbar);
+})();
+</script>
