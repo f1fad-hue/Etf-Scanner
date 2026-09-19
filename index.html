@@ -10,7 +10,7 @@
     --surface-sunk:#EFF2F6;
     --ink:#111823;
     --ink-2:#56606E;
-    --ink-3:#8A94A2;
+    --ink-3:#686F7A;
     --rule:#E3E7ED;
     --rule-strong:#CBD2DC;
     --accent:#0C4F4A;
@@ -23,10 +23,12 @@
     --s-ita:#C9820A;
     --s-xle:#BE3A2B;
 
-    /* Status — always shipped with a glyph + label, never colour alone */
-    --pos:#17714C;
-    --neg:#A8261A;
+    /* Caution accent (risk headings). Direction in the KPI strip is carried by
+       glyphs on neutral ink, not by good/bad colour: a rising yield is not
+       "good" and a falling VIX is not "bad". */
     --warn:#8A5A00;
+
+    --topbar-h:43px; /* remeasured from the real bar at runtime */
 
     --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     --serif:"Newsreader",Georgia,"Times New Roman",serif;
@@ -84,11 +86,6 @@
   }
 
   /* ---------- masthead ---------- */
-  .eyebrow{
-    font-family:var(--mono);font-size:11px;font-weight:600;
-    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
-    margin:0 0 10px;
-  }
   h1{
     font-family:var(--serif);
     font-weight:500;
@@ -205,7 +202,10 @@
     top:calc(env(safe-area-inset-top, 0px) + var(--topbar-h, 43px));
     z-index:15;
     background:var(--paper);
-    box-shadow:0 0 0 18px var(--paper);
+    /* bleed the ground across the page gutter without a spread shadow, which
+       would also paint over the first 18px of the card scrolling beneath */
+    margin-inline:-18px;
+    padding-inline:18px;
     padding-block:10px 12px;
     margin-bottom:6px;
   }
@@ -229,10 +229,16 @@
     min-height:38px;
   }
   .seg button:hover{color:var(--ink)}
-  .seg button[aria-selected="true"]{
+  .seg button[aria-checked="true"]{
     background:var(--ink);color:#fff;
   }
   .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .sr-only{
+    position:absolute;width:1px;height:1px;
+    padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0;
+  }
 
   /* ---------- ranked cards ---------- */
   .card{
@@ -493,7 +499,7 @@
     <div class="lens">
       <div class="lens-h"><span class="lens-n">01</span><span class="lens-t">Market trend — strong index, thin participation</span></div>
       <p>The index level flatters the market. The S&amp;P closed at 7,650.50 on 18 September, up roughly 11.7% on price this year, and Goldman Sachs lifted its year-end target to 8,000 on 2026 EPS of about $340. But only ~33% of members sit above their 50-day average and ~53% above their 200-day.</p>
-      <p>Leadership has quietly moved offshore. Developed international is beating the S&amp;P by a wide margin in 2026, helped by cheaper multiples and a dollar that weakened for most of the year.</p>
+      <p>Leadership has quietly moved offshore. Developed international is beating the S&amp;P by about four points in 2026 on a total-return basis — driven by a dollar that weakened for most of the year rather than by cheaper multiples, since developed markets now trade at roughly 19.9&times; earnings against the S&amp;P's 19.3&times; forward multiple. The discount lives in international <i>value</i>, near 12.4&times;, not in the broad index.</p>
       <div class="figrow">
         <div class="fig"><div class="fig-v">33%</div><div class="fig-k">Above 50-DMA</div></div>
         <div class="fig"><div class="fig-v">53%</div><div class="fig-k">Above 200-DMA</div></div>
@@ -537,12 +543,13 @@
 
     <div class="horizon">
       <div class="horizon-lbl">Forecast horizon</div>
-      <div class="seg" role="tablist" aria-label="Forecast horizon">
-        <button role="tab" id="h-3m"  aria-selected="false" data-h="3m">3 mo</button>
-        <button role="tab" id="h-6m"  aria-selected="false" data-h="6m">6 mo</button>
-        <button role="tab" id="h-12m" aria-selected="true"  data-h="12m">12 mo</button>
-        <button role="tab" id="h-10y" aria-selected="false" data-h="10y">10 yr</button>
+      <div class="seg" role="radiogroup" aria-label="Forecast horizon">
+        <button type="button" role="radio" id="h-3m"  aria-checked="false" data-h="3m">3 mo</button>
+        <button type="button" role="radio" id="h-6m"  aria-checked="false" data-h="6m">6 mo</button>
+        <button type="button" role="radio" id="h-12m" aria-checked="true"  data-h="12m">12 mo</button>
+        <button type="button" role="radio" id="h-10y" aria-checked="false" data-h="10y">10 yr</button>
       </div>
+      <p id="h-status" class="sr-only" role="status" aria-live="polite"></p>
     </div>
 
     <div id="cards"></div>
@@ -553,12 +560,12 @@
       <h2>How they sit together</h2>
       <p class="sec-note">A worked sleeve, not a whole portfolio. The weights are chosen so the two hedges pay for the two growth engines when the regime turns against them.</p>
     </div>
-    <div class="allocbar" id="allocbar" role="img" aria-label="Sleeve allocation: VEA 30 percent, VTIP 23 percent, RSP 22 percent, ITA 13 percent, XLE 12 percent"></div>
+    <div class="allocbar" id="allocbar" role="img"></div>
     <div class="alloclegend" id="alloclegend"></div>
     <div class="figrow" style="margin-top:12px">
       <div class="fig"><div class="fig-v">0.12%</div><div class="fig-k">Blended fee</div></div>
       <div class="fig"><div class="fig-v">~2.0%</div><div class="fig-k">Blended yield</div></div>
-      <div class="fig"><div class="fig-v">35%</div><div class="fig-k">In hedges</div></div>
+      <div class="fig"><div class="fig-v">35%</div><div class="fig-k">VTIP + XLE</div></div>
     </div>
   </section>
 
@@ -596,18 +603,18 @@
     </div>
 
     <div class="ex">
-      <div class="ex-h"><span class="ex-t">XLU</span><span class="ex-m">+16.2% YTD</span></div>
-      <p>Right story, wrong rate regime. US data-centre capacity is set to rise 197% by 2030, but utilities are bond proxies and the 10-year is near 4.9%. The AI-power trade works better through the companies building the capacity than through the regulated operators financing it.</p>
+      <div class="ex-h"><span class="ex-t">XLU</span><span class="ex-m">Utilities index +16.2% YTD</span></div>
+      <p>Right story, wrong rate regime. The S&amp;P 500 utilities index is up 16.2% this year and US data-centre capacity is set to rise 197% by 2030, but utilities are bond proxies and the 10-year is near 4.9%. The AI-power trade works better through the companies building the capacity than through the regulated operators financing it.</p>
     </div>
 
     <div class="ex">
       <div class="ex-h"><span class="ex-t">TLT · long duration</span><span class="ex-m">Hiking cycle</span></div>
-      <p>The Fed has just started raising, with another ~85bp priced by September 2027. There is no reason to own the long end into that.</p>
+      <p>The Fed has just started raising, with roughly another 70bp priced by September 2027. There is no reason to own the long end into that.</p>
     </div>
 
     <div class="ex">
       <div class="ex-h"><span class="ex-t">USO</span><span class="ex-m">+103.8% YTD</span></div>
-      <p>The single best-performing fund of 2026, and still the wrong vehicle. USO owns futures, so roll mechanics — not oil companies — drive the result. XLE expresses the same macro with free cash flow and a ~3.1% dividend behind it.</p>
+      <p>The single best-performing fund of 2026, and still the wrong vehicle. USO owns futures, so roll mechanics — not oil companies — drive the result. XLE expresses the same macro with free cash flow and a ~2.4% dividend behind it.</p>
     </div>
   </section>
 
@@ -636,6 +643,12 @@
       <li><a href="https://www.ssga.com/us/en/intermediary/etfs/state-street-energy-select-sector-spdr-etf-xle">State Street — XLE fund page</a></li>
       <li><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2026/08">World Gold Council — Gold ETF flows</a></li>
       <li><a href="https://www.etf.com/sections/news/smh-vs-soxx-which-semiconductor-etf-should-you-buy-2026">ETF.com — SMH vs SOXX in 2026</a></li>
+      <li><a href="https://streetstats.finance/valuation/market">StreetStats — S&amp;P 500 forward P/E and forward EPS</a></li>
+      <li><a href="https://stockanalysis.com/etf/vea/">StockAnalysis — VEA valuation and returns</a></li>
+      <li><a href="https://www.ishares.com/us/products/239628/ishares-msci-eafe-value-etf">iShares — EFV (international value) fund page</a></li>
+      <li><a href="https://stockanalysis.com/etf/xle/dividend/">StockAnalysis — XLE dividend history and yield</a></li>
+      <li><a href="https://www.dividend.com/etfs/rsp-invesco-s-p-500-equal-weight-etf/">Dividend.com — RSP distribution yield</a></li>
+      <li><a href="https://finance.yahoo.com/markets/article/10-year-treasury-yield-briefly-tops-5-for-the-first-time-since-2023-123457398.html">Yahoo Finance — 10-year briefly tops 5% on 14 September</a></li>
     </ul>
   </div>
 </div>
@@ -649,13 +662,13 @@
       tk:"VEA", mk:"var(--s-vea)", w:30,
       name:"Vanguard FTSE Developed Markets ETF",
       role:"Core equity engine", roleColor:"var(--s-vea)",
-      stats:[["+16.5%","YTD to 17 Sep"],["0.03%","Expense ratio"],["2.36%","Yield"]],
-      thesis:"<b>The cheapest leadership in the market.</b> Developed international is beating the S&amp;P by roughly five points this year across 3,895 holdings, and it does it on lower multiples — international value trades near 12&times; earnings against US large-cap well above that. Vanguard's own capital markets model puts non-US developed among the strongest risk-return profiles in public markets over the next decade, against just 3.9–5.9% annualised for US equities.",
-      risk:"A hiking Fed is dollar-positive. Currency did much of the heavy lifting in 2025–26 — roughly three-quarters of MSCI EAFE's 2025 outperformance — and an unhedged fund gives that back just as quickly if the dollar turns.",
+      stats:[["+16.5%","YTD (NAV, TR)"],["19.9&times;","P/E · SPX 19.3"],["0.03%","Expense ratio"]],
+      thesis:"<b>Leadership and diversification — but not a discount.</b> VEA has returned 16.5% this year against 12.3% for the S&amp;P on a like-for-like total-return basis: about four points, across 3,895 holdings. Be precise about what this is not. At roughly 19.9&times; earnings against the S&amp;P's 19.3&times; forward multiple, VEA is <b>not</b> cheap — the 12&times; figure quoted all year belongs to international <i>value</i> (EFV), a different fund. The case rests on two other legs: Vanguard's capital markets model puts non-US developed among the strongest risk-return profiles in public markets over the next decade against just 3.9–5.9% annualised for US equities, and it is genuine diversification away from an index where seven names carry a third of the weight.",
+      risk:"A hiking Fed is dollar-positive. Currency did much of the heavy lifting in 2025–26 — roughly three-quarters of MSCI EAFE's 2025 outperformance — and an unhedged fund gives that back just as quickly if the dollar turns. And with no valuation cushion at 19.9&times;, there is less to fall back on if it does. If you want the valuation argument rather than the diversification one, EFV holds international value near 12.4&times; earnings on a ~3.9% yield for 0.31%.",
       h:{
         "3m":{c:3,b:"−4% to +7%",n:"Near-term the FX tailwind is the whole risk. A dollar bid on the back of the hike could stall this for a quarter even if the earnings case holds."},
         "6m":{c:4,b:"−3% to +11%",n:"Half a year is long enough for the valuation gap to reassert itself once the initial rate shock is absorbed."},
-        "12m":{c:4,b:"+2% to +16%",n:"The rotation out of concentrated US mega-cap is the base case, and this is the cleanest, cheapest way to own the other side of it."},
+        "12m":{c:4,b:"+2% to +16%",n:"The rotation out of concentrated US mega-cap is the base case, and at 0.03% this is the cleanest, lowest-cost way to own the other side of it."},
         "10y":{c:5,b:"+6.0% to +8.5% p.a.",n:"The strongest long-run case of the five. Relative valuation gaps this wide have historically been cyclical, and the starting multiple does most of the work over a decade."}
       }
     },
@@ -678,7 +691,7 @@
       name:"Invesco S&amp;P 500 Equal Weight ETF",
       role:"Concentration hedge", roleColor:"var(--s-rsp)",
       stats:[["~1.4%","Mag 7 weight"],["0.20%","Expense ratio"],["500","Equal holdings"]],
-      thesis:"<b>The same index, without the crowding.</b> The Magnificent Seven peaked at 35% of S&amp;P market cap in June 2026 — a record — and still sit near 33.9%. The index's Herfindahl concentration measure reached 185 against a five-year average of 142, leaving an effective 54 independent positions inside 503 holdings. In RSP those seven names total about 1.4%. It has led the cap-weighted index this year as the mega-cap rally showed cracks.",
+      thesis:"<b>The same index, without the crowding.</b> The Magnificent Seven peaked at 35% of S&amp;P market cap in June 2026 — a record — and still sit near 33.9%. The index's Herfindahl concentration measure reached 185 against a five-year average of 142 as of April 2026, leaving an effective 54 independent positions inside 503 holdings. In RSP those seven names total about 1.4%. It has led the cap-weighted index this year as the mega-cap rally showed cracks.",
       risk:"Equal weight has been the wrong bet for a decade — SPY returned 251% over ten years against RSP's 207%. This is explicitly a mean-reversion trade, and mean reversion has repeatedly arrived late.",
       h:{
         "3m":{c:3,b:"−6% to +6%",n:"Breadth at 33% above the 50-day can keep narrowing before it broadens. No near-term catalyst beyond exhaustion."},
@@ -691,7 +704,7 @@
       tk:"ITA", mk:"var(--s-ita)", w:13,
       name:"iShares U.S. Aerospace &amp; Defense ETF",
       role:"Structural policy",  roleColor:"#8A5A00",
-      stats:[["+34%","1-year return"],["$13.3bn","Net assets"],["0.40%","Expense ratio"]],
+      stats:[["+34%","1-year return"],["$13.3bn","Net assets"],["0.37%","Expense ratio"]],
       thesis:"<b>A spending cycle written into treaty commitments.</b> NATO members agreed to lift defence budgets from 2% of GDP toward 5%, and the EU's ReArm Europe plan adds more than €800bn. That reaches US primes — RTX, Boeing, Lockheed — through foreign military sales, co-production and direct commercial contracts, so a Polish Apache order lands in the same revenue line as Pentagon procurement. Crucially, the driver is legislated budgets rather than interest rates.",
       risk:"Procurement is political and lumpy; budgets get re-phased. A credible Iran settlement would compress the multiple quickly, and much of the rearmament story is already in a 34% one-year return.",
       h:{
@@ -705,14 +718,14 @@
       tk:"XLE", mk:"var(--s-xle)", w:12,
       name:"Energy Select Sector SPDR Fund",
       role:"Inflation hedge", roleColor:"var(--s-xle)",
-      stats:[["+46.9%","YTD to 1 Sep"],["~3.1%","Yield"],["0.08%","Expense ratio"]],
-      thesis:"<b>The hedge that pays when the others hurt.</b> Brent cleared $100 and touched $109 as the Strait of Hormuz stayed contested; petrol supplied over a third of August's monthly CPI increase. That is the mechanism: the thing driving the inflation that threatens the rest of the sleeve is the thing this owns. S&amp;P energy earnings are forecast up 57% in 2026, on a forward multiple near 17–18&times; with a ~3.1% dividend.",
+      stats:[["+46.9%","YTD to 1 Sep"],["~2.4%","Yield"],["0.08%","Expense ratio"]],
+      thesis:"<b>The hedge that pays when the others hurt.</b> Brent cleared $100 and touched $109 as the Strait of Hormuz stayed contested; petrol supplied over a third of August's monthly CPI increase. That is the mechanism: the thing driving the inflation that threatens the rest of the sleeve is the thing this owns. S&amp;P energy earnings are forecast up 57% in 2026, on a forward multiple near 17–18&times;. Note the yield is now ~2.4%, not the ~3.1% quoted earlier in the year — the 47% rally compressed it.",
       risk:"Consensus already has 2027 sector earnings contracting about 5% as comparisons harden. Over 40% of the fund is Exxon and Chevron, and a Middle East de-escalation would produce a fast, violent drawdown. Size it as insurance.",
       h:{
         "3m":{c:4,b:"−8% to +14%",n:"Strongest window. The supply premium is live, comparisons are easy, and this is the direct offset to an energy-led CPI surprise."},
         "6m":{c:3,b:"−12% to +15%",n:"Decaying. Strategic reserves have cushioned the shock and that cushion is finite — but so is the disruption."},
         "12m":{c:2,b:"−15% to +16%",n:"Consensus sees 2027 earnings turning negative. Holding this for a year is a bet the geopolitics do not resolve, which is not a bet to make at size."},
-        "10y":{c:2,b:"+4% to +6% p.a.",n:"Lowest long-run score of the five. A decade of terminal-demand uncertainty is not compensated by a 3% yield — this is a position to hold for a reason, and to sell when the reason ends."}
+        "10y":{c:2,b:"+4% to +6% p.a.",n:"Lowest long-run score of the five. A decade of terminal-demand uncertainty is not compensated by a 2.4% yield — this is a position to hold for a reason, and to sell when the reason ends."}
       }
     }
   ];
@@ -762,7 +775,12 @@
   }
 
   function renderAlloc(){
-    document.getElementById("allocbar").innerHTML = FUNDS.map(function(f){
+    var bar = document.getElementById("allocbar");
+    // label is generated from the same data that draws the bar, so it cannot drift
+    bar.setAttribute("aria-label", "Sleeve allocation: " + FUNDS.map(function(f){
+      return f.tk + " " + f.w + " percent";
+    }).join(", "));
+    bar.innerHTML = FUNDS.map(function(f){
       return '<span style="background:'+f.mk+';flex:'+f.w+'"></span>';
     }).join("");
     document.getElementById("alloclegend").innerHTML = FUNDS.map(function(f){
@@ -785,18 +803,39 @@
     });
   }
 
-  function setHorizon(h){
+  var ORDER = ["3m","6m","12m","10y"];
+
+  function setHorizon(h, focus){
     current = h;
     Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
-      b.setAttribute("aria-selected", String(b.getAttribute("data-h") === h));
+      var on = b.getAttribute("data-h") === h;
+      b.setAttribute("aria-checked", String(on));
+      // roving tabindex: the group is one tab stop, arrows move within it
+      b.tabIndex = on ? 0 : -1;
+      if(on && focus) b.focus();
     });
     renderCards();
     renderMatrix();
+    var st = document.getElementById("h-status");
+    if(st) st.textContent = "Showing " + HLABEL[h] + " horizon.";
   }
 
-  document.querySelector(".seg").addEventListener("click", function(e){
+  var seg = document.querySelector(".seg");
+
+  seg.addEventListener("click", function(e){
     var btn = e.target.closest("button[data-h]");
     if(btn) setHorizon(btn.getAttribute("data-h"));
+  });
+
+  seg.addEventListener("keydown", function(e){
+    var i = ORDER.indexOf(current);
+    if(i < 0) return;
+    var next = null;
+    if(e.key === "ArrowRight" || e.key === "ArrowDown") next = ORDER[(i+1) % ORDER.length];
+    else if(e.key === "ArrowLeft" || e.key === "ArrowUp") next = ORDER[(i-1+ORDER.length) % ORDER.length];
+    else if(e.key === "Home") next = ORDER[0];
+    else if(e.key === "End") next = ORDER[ORDER.length-1];
+    if(next){ e.preventDefault(); setHorizon(next, true); }
   });
 
   function syncTopbar(){
@@ -804,9 +843,8 @@
     if(tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight + 'px');
   }
 
-  renderCards();
   renderAlloc();
-  renderMatrix();
+  setHorizon(current);   // renders cards + matrix and seeds roving tabindex
   syncTopbar();
   window.addEventListener('resize', syncTopbar);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(syncTopbar);
