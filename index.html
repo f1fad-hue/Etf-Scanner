@@ -16,15 +16,16 @@
     --accent:#0C4F4A;
     --accent-soft:#E6F0EF;
 
-    /* Validated categorical series (light, surface #FFFFFF) */
+    /* Categorical series — this exact ordering clears every validator gate on
+       the adjacent pairlist (worst CVD dE 12.1, worst normal-vision dE 22.4). */
     --s-vea:#2A5FD6;
+    --s-rsp:#BE3A2B;
     --s-vtip:#00908A;
-    --s-rsp:#7A4A9E;
+    --s-xlv:#7A4A9E;
     --s-ita:#C9820A;
-    --s-xle:#BE3A2B;
 
-    /* Caution accent (risk headings). Direction in the KPI strip is carried by
-       glyphs on neutral ink, not by good/bad colour: a rising yield is not
+    /* Caution accent for risk headings. Direction in the KPI strip is carried by
+       glyphs on neutral ink, never good/bad colour: a rising yield is not
        "good" and a falling VIX is not "bad". */
     --warn:#8A5A00;
 
@@ -136,8 +137,8 @@
   .kpi-d{
     font-family:var(--mono);font-size:11px;margin-top:5px;
     font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:4px;
+    color:var(--ink-2);
   }
-  .kpi-d{color:var(--ink-2)}
   .kpi-d .g{color:var(--ink-3);font-size:9px;line-height:1}
 
   /* ---------- section scaffolding ---------- */
@@ -150,6 +151,23 @@
   }
   .sec-note{color:var(--ink-2);font-size:14px;margin:0 0 20px;max-width:60ch}
   .rule-top{border-top:2px solid var(--ink);padding-top:14px}
+
+  /* ---------- the thesis callout ---------- */
+  .thesis-box{
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-left:3px solid var(--accent);
+    border-radius:8px;
+    padding:15px 16px;
+    margin-top:22px;
+  }
+  .thesis-box .k{
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:7px;
+  }
+  .thesis-box p{margin:0;font-size:14.5px;color:var(--ink-2)}
+  .thesis-box b{color:var(--ink);font-weight:600}
 
   /* ---------- three lenses ---------- */
   .lens{
@@ -229,9 +247,7 @@
     min-height:38px;
   }
   .seg button:hover{color:var(--ink)}
-  .seg button[aria-checked="true"]{
-    background:var(--ink);color:#fff;
-  }
+  .seg button[aria-checked="true"]{background:var(--ink);color:#fff}
   .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   .sr-only{
@@ -277,6 +293,13 @@
     letter-spacing:.08em;text-transform:uppercase;
     padding:3px 8px;border-radius:4px;
     border:1px solid currentColor;
+  }
+  .newflag{
+    display:inline-block;margin:8px 0 0 6px;
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 8px;border-radius:4px;
+    background:var(--accent);color:#fff;
   }
 
   .stats{
@@ -350,10 +373,7 @@
     display:flex;gap:2px;height:34px;
     margin:16px 0 12px;
   }
-  .allocbar span{
-    display:block;border-radius:3px;
-    min-width:3px;
-  }
+  .allocbar span{display:block;border-radius:3px;min-width:3px}
   .alloclegend{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(118px,1fr));
@@ -365,9 +385,7 @@
     display:flex;align-items:center;gap:8px;
   }
   .alloclegend .swatch{width:9px;height:9px;border-radius:2px}
-  .alloclegend b{
-    font-family:var(--mono);font-size:12.5px;font-weight:600;
-  }
+  .alloclegend b{font-family:var(--mono);font-size:12.5px;font-weight:600}
   .alloclegend em{
     font-family:var(--mono);font-style:normal;font-size:12.5px;
     color:var(--ink-2);margin-left:auto;font-variant-numeric:tabular-nums;
@@ -410,15 +428,19 @@
     display:grid;gap:4px;
   }
   .ex:last-of-type{border-bottom:1px solid var(--rule)}
-  .ex-h{
-    display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;
-  }
+  .ex-h{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
   .ex-t{font-family:var(--mono);font-size:14px;font-weight:600}
   .ex-m{
     font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
     font-variant-numeric:tabular-nums;
   }
   .ex p{margin:0;font-size:13.5px;color:var(--ink-2)}
+  .ex.dropped{
+    background:var(--surface);
+    border:1px solid var(--rule-strong);
+    border-radius:9px;padding:14px 15px;margin-bottom:6px;
+  }
+  .ex.dropped .ex-t{color:var(--s-rsp)}
 
   /* ---------- footer ---------- */
   .disclaim{
@@ -451,17 +473,17 @@
 <div class="topbar">
   <div class="topbar-in">
     <div class="mark"><span class="dot"></span>ETF Scanner</div>
-    <div class="asof">19 Sep 2026</div>
+    <div class="asof">21 Sep 2026</div>
   </div>
 </div>
 
 <div class="wrap">
 
   <header>
-    <h1>Calm tape, frightened investors, a hiking Fed</h1>
-    <p class="standfirst">The S&amp;P sits near a record and the VIX reads 14.81 — yet Fear &amp; Greed says 29, and on 16 September the Fed raised rates for the first time since 2023. Five ETFs built for the regime that actually exists, not the one that ended.</p>
+    <h1>The Fed is hiking into falling oil</h1>
+    <p class="standfirst">Core inflation eased to 2.4%. The 3.4% headline is energy — and energy just fell for a fourth straight day as Washington signalled it would talk to Tehran this week. The Fed raised rates anyway, 12–0, and the market puts 87% odds on another before year-end.</p>
     <div class="byline">
-      <span>Data through 18 Sep 2026</span>
+      <span>Data through 21 Sep 2026</span>
       <span>Horizons 3M / 6M / 12M / 10Y</span>
       <span>Educational — not investment advice</span>
     </div>
@@ -469,76 +491,81 @@
     <div class="kpis">
       <div class="kpi">
         <div class="kpi-k">S&amp;P 500</div>
-        <div class="kpi-v">7,650</div>
-        <div class="kpi-d"><span class="g">▲</span> +11.7% YTD</div>
+        <div class="kpi-v">7,764.70</div>
+        <div class="kpi-d"><span class="g">▲</span> +1.49% Monday</div>
       </div>
       <div class="kpi">
-        <div class="kpi-k">VIX</div>
-        <div class="kpi-v">14.81</div>
-        <div class="kpi-d"><span class="g">▼</span> from 21.5 in Jun</div>
+        <div class="kpi-k">Core CPI</div>
+        <div class="kpi-v">2.4%</div>
+        <div class="kpi-d"><span class="g">▼</span> eased from 2.5%</div>
       </div>
       <div class="kpi">
         <div class="kpi-k">10-yr UST</div>
-        <div class="kpi-v">4.93%</div>
-        <div class="kpi-d"><span class="g">▲</span> touched 5.01%</div>
+        <div class="kpi-v">4.96%</div>
+        <div class="kpi-d"><span class="g">▼</span> peaked 5.01%</div>
       </div>
       <div class="kpi">
-        <div class="kpi-k">CPI y/y</div>
-        <div class="kpi-v">3.4%</div>
-        <div class="kpi-d"><span class="g">■</span> 2nd month at 3.4</div>
+        <div class="kpi-k">Brent</div>
+        <div class="kpi-v">$100.34</div>
+        <div class="kpi-d"><span class="g">▼</span> 4th down day</div>
       </div>
+    </div>
+
+    <div class="thesis-box">
+      <div class="k">The regime, in one line</div>
+      <p><b>The Fed is tightening into an energy shock that is already deflating.</b> Core CPI is 2.4% and easing. The entire gap to the 3.4% headline is oil — and Brent has fallen from $109 on 14 September to $100.34, with Hormuz flows back to roughly 80% of pre-war levels. If that holds, headline converges down toward core and the September hike lands into disinflation. If it breaks — tankers are still being hit and the Houthis struck Riyadh on Saturday — the opposite. The five below are built so that neither outcome is fatal.</p>
     </div>
   </header>
 
   <section>
     <div class="rule-top">
       <h2>Three readings of the same tape</h2>
-      <p class="sec-note">Trend, sentiment and volatility disagree right now. That disagreement is the whole investment case — it is what makes the five picks below look different from a 2025 portfolio.</p>
+      <p class="sec-note">Trend, sentiment and volatility still disagree — and after Monday's record close in the Nasdaq against a Fear &amp; Greed reading of 29, they disagree more sharply than a week ago.</p>
     </div>
 
     <div class="lens">
-      <div class="lens-h"><span class="lens-n">01</span><span class="lens-t">Market trend — strong index, thin participation</span></div>
-      <p>The index level flatters the market. The S&amp;P closed at 7,650.50 on 18 September, up roughly 11.7% on price this year, and Goldman Sachs lifted its year-end target to 8,000 on 2026 EPS of about $340. But only ~33% of members sit above their 50-day average and ~53% above their 200-day.</p>
-      <p>Leadership has quietly moved offshore. Developed international is beating the S&amp;P by about four points in 2026 on a total-return basis — driven by a dollar that weakened for most of the year rather than by cheaper multiples, since developed markets now trade at roughly 19.9&times; earnings against the S&amp;P's 19.3&times; forward multiple. The discount lives in international <i>value</i>, near 12.4&times;, not in the broad index.</p>
+      <div class="lens-h"><span class="lens-n">01</span><span class="lens-t">Market trend — records on thin participation</span></div>
+      <p>The S&amp;P rose 1.49% on Monday to 7,764.70, its best day since early August, and the Nasdaq closed at a record on AI strength. Through Friday the S&amp;P was up 11.7% on price for the year; Goldman Sachs targets 8,000 on 2026 EPS near $340.</p>
+      <p>Participation has not kept up. Roughly 33% of members sit above their 50-day average and 53% above their 200-day, while the Magnificent Seven are 33.9% of index weight after peaking at a record 35% in June. One number complicates the simple story: equal weight is not lagging. RSP returned 15.46% through 31 August, ahead of the cap-weighted index.</p>
       <div class="figrow">
+        <div class="fig"><div class="fig-v">7,764.70</div><div class="fig-k">S&amp;P, 21 Sep</div></div>
         <div class="fig"><div class="fig-v">33%</div><div class="fig-k">Above 50-DMA</div></div>
-        <div class="fig"><div class="fig-v">53%</div><div class="fig-k">Above 200-DMA</div></div>
         <div class="fig"><div class="fig-v">33.9%</div><div class="fig-k">Mag 7 weight</div></div>
-        <div class="fig"><div class="fig-v">8,000</div><div class="fig-k">GS year-end</div></div>
+        <div class="fig"><div class="fig-v">19.3&times;</div><div class="fig-k">S&amp;P fwd P/E</div></div>
       </div>
-      <p class="verdict"><b>Read:</b> an uptrend carried by fewer and fewer stocks. Own the trend, but stop paying up for the narrow part of it.</p>
+      <p class="verdict"><b>Read:</b> an index at records, carried by a narrow top but with the average stock quietly keeping pace. Own the breadth, not the crowding.</p>
     </div>
 
     <div class="lens">
-      <div class="lens-h"><span class="lens-n">02</span><span class="lens-t">Broad sentiment — defensive at the highs</span></div>
-      <p>CNN's Fear &amp; Greed Index printed 29 on 18 September — "Fear" — with the index within a few percent of its record. The S&amp;P Global Investment Manager Index fell 19 points for September, a sharp drop in stated risk appetite.</p>
-      <p>Flows corroborate the anxiety. Gold ETFs absorbed roughly $2bn in the five sessions before the Fed meeting, after a record-adjacent $18bn month in August that lifted global gold ETF assets 16% to $615bn.</p>
+      <div class="lens-h"><span class="lens-n">02</span><span class="lens-t">Broad sentiment — fear at a record high</span></div>
+      <p>CNN's Fear &amp; Greed Index read 29 on 21 September — "Fear" — on the same day the Nasdaq set a record close. That is an unusual pairing, and it is the second week running that sentiment has refused to follow price.</p>
+      <p>Positioning agrees with the mood, not the tape. The S&amp;P Global Investment Manager Index fell 19 points for September, and gold ETFs took in $18bn in August, the second-largest month on record, lifting global gold ETF assets 16% to $615bn.</p>
       <div class="figrow">
         <div class="fig"><div class="fig-v">29</div><div class="fig-k">Fear &amp; Greed</div></div>
         <div class="fig"><div class="fig-v">−19 pt</div><div class="fig-k">Mgr risk appetite</div></div>
         <div class="fig"><div class="fig-v">$18bn</div><div class="fig-k">Aug gold ETF flow</div></div>
       </div>
-      <p class="verdict"><b>Read:</b> nobody trusts this tape. Positioning that defensive near a high argues for broadening, not for a top — but it also means the crowd is paying up for protection.</p>
+      <p class="verdict"><b>Read:</b> nobody trusts this rally. Defensive positioning into record highs is historically a condition for broadening rather than for a top — but it also means protection is already expensive.</p>
     </div>
 
     <div class="lens">
-      <div class="lens-h"><span class="lens-n">03</span><span class="lens-t">Volatility — cheap in stocks, expensive in bonds</span></div>
-      <p>Equity vol has drained away: the VIX closed 14.81 on 18 September, down from 17.71 two sessions earlier, 20.66 in late July and 21.51 in early June. It sits near its own ten-year average.</p>
-      <p>The bond market is where the stress lives. The 10-year touched 5.01% on 14 September — the highest since October 2023 — before the Fed hiked 25bp to 3.75–4.00%. Futures now price roughly 4.2% by December and 4.6% by September 2027.</p>
+      <div class="lens-h"><span class="lens-n">03</span><span class="lens-t">Volatility — the stress moved from oil to policy</span></div>
+      <p>Equity volatility is subdued: the VIX is near 14.8, having ranged no higher than 18.94 over the past month. Rate volatility is where the action was — the 10-year touched 5.014% on 14 September, its highest since October 2023, before easing to 4.96%.</p>
+      <p>On 16 September the Fed raised rates 25bp to 3.75–4.00% in a 12–0 vote, its first hike since 2023. Chair Warsh's press conference moved October hike odds to 49% and the odds of at least one more this year to 87%. The next meeting is 27–28 October. Meanwhile Brent lost 3.4% on Monday to $100.34, a fourth consecutive decline, after Washington signalled openness to meeting Iran's president at the UN this week.</p>
       <div class="figrow">
-        <div class="fig"><div class="fig-v">14.81</div><div class="fig-k">VIX, 18 Sep</div></div>
-        <div class="fig"><div class="fig-v">5.01%</div><div class="fig-k">10-yr peak</div></div>
+        <div class="fig"><div class="fig-v">~14.8</div><div class="fig-k">VIX</div></div>
         <div class="fig"><div class="fig-v">3.75–4.00%</div><div class="fig-k">Fed funds</div></div>
-        <div class="fig"><div class="fig-v">4.6%</div><div class="fig-k">Priced Sep-27</div></div>
+        <div class="fig"><div class="fig-v">49%</div><div class="fig-k">Oct hike odds</div></div>
+        <div class="fig"><div class="fig-v">87%</div><div class="fig-k">≥1 more in 2026</div></div>
       </div>
-      <p class="verdict"><b>Read:</b> the risk has been repriced in rates, not in equities. Portfolios should be short duration and long real assets — the two things a hiking cycle rewards.</p>
+      <p class="verdict"><b>Read:</b> the inflation the Fed is fighting is leaving on its own. That makes policy error — not inflation — the live risk, and it argues for short duration and defensives over the energy trade that worked all year.</p>
     </div>
   </section>
 
   <section>
     <div class="rule-top">
       <h2>The five</h2>
-      <p class="sec-note">Ranked by blended conviction across all four horizons. Switch the horizon to see how each case strengthens or decays — three of the five change materially, and one inverts.</p>
+      <p class="sec-note">Ranked by blended conviction across all four horizons. Switch the horizon to see each case strengthen or decay — two of the five invert as the window lengthens.</p>
     </div>
 
     <div class="horizon">
@@ -558,21 +585,21 @@
   <section>
     <div class="rule-top">
       <h2>How they sit together</h2>
-      <p class="sec-note">A worked sleeve, not a whole portfolio. The weights are chosen so the two hedges pay for the two growth engines when the regime turns against them.</p>
+      <p class="sec-note">A worked sleeve, not a whole portfolio. Weighted so that the defensives carry the sleeve if the Fed has tightened into a slowdown, without giving up the recovery if it has not.</p>
     </div>
     <div class="allocbar" id="allocbar" role="img"></div>
     <div class="alloclegend" id="alloclegend"></div>
     <div class="figrow" style="margin-top:12px">
       <div class="fig"><div class="fig-v">0.12%</div><div class="fig-k">Blended fee</div></div>
-      <div class="fig"><div class="fig-v">~2.0%</div><div class="fig-k">Blended yield</div></div>
-      <div class="fig"><div class="fig-v">35%</div><div class="fig-k">VTIP + XLE</div></div>
+      <div class="fig"><div class="fig-v">~1.9%</div><div class="fig-k">Blended yield</div></div>
+      <div class="fig"><div class="fig-v">37%</div><div class="fig-k">VTIP + XLV</div></div>
     </div>
   </section>
 
   <section>
     <div class="rule-top">
       <h2>Conviction by horizon</h2>
-      <p class="sec-note">Scores are 1–5. The column you selected above is highlighted. Note the shape of the last row.</p>
+      <p class="sec-note">Scores are 1–5. The column you selected above is highlighted.</p>
     </div>
     <div class="tablewrap">
       <table id="matrix">
@@ -583,72 +610,75 @@
         <tbody></tbody>
       </table>
     </div>
-    <p class="sec-note" style="margin-top:13px">XLE is the only holding whose score falls as the horizon lengthens. That is deliberate: it is insurance bought for a live geopolitical event, and insurance should get less attractive the further out you look.</p>
+    <p class="sec-note" style="margin-top:13px">ITA is the shape to notice: weakest at three months, strongest at ten years. Its demand is written into treaty commitments, but a handshake at the UN this week would hit the share price long before it touches a single order book.</p>
   </section>
 
   <section>
     <div class="rule-top">
       <h2>What was left out, and why</h2>
-      <p class="sec-note">The near-misses matter as much as the picks — most were excluded on price or on rate sensitivity, not on the strength of their story.</p>
+      <p class="sec-note">One name was in this list two days ago and is not any more. That reversal is explained first, because a changed mind is worth more than a consistent one.</p>
+    </div>
+
+    <div class="ex dropped">
+      <div class="ex-h"><span class="ex-t">XLE — dropped from #5</span><span class="ex-m">+49.5% YTD to 15 Sep</span></div>
+      <p>The 19 September edition held XLE as an inflation and geopolitical hedge, scored 2/5 at twelve months and ten years, with an explicit note: hold it for a reason, and sell it when the reason ends. The reason is ending. Brent has fallen four sessions straight to $100.34, Hormuz flows are back to roughly 80% of pre-war levels, and Washington has signalled it may meet Iran's president at the UN this week. Energy equities sell off hard on exactly these signals. Add that consensus already sees sector earnings contracting about 5% in 2027 after a 57% surge in 2026, and a position up nearly 50% on the year is an expensive hedge against a risk that is visibly receding. Following the earlier rule rather than defending the earlier pick, it is out. It goes back in if the talks collapse.</p>
     </div>
 
     <div class="ex">
       <div class="ex-h"><span class="ex-t">SMH · SOXX</span><span class="ex-m">+82% / +113% in H1 2026</span></div>
-      <p>Excluded on price, not on thesis. Nvidia alone is near a fifth of SMH, and the bull case needs hyperscaler capex to hold above the $1trn global data-centre projection — Microsoft, Alphabet, Meta and Amazon are guiding past $400bn for 2026 against roughly $230bn in 2024. If two of the four trim, the multiple has no support. RSP and VEA already carry diffuse exposure.</p>
+      <p>Excluded on price, not on thesis, and Monday's AI-led record makes that harder to hold — but not wrong. Nvidia alone is near a fifth of SMH, and the bull case needs hyperscaler capex above the $1trn global data-centre projection; Microsoft, Alphabet, Meta and Amazon are guiding past $400bn for 2026 against roughly $230bn in 2024. If two of the four trim, the multiple has no support. RSP and VEA carry diffuse exposure already.</p>
     </div>
 
     <div class="ex">
       <div class="ex-h"><span class="ex-t">GLD</span><span class="ex-m">−4.8% YTD</span></div>
-      <p>Gold peaked at $5,589 in January, then fell about 14% in Q2 — its worst quarter in a decade — and Goldman cut its year-end target to $4,900 from $5,400. A hiking Fed raises the carry cost of a zero-yield asset. VTIP does the same defensive job and pays a coupon.</p>
+      <p>Gold peaked at $5,589 in January, then fell about 14% in Q2, its worst quarter in a decade, and Goldman cut its year-end target to $4,900 from $5,400. A hiking Fed raises the carry cost of a zero-yield asset. VTIP does the defensive job and pays a coupon.</p>
     </div>
 
     <div class="ex">
       <div class="ex-h"><span class="ex-t">XLU</span><span class="ex-m">Utilities index +16.2% YTD</span></div>
-      <p>Right story, wrong rate regime. The S&amp;P 500 utilities index is up 16.2% this year and US data-centre capacity is set to rise 197% by 2030, but utilities are bond proxies and the 10-year is near 4.9%. The AI-power trade works better through the companies building the capacity than through the regulated operators financing it.</p>
+      <p>Right story, wrong rate regime. US data-centre capacity is set to rise 197% by 2030, but utilities are bond proxies carrying heavy debt, and the 10-year is still near 4.96% with the Fed signalling more. Healthcare offers a defensive sleeve without the rate sensitivity.</p>
     </div>
 
     <div class="ex">
-      <div class="ex-h"><span class="ex-t">TLT · long duration</span><span class="ex-m">Hiking cycle</span></div>
-      <p>The Fed has just started raising, with roughly another 70bp priced by September 2027. There is no reason to own the long end into that.</p>
+      <div class="ex-h"><span class="ex-t">TLT · long duration</span><span class="ex-m">87% odds of another hike</span></div>
+      <p>Tempting if the policy-error thesis is right, and that is exactly why it is dangerous: it pays only on that one outcome, and the market still prices 87% odds of another hike this year. VTIP takes the same direction with a fraction of the duration.</p>
     </div>
 
     <div class="ex">
       <div class="ex-h"><span class="ex-t">USO</span><span class="ex-m">+103.8% YTD</span></div>
-      <p>The single best-performing fund of 2026, and still the wrong vehicle. USO owns futures, so roll mechanics — not oil companies — drive the result. XLE expresses the same macro with free cash flow and a ~2.4% dividend behind it.</p>
+      <p>The year's best-performing fund and still the wrong vehicle — it owns futures, so roll mechanics drive the result. With oil now falling, that mechanic works against the holder twice over.</p>
     </div>
   </section>
 
   <div class="disclaim">
     <b>Before you act on any of this</b>
-    This is an educational summary of publicly reported market data, not investment advice, and nothing here is a recommendation to buy or sell any security. The forecast ranges are scenario estimates produced from the sources listed below — they are not predictions, and the 10-year figures in particular are probability-weighted model outputs that no one can guarantee. Figures are as reported through 18 September 2026 and some sources disagree at the decimal; verify current prices, yields and holdings before trading. ETFs can lose value, past performance does not indicate future results, and your own tax position, time horizon and risk tolerance should drive any decision. Consider speaking to a licensed financial adviser.
+    This is an educational summary of publicly reported market data, not investment advice, and nothing here is a recommendation to buy or sell any security. The forecast ranges are scenario estimates built from the sources below — they are not predictions, and the 10-year figures are probability-weighted model outputs that no one can guarantee. Figures are as reported through 21 September 2026; performance figures carry different as-of dates, which are labelled, and sources disagree at the decimal. Verify current prices, yields and holdings before trading. ETFs can lose value, past performance does not indicate future results, and your own tax position, time horizon and risk tolerance should drive any decision. Consider speaking to a licensed financial adviser.
   </div>
 
   <div class="srcs">
     <h3>Sources</h3>
     <ul>
-      <li><a href="https://www.goldmansachs.com/insights/articles/s-and-p-500-forecast-to-climb-as-earnings-growth-powers-stocks-higher">Goldman Sachs — S&amp;P 500 forecast raised to 8,000</a></li>
-      <li><a href="https://am.gs.com/en-us/advisors/insights/article/market-pulse">Goldman Sachs Asset Management — US Market Pulse, September 2026</a></li>
-      <li><a href="https://edition.cnn.com/markets/fear-and-greed">CNN — Fear &amp; Greed Index</a></li>
-      <li><a href="https://www.macroradar.io/vix">MacroRadar — VIX level and history</a></li>
-      <li><a href="https://www.cnbc.com/2026/09/17/treasury-yields-move-lower-after-fed-kicks-off-hiking-cycle.html">CNBC — Treasury yields after the Fed opens its hiking cycle</a></li>
-      <li><a href="https://www.cnbc.com/2026/09/14/10-year-us-treasury-is-closing-in-on-5percent.html">CNBC — 10-year Treasury yield hits 5%</a></li>
-      <li><a href="https://www.cnbc.com/2026/09/11/cpi-inflation-breakdown-august-2026.html">CNBC — August 2026 CPI breakdown</a></li>
-      <li><a href="https://www.etf.com/sections/features/best-performing-etfs-2026-0">ETF.com — Best performing ETFs of 2026</a></li>
-      <li><a href="https://www.etf.com/sections/features/why-intl-stocks-are-pulling-ahead-us-stocks-2026">ETF.com — Why international stocks are pulling ahead</a></li>
-      <li><a href="https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/pressroom/press-release-vanguard-releases-2026-economic-and-market-outlook-121025.html">Vanguard — 2026 Economic and Market Outlook (VCMM 10-year forecasts)</a></li>
-      <li><a href="https://investor.vanguard.com/investment-products/etfs/profile/vea">Vanguard — VEA fund profile</a></li>
-      <li><a href="https://investor.vanguard.com/investment-products/etfs/profile/vtip">Vanguard — VTIP fund profile</a></li>
-      <li><a href="https://www.invesco.com/us/en/financial-products/etfs/invesco-sp-500-equal-weight-etf.html">Invesco — RSP fund page</a></li>
-      <li><a href="https://www.ishares.com/us/products/239502/ishares-us-aerospace-defense-etf">iShares — ITA fund page</a></li>
-      <li><a href="https://www.ssga.com/us/en/intermediary/etfs/state-street-energy-select-sector-spdr-etf-xle">State Street — XLE fund page</a></li>
-      <li><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2026/08">World Gold Council — Gold ETF flows</a></li>
-      <li><a href="https://www.etf.com/sections/news/smh-vs-soxx-which-semiconductor-etf-should-you-buy-2026">ETF.com — SMH vs SOXX in 2026</a></li>
-      <li><a href="https://streetstats.finance/valuation/market">StreetStats — S&amp;P 500 forward P/E and forward EPS</a></li>
-      <li><a href="https://stockanalysis.com/etf/vea/">StockAnalysis — VEA valuation and returns</a></li>
-      <li><a href="https://www.ishares.com/us/products/239628/ishares-msci-eafe-value-etf">iShares — EFV (international value) fund page</a></li>
-      <li><a href="https://stockanalysis.com/etf/xle/dividend/">StockAnalysis — XLE dividend history and yield</a></li>
-      <li><a href="https://www.dividend.com/etfs/rsp-invesco-s-p-500-equal-weight-etf/">Dividend.com — RSP distribution yield</a></li>
+      <li><a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-21-2026">TheStreet — S&amp;P and Nasdaq surge, 21 September 2026</a></li>
+      <li><a href="https://www.cnbc.com/2026/09/21/iran-us-oil-prices-crude-saudi-arabia-.html">CNBC — Crude falls below $100 as Trump signals openness to Iran talks</a></li>
+      <li><a href="https://www.cnbc.com/2026/09/11/cpi-inflation-report-august-2026.html">CNBC — August 2026 CPI, core eased to 2.4%</a></li>
+      <li><a href="https://www.schwab.com/learn/story/fomc-meeting">Charles Schwab — Fed hikes in 12–0 vote; October odds after Warsh</a></li>
+      <li><a href="https://www.kiplinger.com/investing/live/fed-meeting-updates-and-commentary-september-2026">Kiplinger — September 2026 Fed meeting commentary</a></li>
+      <li><a href="https://tradingeconomics.com/united-states/government-bond-yield">Trading Economics — US 10-year Treasury yield</a></li>
       <li><a href="https://finance.yahoo.com/markets/article/10-year-treasury-yield-briefly-tops-5-for-the-first-time-since-2023-123457398.html">Yahoo Finance — 10-year briefly tops 5% on 14 September</a></li>
+      <li><a href="https://www.cnn.com/markets/fear-and-greed">CNN — Fear &amp; Greed Index</a></li>
+      <li><a href="https://finance.yahoo.com/quote/%5EVIX/history/">Yahoo Finance — VIX history</a></li>
+      <li><a href="https://am.gs.com/en-us/advisors/insights/article/market-pulse">Goldman Sachs Asset Management — US Market Pulse, September 2026</a></li>
+      <li><a href="https://www.goldmansachs.com/insights/articles/s-and-p-500-forecast-to-climb-as-earnings-growth-powers-stocks-higher">Goldman Sachs — S&amp;P 500 target raised to 8,000</a></li>
+      <li><a href="https://streetstats.finance/valuation/market">StreetStats — S&amp;P 500 forward P/E and forward EPS</a></li>
+      <li><a href="https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/pressroom/press-release-vanguard-releases-2026-economic-and-market-outlook-121025.html">Vanguard — 2026 Outlook and VCMM 10-year forecasts</a></li>
+      <li><a href="https://investor.vanguard.com/investment-products/etfs/profile/vea">Vanguard — VEA profile</a></li>
+      <li><a href="https://investor.vanguard.com/investment-products/etfs/profile/vtip">Vanguard — VTIP profile</a></li>
+      <li><a href="https://www.invesco.com/us/en/financial-products/etfs/invesco-sp-500-equal-weight-etf.html">Invesco — RSP fund page</a></li>
+      <li><a href="https://www.ssga.com/us/en/intermediary/etfs/state-street-health-care-select-sector-spdr-etf-xlv">State Street — XLV fund page</a></li>
+      <li><a href="https://www.ishares.com/us/products/239502/ishares-us-aerospace-defense-etf">iShares — ITA fund page</a></li>
+      <li><a href="https://www.morningstar.com/stocks/healthcare-increased-clarity-drug-pricing-tariffs-led-healthcare-rebound">Morningstar — Healthcare valuations and drug-pricing clarity</a></li>
+      <li><a href="https://www.etf.com/sections/features/best-performing-etfs-2026-0">ETF.com — Best performing ETFs of 2026</a></li>
+      <li><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2026/08">World Gold Council — Gold ETF flows</a></li>
     </ul>
   </div>
 </div>
@@ -659,78 +689,79 @@
 
   var FUNDS = [
     {
-      tk:"VEA", mk:"var(--s-vea)", w:30,
+      tk:"VEA", mk:"var(--s-vea)", w:28,
       name:"Vanguard FTSE Developed Markets ETF",
       role:"Core equity engine", roleColor:"var(--s-vea)",
       stats:[["+16.5%","YTD (NAV, TR)"],["19.9&times;","P/E · SPX 19.3"],["0.03%","Expense ratio"]],
-      thesis:"<b>Leadership and diversification — but not a discount.</b> VEA has returned 16.5% this year against 12.3% for the S&amp;P on a like-for-like total-return basis: about four points, across 3,895 holdings. Be precise about what this is not. At roughly 19.9&times; earnings against the S&amp;P's 19.3&times; forward multiple, VEA is <b>not</b> cheap — the 12&times; figure quoted all year belongs to international <i>value</i> (EFV), a different fund. The case rests on two other legs: Vanguard's capital markets model puts non-US developed among the strongest risk-return profiles in public markets over the next decade against just 3.9–5.9% annualised for US equities, and it is genuine diversification away from an index where seven names carry a third of the weight.",
-      risk:"A hiking Fed is dollar-positive. Currency did much of the heavy lifting in 2025–26 — roughly three-quarters of MSCI EAFE's 2025 outperformance — and an unhedged fund gives that back just as quickly if the dollar turns. And with no valuation cushion at 19.9&times;, there is less to fall back on if it does. If you want the valuation argument rather than the diversification one, EFV holds international value near 12.4&times; earnings on a ~3.9% yield for 0.31%.",
+      thesis:"<b>Leadership and diversification — but not a discount.</b> VEA has returned 16.5% this year against 12.3% for the S&amp;P on a like-for-like total-return basis: about four points, across 3,895 holdings. Be precise about what this is not. At roughly 19.9&times; earnings against the S&amp;P's 19.3&times; forward multiple, VEA is <b>not</b> cheap — the 12&times; figure quoted all year belongs to international <i>value</i> (EFV), a different fund. The case rests on two other legs: Vanguard's capital markets model puts non-US developed among the strongest risk-return profiles in public markets over the next decade against just 3.9–5.9% annualised for US equities, and it is real diversification away from an index where seven names carry a third of the weight.",
+      risk:"A hiking Fed is dollar-positive, and the market now prices 87% odds of another this year. Currency did much of the heavy lifting in 2025–26 — roughly three-quarters of MSCI EAFE's 2025 outperformance — and an unhedged fund gives that back just as fast if the dollar turns. With no valuation cushion at 19.9&times;, there is little to fall back on. If you want the valuation argument instead, EFV holds international value near 12.4&times; on a ~3.9% yield for 0.31%.",
       h:{
-        "3m":{c:3,b:"−4% to +7%",n:"Near-term the FX tailwind is the whole risk. A dollar bid on the back of the hike could stall this for a quarter even if the earnings case holds."},
-        "6m":{c:4,b:"−3% to +11%",n:"Half a year is long enough for the valuation gap to reassert itself once the initial rate shock is absorbed."},
-        "12m":{c:4,b:"+2% to +16%",n:"The rotation out of concentrated US mega-cap is the base case, and at 0.03% this is the cleanest, lowest-cost way to own the other side of it."},
-        "10y":{c:5,b:"+6.0% to +8.5% p.a.",n:"The strongest long-run case of the five. Relative valuation gaps this wide have historically been cyclical, and the starting multiple does most of the work over a decade."}
+        "3m":{c:3,b:"−4% to +7%",n:"The FX tailwind is the whole near-term risk. A dollar bid on an October hike could stall this for a quarter even if earnings hold."},
+        "6m":{c:4,b:"−3% to +11%",n:"Long enough for the earnings and diversification case to reassert itself once the rate shock is absorbed."},
+        "12m":{c:4,b:"+2% to +16%",n:"The rotation out of concentrated US mega-cap remains the base case, and at 0.03% this is the lowest-cost way to own the other side of it."},
+        "10y":{c:5,b:"+6.0% to +8.5% p.a.",n:"The strongest long-run case of the five, resting on Vanguard's model rather than on a starting discount. Relative gaps this wide have historically been cyclical."}
       }
     },
     {
-      tk:"VTIP", mk:"var(--s-vtip)", w:23,
-      name:"Vanguard Short-Term Inflation-Protected Securities ETF",
-      role:"Ballast", roleColor:"var(--s-vtip)",
-      stats:[["2.21%","30-day SEC yield"],["0.03%","Expense ratio"],["&lt;5 yr","Maturities"]],
-      thesis:"<b>The regime-correct defensive asset.</b> CPI has held at 3.4% for two months with petrol up 27.4% year-on-year, and PPI accelerated to 5.4%. Short-dated TIPS capture that CPI adjustment while carrying only about 2.4 years of duration — so they collect the inflation accrual without the mark-to-market damage that longer TIPS funds take when real yields rise. In a hiking cycle that distinction is the entire point.",
-      risk:"If inflation rolls over faster than the Fed tightens, plain T-bills out-earn this with less complexity. It is insurance against an inflation surprise, and insurance has a cost when the surprise does not arrive.",
-      h:{
-        "3m":{c:5,b:"+0.7% to +1.6%",n:"Highest near-term conviction of the five. Energy-driven CPI prints are already in the pipeline and duration risk is minimal."},
-        "6m":{c:5,b:"+1.4% to +3.0%",n:"The sweet spot. Inflation accrual compounds while the short maturity keeps rate risk contained through the hiking path priced to December."},
-        "12m":{c:4,b:"+3.0% to +5.5%",n:"Still strong, but by late 2027 the market expects funds at ~4.6% — at that point cash competes hard with this."},
-        "10y":{c:2,b:"+3.5% to +4.5% p.a.",n:"Deliberately low. Over a decade this protects the rest of the sleeve rather than growing it; do not mistake ballast for an engine."}
-      }
-    },
-    {
-      tk:"RSP", mk:"var(--s-rsp)", w:22,
+      tk:"RSP", mk:"var(--s-rsp)", w:24,
       name:"Invesco S&amp;P 500 Equal Weight ETF",
       role:"Concentration hedge", roleColor:"var(--s-rsp)",
-      stats:[["~1.4%","Mag 7 weight"],["0.20%","Expense ratio"],["500","Equal holdings"]],
-      thesis:"<b>The same index, without the crowding.</b> The Magnificent Seven peaked at 35% of S&amp;P market cap in June 2026 — a record — and still sit near 33.9%. The index's Herfindahl concentration measure reached 185 against a five-year average of 142 as of April 2026, leaving an effective 54 independent positions inside 503 holdings. In RSP those seven names total about 1.4%. It has led the cap-weighted index this year as the mega-cap rally showed cracks.",
-      risk:"Equal weight has been the wrong bet for a decade — SPY returned 251% over ten years against RSP's 207%. This is explicitly a mean-reversion trade, and mean reversion has repeatedly arrived late.",
+      stats:[["+15.5%","YTD to 31 Aug"],["~1.4%","Mag 7 weight"],["0.20%","Expense ratio"]],
+      thesis:"<b>The same index, without the crowding — and it is working.</b> The Magnificent Seven peaked at 35% of S&amp;P market cap in June 2026, a record, and still sit near 33.9%. The index's Herfindahl concentration measure reached 185 against a five-year average of 142 as of April 2026, leaving an effective 54 independent positions inside 503 holdings. In RSP those seven names total about 1.4%. The part that changed this month: equal weight returned 15.46% through 31 August, ahead of the cap-weighted index, so this is no longer a purely contrarian bet waiting to pay.",
+      risk:"Equal weight was the wrong bet for a decade — SPY returned 251% over ten years against RSP's 207% — and Monday's record Nasdaq close was led by exactly the mega-caps RSP underweights. One month of outperformance is not a trend.",
       h:{
-        "3m":{c:3,b:"−6% to +6%",n:"Breadth at 33% above the 50-day can keep narrowing before it broadens. No near-term catalyst beyond exhaustion."},
-        "6m":{c:3,b:"−5% to +9%",n:"Improving: non-Mag-7 names have already supplied a majority of this year's return, which is the first crack in the concentration trade."},
-        "12m":{c:4,b:"0% to +14%",n:"Higher funding costs hurt long-duration mega-cap multiples most. That is the mechanism by which breadth usually returns."},
+        "3m":{c:3,b:"−6% to +6%",n:"Breadth at 33% above the 50-day can narrow further, and the AI bid is clearly still live after Monday."},
+        "6m":{c:4,b:"−4% to +10%",n:"Non-Mag-7 names have already supplied a majority of this year's return. That is the first real crack in the concentration trade."},
+        "12m":{c:4,b:"+1% to +15%",n:"Higher funding costs compress long-duration mega-cap multiples first. That is the usual mechanism by which breadth returns."},
         "10y":{c:4,b:"+5.5% to +7.5% p.a.",n:"Starting from record concentration, the equal-weight version of the same 500 companies is the better-priced way to own US large-cap."}
       }
     },
     {
-      tk:"ITA", mk:"var(--s-ita)", w:13,
-      name:"iShares U.S. Aerospace &amp; Defense ETF",
-      role:"Structural policy",  roleColor:"#8A5A00",
-      stats:[["+34%","1-year return"],["$13.3bn","Net assets"],["0.37%","Expense ratio"]],
-      thesis:"<b>A spending cycle written into treaty commitments.</b> NATO members agreed to lift defence budgets from 2% of GDP toward 5%, and the EU's ReArm Europe plan adds more than €800bn. That reaches US primes — RTX, Boeing, Lockheed — through foreign military sales, co-production and direct commercial contracts, so a Polish Apache order lands in the same revenue line as Pentagon procurement. Crucially, the driver is legislated budgets rather than interest rates.",
-      risk:"Procurement is political and lumpy; budgets get re-phased. A credible Iran settlement would compress the multiple quickly, and much of the rearmament story is already in a 34% one-year return.",
+      tk:"VTIP", mk:"var(--s-vtip)", w:22,
+      name:"Vanguard Short-Term Inflation-Protected Securities ETF",
+      role:"Ballast", roleColor:"var(--s-vtip)",
+      stats:[["2.21%","30-day SEC yield"],["2.4 yr","Duration"],["0.03%","Expense ratio"]],
+      thesis:"<b>Short duration is right even though the inflation case weakened.</b> Honest downgrade from the last edition: core CPI eased to 2.4% from 2.5%, and with Brent falling the headline 3.4% should follow it down — so there is less inflation accrual to capture than a week ago. What survives is the other half of the argument. At about 2.4 years of duration this carries almost no rate risk into a Fed that may hike again in October, and it still pays a real yield on top of CPI. It is the position that lets the rest of the sleeve be patient.",
+      risk:"If disinflation arrives quickly, plain T-bills out-earn this with less complexity, because breakevens compress as oil falls. This is insurance against an inflation surprise, and the surprise is currently going the other way.",
       h:{
-        "3m":{c:3,b:"−7% to +8%",n:"Momentum is extended and headline-sensitive. Any de-escalation signal hits this before it hits the fundamentals."},
-        "6m":{c:4,b:"−4% to +13%",n:"European budget authorisations convert into orders on roughly this timeline, which is when the backlog becomes visible."},
-        "12m":{c:4,b:"+2% to +18%",n:"Backlog conversion plus a US budget cycle. The revenue is contracted, which is rare among the things working in 2026."},
-        "10y":{c:4,b:"+7% to +10% p.a.",n:"Rearmament runs on decade-long procurement programmes. Of the five, this has the longest-dated visible demand — and it is insensitive to the rate path."}
+        "3m":{c:4,b:"+0.6% to +1.5%",n:"Downgraded from 5. Energy-led CPI prints are still in the pipeline, but the pipeline is emptying faster than it was."},
+        "6m":{c:4,b:"+1.2% to +2.8%",n:"Low duration is the point here, not the inflation link — it is the cleanest way to hold cash-like risk through an October hike."},
+        "12m":{c:4,b:"+2.8% to +5.0%",n:"By late 2027 the market expects funds near 4.6%. At that level cash competes hard with this, and the edge narrows."},
+        "10y":{c:2,b:"+3.5% to +4.5% p.a.",n:"Deliberately low. Over a decade this protects the rest of the sleeve rather than growing it. Do not mistake ballast for an engine."}
       }
     },
     {
-      tk:"XLE", mk:"var(--s-xle)", w:12,
-      name:"Energy Select Sector SPDR Fund",
-      role:"Inflation hedge", roleColor:"var(--s-xle)",
-      stats:[["+46.9%","YTD to 1 Sep"],["~2.4%","Yield"],["0.08%","Expense ratio"]],
-      thesis:"<b>The hedge that pays when the others hurt.</b> Brent cleared $100 and touched $109 as the Strait of Hormuz stayed contested; petrol supplied over a third of August's monthly CPI increase. That is the mechanism: the thing driving the inflation that threatens the rest of the sleeve is the thing this owns. S&amp;P energy earnings are forecast up 57% in 2026, on a forward multiple near 17–18&times;. Note the yield is now ~2.4%, not the ~3.1% quoted earlier in the year — the 47% rally compressed it.",
-      risk:"Consensus already has 2027 sector earnings contracting about 5% as comparisons harden. Over 40% of the fund is Exxon and Chevron, and a Middle East de-escalation would produce a fast, violent drawdown. Size it as insurance.",
+      tk:"XLV", mk:"var(--s-xlv)", w:15,
+      name:"Health Care Select Sector SPDR Fund",
+      role:"Policy-error hedge", roleColor:"var(--s-xlv)", isNew:true,
+      stats:[["+9.7%","YTD total return"],["1.49%","Yield"],["0.08%","Expense ratio"]],
+      thesis:"<b>The hedge that replaces energy.</b> If the Fed has tightened into disinflation, the risk is a slowdown, and healthcare demand does not track GDP — nobody defers cancer treatment because growth slowed. Unlike utilities, the usual defensive reflex, it is not a bond proxy, so a 4.96% ten-year does not work against it. The sector underperformed for years on drug-pricing fear and traded at a 30% discount to global equities at its August low, with large-cap pharma at multi-decade-low valuations; the Most Favored Nation order has since pushed major manufacturers into pricing deals, removing much of that overhang. It has lagged the S&amp;P this year at +9.7%, which is the point of owning it now.",
+      risk:"Be careful with the word cheap: XLV's own trailing multiple is about 20.2&times;, which is not a discount to the S&amp;P's 19.3&times; forward — the discount is at sector and large-cap-pharma level, not in the headline number. And roughly $300bn of drug revenue faces patent expiry between now and 2030, a genuine decade-long headwind this fund cannot dodge.",
       h:{
-        "3m":{c:4,b:"−8% to +14%",n:"Strongest window. The supply premium is live, comparisons are easy, and this is the direct offset to an energy-led CPI surprise."},
-        "6m":{c:3,b:"−12% to +15%",n:"Decaying. Strategic reserves have cushioned the shock and that cushion is finite — but so is the disruption."},
-        "12m":{c:2,b:"−15% to +16%",n:"Consensus sees 2027 earnings turning negative. Holding this for a year is a bet the geopolitics do not resolve, which is not a bet to make at size."},
-        "10y":{c:2,b:"+4% to +6% p.a.",n:"Lowest long-run score of the five. A decade of terminal-demand uncertainty is not compensated by a 2.4% yield — this is a position to hold for a reason, and to sell when the reason ends."}
+        "3m":{c:3,b:"−5% to +8%",n:"Defensives lag when the tape rips, and Monday's record close was led by AI. Near term this is a drag, by design."},
+        "6m":{c:4,b:"−3% to +12%",n:"If the October hike bites, this is where the rotation lands first — it is the standard destination for risk coming out of cyclicals."},
+        "12m":{c:4,b:"+2% to +16%",n:"A year is long enough for the policy-error question to resolve either way, and this is the holding that does not need it answered in its favour."},
+        "10y":{c:4,b:"+6% to +8% p.a.",n:"Demographics are the tailwind and innovation is the upside, set against the patent cliff. A fair, not spectacular, long-run compounder."}
+      }
+    },
+    {
+      tk:"ITA", mk:"var(--s-ita)", w:11,
+      name:"iShares U.S. Aerospace &amp; Defense ETF",
+      role:"Structural policy",  roleColor:"#8A5A00",
+      stats:[["+34%","1-year return"],["$13.3bn","Net assets"],["0.37%","Expense ratio"]],
+      thesis:"<b>A spending cycle written into treaty commitments.</b> NATO members agreed to lift defence budgets from 2% of GDP toward 5%, and the EU's ReArm Europe plan adds more than €800bn. That reaches US primes — RTX, Boeing, Lockheed — through foreign military sales, co-production and direct commercial contracts, so a Polish Apache order lands in the same revenue line as Pentagon procurement. The driver is legislated budgets, which means it is indifferent to both the rate path and the oil price.",
+      risk:"Procurement is political and lumpy, and the near-term risk is immediate: a meeting between Washington and Tehran at the UN this week would compress the multiple long before it changes a single order book. Much of the rearmament story is already inside a 34% one-year return. Sized smallest of the five for that reason.",
+      h:{
+        "3m":{c:2,b:"−9% to +7%",n:"Lowest score on the board. UN General Assembly week with a possible US–Iran meeting is a direct headwind to defence sentiment."},
+        "6m":{c:3,b:"−5% to +12%",n:"European budget authorisations convert into orders on roughly this timeline, which is when backlog starts to outweigh headlines."},
+        "12m":{c:4,b:"+2% to +18%",n:"Backlog conversion plus a US budget cycle. The revenue is contracted — rare among the things working in 2026."},
+        "10y":{c:4,b:"+7% to +10% p.a.",n:"Rearmament runs on decade-long procurement programmes. The longest-dated visible demand of the five, and insensitive to the rate path."}
       }
     }
   ];
 
   var HLABEL = {"3m":"3-month","6m":"6-month","12m":"12-month","10y":"10-year"};
+  var ORDER  = ["3m","6m","12m","10y"];
   var current = "12m";
 
   function meter(score, mk){
@@ -739,7 +770,7 @@
     return out + '</span>';
   }
 
-  function cardHTML(f){
+  function cardHTML(f, idx){
     var h = f.h[current];
     var stats = f.stats.map(function(s){
       return '<div class="stat"><div class="stat-v">'+s[0]+'</div><div class="stat-k">'+s[1]+'</div></div>';
@@ -747,11 +778,12 @@
 
     return '<article class="card">'
       + '<div class="card-top">'
-        + '<div class="rank">'+(FUNDS.indexOf(f)+1)+'</div>'
+        + '<div class="rank">'+(idx+1)+'</div>'
         + '<div class="idblock">'
           + '<div class="tick"><span class="swatch" style="background:'+f.mk+'"></span>'+f.tk+'</div>'
           + '<div class="fullname">'+f.name+'</div>'
           + '<div class="role" style="color:'+f.roleColor+'">'+f.role+'</div>'
+          + (f.isNew ? '<span class="newflag">New this edition</span>' : '')
         + '</div>'
       + '</div>'
       + '<div class="stats">'+stats+'</div>'
@@ -789,21 +821,17 @@
   }
 
   function renderMatrix(){
-    var body = document.querySelector("#matrix tbody");
-    body.innerHTML = FUNDS.map(function(f){
-      var cells = ["3m","6m","12m","10y"].map(function(k){
+    document.querySelector("#matrix tbody").innerHTML = FUNDS.map(function(f){
+      var cells = ORDER.map(function(k){
         return '<td class="'+(k===current?"on":"")+'">'+f.h[k].c+'</td>';
       }).join("");
       return '<tr><td><span class="tk"><span class="swatch" style="background:'+f.mk+'"></span>'+f.tk+'</span></td>'+cells+'</tr>';
     }).join("");
 
-    var heads = document.querySelectorAll("#matrix thead th[data-h]");
-    Array.prototype.forEach.call(heads, function(th){
+    Array.prototype.forEach.call(document.querySelectorAll("#matrix thead th[data-h]"), function(th){
       th.className = th.getAttribute("data-h") === current ? "on" : "";
     });
   }
-
-  var ORDER = ["3m","6m","12m","10y"];
 
   function setHorizon(h, focus){
     current = h;
