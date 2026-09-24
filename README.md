@@ -45,8 +45,62 @@ and why.
 
 - `index.html` — the whole page; no build step, no runtime dependencies beyond
   Google Fonts (Newsreader, IBM Plex Sans, IBM Plex Mono).
+- `tests/` — static audit and browser regression suite (see Tests).
 
 ## Edition log
+
+### 24 Sep 2026 — thesis corrected, re-ranked, three latent bugs fixed
+
+**The 21 Sep thesis was wrong.** It said the Fed was tightening into a
+slowdown, making policy error the live risk. Wednesday's S&P Global PMIs showed
+the opposite: services 58.7 (~5-year high), manufacturing 56.7, with input and
+output price inflation at multi-year highs. Governor Barr said "further policy
+adjustments are likely to be needed" and named AI investment demand as an
+inflation source. The 10-year rose ~15bp to ~5.11% (5.135% intraday), its
+highest since July 2007; the 5-year crossed 5% for the first time since 2007;
+October hike odds went from 49% to 70%.
+
+Restated regime: **the economy is running hot, and the bond market has taken over.**
+
+| Rank | Fund | Scores 3m/6m/12m/10y | Sum | Moved |
+|---|---|---|---|---|
+| 1 | VTIP | 5/5/4/2 | 16 | up from #3 — the 10-yr breakout is what short duration is for |
+| 2 | RSP | 3/4/4/4 | 15 | — hot surveys broaden earnings; lead over SPY narrowing |
+| 3 | VEA | 2/3/4/5 | 14 | down from #1 — dollar index 100.6, a two-month high |
+| 4 | XLV | 3/3/4/4 | 14 | — reframed as low-beta diversifier, not policy-error hedge |
+| 5 | ITA | 3/3/4/4 | 14 | — 3m upgraded; talks opened a channel but no deal |
+
+**XLE stays out.** Its re-entry condition (talks collapse) did not fire: envoys
+met for ~3 hours on 22 Sep and Iran offered to reopen Hormuz within seven days.
+A demand-led energy case from the hot PMIs was weighed and rejected as
+headline-chasing three sessions after removal.
+
+**Data conflicts handled rather than papered over**
+
+- Oil on 23 Sep: sources ranged from below $99 (sixth straight decline) to above
+  $103, and one reported $114.89 for 22 Sep. No single figure is printed; the
+  Brent KPI tile was replaced with four figures that are cleanly sourced.
+- Fear & Greed on 23 Sep: three sources say 35, one says 71. 35 used; the
+  outlier is named on the page.
+- VIX: 14.21 on 23 Sep after +6.83% implies ~13.3 on 22 Sep, confirming that
+  the 14.81 shown for 21 Sep was a stale quote, as that edition had cautioned.
+- Futures pricing of ~4.6% by late 2027 dates from 17 Sep, before this week's
+  repricing, and is now labelled as such.
+
+**Latent errors found in earlier editions**
+
+| Defect | Present since | Fix |
+|---|---|---|
+| VTIP's "Ballast" chip rendered teal at **3.92:1**, failing AA for 10px text. Earlier audits checked ink tokens only, never series colours used as text. | 19 Sep (v1) | Added `--t-*` text-safe tokens; teal `#00847F` 4.56:1, amber `#A36908` 4.58:1 |
+| Both prior editions claimed to rank by summed conviction but had one pair inverted each (RSP > ITA on 19 Sep, VTIP > XLV on 21 Sep). Order was partly set by hand. | 19 Sep (v1) | Order now computed from scores with a stated tiebreak, and verified by `tests/audit.py` |
+| RSP compared through 31 Aug against the S&P through 18 Sep — mismatched dates. | 21 Sep | Same-date comparison: ~16% vs ~13% in late Aug, narrowed to ~1pt since |
+| The dropped-XLE heading used RSP's identity colour. | 21 Sep | Uses the caution token |
+| Test harness: all scripts shared `/tmp/preview.html`, so testing an old file silently changed what the screenshot tool showed. | this session | Each run writes its own preview |
+
+Palette re-validated for the new display order (indigo beside plum fails, so
+XLV takes amber and ITA plum): worst CVD ΔE 12.6, normal-vision ΔE 27.3.
+
+Blended fee 0.1157%, yield 1.8553%, VTIP + XLV 42% — all re-derived.
 
 ### 21 Sep 2026 — data refresh and one pick changed
 
@@ -142,6 +196,21 @@ Both blended statistics survived recalculation with corrected inputs
 matrix highlight tracking, keyboard navigation, sticky-bar seam at -0.05px,
 scroll position held across re-render. Palette re-validated (all six checks pass).
 Every text token re-audited to WCAG AA.
+
+## Tests
+
+Both run from the repo root and exit non-zero on failure.
+
+```sh
+python3 tests/audit.py        # arithmetic, ranking method, structure, contrast
+node tests/browser.mjs        # overflow at 320/360/412/680px, JS errors, horizon
+                              # switching, keyboard nav, sticky bars, rendered
+                              # chip contrast (38 checks)
+```
+
+`browser.mjs` needs Playwright; set `PLAYWRIGHT_MODULE` to its `index.mjs` if
+it is not resolvable. When fund weights, expense ratios or yields change, update
+the `ER` and `YLD` tables in `audit.py` to match the page.
 
 ## Disclaimer
 
