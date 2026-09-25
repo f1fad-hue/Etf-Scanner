@@ -205,28 +205,68 @@ const worst = c2.reduce((a,b)=>a.r<b.r?a:b);
 ok(c2.every(c=>c.r>=4.5), `tab 2 small text all >=4.5:1 across ${c2.length} elements (lowest "${worst.t}" ${worst.r}:1)`);
 
 
-console.log('\n--- whole-portfolio allocation ---');
-const al = await p.evaluate(()=>{
-  const tr=document.querySelector('#mix-bar .mix-track').getBoundingClientRect();
-  const stk=document.querySelector('#mix-bar .mix-seg.stk').getBoundingClientRect();
-  const mk=document.querySelector('#mix-bar .mix-mark').getBoundingClientRect();
-  const legend=Object.fromEntries(Array.from(document.querySelectorAll('#total-legend div')).map(d=>[d.querySelector('b').textContent, parseInt(d.querySelector('em').textContent)]));
-  const rows=Array.from(document.querySelectorAll('#stage-table tbody tr')).map(tr=>Array.from(tr.querySelectorAll('td')).map(td=>td.textContent));
-  const figs=Array.from(document.querySelectorAll('#total-figs .fig-v')).map(x=>x.textContent);
-  return {stkPct:(stk.width)/(tr.width)*100, mkPct:(mk.left+mk.width/2-tr.left)/tr.width*100, legend, rows, figs,
-          on:Array.from(document.querySelectorAll('#stage-table tr.on')).map(r=>r.rowIndex)};
+console.log('\n--- whole-portfolio allocation: max growth within a worst-crash budget ---');
+const CR = {VTIP:6.27, RSP:59.92, VEA:60.68, XLV:39.17, ITA:59.72}, EX = {VTIP:4.0, RSP:6.7, VEA:7.4, XLV:6.7, ITA:6.7};
+const readAlloc = () => p.evaluate(()=>({
+  readout: document.getElementById('dd-readout').textContent,
+  legend: Object.fromEntries(Array.from(document.querySelectorAll('#total-legend div')).map(d=>[d.querySelector('b').textContent, parseInt(d.querySelector('em').textContent)])),
+  figs: Array.from(document.querySelectorAll('#total-figs .fig-v')).map(x=>x.textContent),
+  pressed: Array.from(document.querySelectorAll('[data-preset][aria-pressed="true"]')).map(b=>b.dataset.preset),
+  stk: (()=>{const t=document.querySelector('#mix-bar .mix-track').getBoundingClientRect(), s=document.querySelector('#mix-bar .mix-seg.stk');return s? s.getBoundingClientRect().width/t.width*100 : 0;})()
+}));
+let A = await readAlloc();
+ok(A.readout==='−21%' && A.pressed.join()==='rec', `default is the recommended −21% budget (${A.readout}, ${A.pressed})`);
+ok(JSON.stringify(A.legend)===JSON.stringify({VTIP:65,RSP:5,VEA:5,XLV:20,ITA:5}), `recommended weights ${JSON.stringify(A.legend)}`);
+ok(Math.abs(A.stk-35)<0.5, `stock segment drawn to scale at 35% (${A.stk.toFixed(2)})`);
+ok(JSON.stringify(A.figs)===JSON.stringify(['$16,258','4.98%','−20.9%','4.8 yrs']), `recommended figures ${A.figs}`);
+
+const ladder = await p.evaluate(()=>Array.from(document.querySelectorAll('#stage-table tbody tr')).map(tr=>({c:Array.from(tr.querySelectorAll('td')).map(td=>td.textContent), on:tr.classList.contains('on')})));
+ok(JSON.stringify(ladder.map(r=>r.c[1]))===JSON.stringify(['35 / 65','48 / 52','57 / 43','66 / 34']), `ladder splits ${ladder.map(r=>r.c[1])}`);
+ok(ladder.every(r=>r.c.slice(2).reduce((a,b)=>a+ +b,0)===100 && +r.c[2]===+r.c[1].split('/')[1]), 'every ladder row: funds sum to 100 and VTIP is the bond side');
+ok(ladder.filter(r=>r.on).length===1 && ladder[0].on && /\(current\)/.test(ladder[0].c[0]), 'only the current rung is highlighted, with a text marker');
+
+// sweep every budget the slider allows: each mix must be feasible and within its limit
+const sweep = await p.evaluate(async ()=>{
+  const sl=document.getElementById('dd-budget'), out=[];
+  for(let v=+sl.min; v<=+sl.max; v++){
+    sl.value=v; sl.dispatchEvent(new Event('input',{bubbles:true}));
+    out.push({v, w:Object.fromEntries(Array.from(document.querySelectorAll('#total-legend div')).map(d=>[d.querySelector('b').textContent, parseInt(d.querySelector('em').textContent)]))});
+  }
+  return {min:+sl.min, max:+sl.max, out};
 });
-ok(Math.abs(al.stkPct-45)<1.5, `stock segment drawn at 45% of the bar (${al.stkPct.toFixed(1)})`);
-ok(Math.abs(al.mkPct-60)<0.5, `long-run marker at 60% (${al.mkPct.toFixed(1)})`);
-ok(JSON.stringify(al.legend)===JSON.stringify({VTIP:55,RSP:15,VEA:14,XLV:9,ITA:7}), `fund weights ${JSON.stringify(al.legend)}`);
-// columns: signals | "stocks / bonds" | VTIP RSP VEA XLV ITA
-const mixOf = r=>r[1].split('/').map(x=>+x.trim());
-ok(al.rows.length===4 && al.rows.every(r=>{const [st,bd]=mixOf(r);return st+bd===100 && r.slice(2).reduce((a,b)=>a+ +b,0)===100 && +r[2]===bd;}),
-   'every rung: stocks + bonds = 100, funds = 100, VTIP = bond side');
-ok(JSON.stringify(al.rows.map(r=>mixOf(r).join('/')))===JSON.stringify(['45/55','50/50','55/45','60/40']), `rungs ${al.rows.map(r=>mixOf(r).join('/'))}`);
-ok(/\(current\)/.test(al.rows[0][0]) && !al.rows.slice(1).some(r=>/current/.test(r[0])), 'current rung carries a text marker, not colour alone');
-ok(al.on.length===1 && al.on[0]===1, 'only the current rung is highlighted');
-ok(JSON.stringify(al.figs)===JSON.stringify(['0.08%','~2.0%','2.4 yr','14%']), `blended figures ${al.figs}`);
+ok(sweep.min===16 && sweep.max===54, `slider spans −${sweep.min}% to −${sweep.max}%`);
+let feasible=true, monotone=true, prevR=-1;
+for(const {v,w} of sweep.out){
+  const sum=Object.values(w).reduce((a,b)=>a+b,0), crash=Object.keys(w).reduce((a,k)=>a+w[k]*CR[k],0)/100, r=Object.keys(w).reduce((a,k)=>a+w[k]*EX[k],0)/100;
+  if(sum!==100 || crash>v+1e-9 || w.VTIP<0 || ['RSP','VEA','XLV','ITA'].some(k=>w[k]<5||w[k]>30)) { feasible=false; console.log('   infeasible at', v, w, crash); }
+  if(r < prevR-1e-9) monotone=false; prevR=r;
+}
+ok(feasible, `all ${sweep.out.length} slider positions: sum 100, 5-30% bounds, crash within budget`);
+ok(monotone, 'expected return never falls as the budget rises');
+
+await p.click('[data-preset="max"]'); await p.waitForTimeout(150); A = await readAlloc();
+ok(A.readout==='−54%' && JSON.stringify(A.legend)===JSON.stringify({VTIP:0,RSP:10,VEA:30,XLV:30,ITA:30}) && A.figs[3]==='11.6 yrs', `most growth: ${JSON.stringify(A.legend)}, recovers in ${A.figs[3]}`);
+await p.click('[data-preset="min"]'); await p.waitForTimeout(150); A = await readAlloc();
+ok(A.readout==='−16%' && A.legend.VTIP===80 && A.pressed.join()==='min', `least drawdown: VTIP ${A.legend.VTIP}%`);
+
+// the frontier chart: drawn, inside its box, and tapping it selects a mix
+await p.evaluate(()=>document.getElementById('frontier').scrollIntoView({block:'center'})); await p.waitForTimeout(200);
+const fr = await p.evaluate(()=>{const svg=document.querySelector('#frontier svg');if(!svg)return null;const b=svg.getBoundingClientRect();
+  return {n:svg.querySelectorAll('circle').length, inside:Array.from(svg.querySelectorAll('circle,text')).every(e=>{const r=e.getBoundingClientRect();return r.left>=b.left-2&&r.right<=b.right+2&&r.top>=b.top-2&&r.bottom<=b.bottom+2;})};});
+ok(fr && fr.n===4 && fr.inside, `frontier drawn with 3 labelled points + selection, all inside the drawing (${fr && fr.n})`);
+// no two text labels may overlap inside any chart (the collision this page shipped with once)
+const overlaps = await p.evaluate(()=>['frontier','vc-vix','vc-ust'].map(id=>{
+  const t=Array.from(document.querySelectorAll('#'+id+' svg text')).map(e=>e.getBoundingClientRect());
+  let n=0; for(let i=0;i<t.length;i++) for(let j=i+1;j<t.length;j++){const a=t[i],b=t[j]; if(a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1) n++;}
+  return id+':'+n;}));
+ok(overlaps.every(x=>x.endsWith(':0')), `no overlapping chart labels (${overlaps})`);
+const key = await p.evaluate(()=>document.getElementById('frontier-key').textContent);
+ok(/Least drawdown: −16% · 4\.58%\/yr/.test(key) && /Recommended: −21% · 4\.98%\/yr/.test(key) && /Most growth: −54% · 6\.91%\/yr/.test(key), 'frontier key names the three presets with their values');
+const al_fb = await (await p.$('#frontier')).boundingBox();
+await p.mouse.click(al_fb.x + al_fb.width - 16, al_fb.y + 40); await p.waitForTimeout(200);
+A = await readAlloc();
+ok(A.readout==='−54%', `tapping the right end of the frontier selects most growth (${A.readout})`);
+await p.click('[data-preset="rec"]'); await p.waitForTimeout(150);
 
 // jump link from tab 1 lands on the section, clear of the sticky bars
 await p.click('#tab-etfs'); await p.waitForTimeout(250);

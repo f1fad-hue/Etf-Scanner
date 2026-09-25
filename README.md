@@ -53,6 +53,65 @@ and why.
 
 ## Edition log
 
+### 25 Sep 2026 — allocation optimized for 10-year growth within a worst-crash limit
+
+Replaces the assumed 60/40 model with an optimizer. "Maximum growth" and
+"minimum drawdown" conflict, so the page asks for the worst fall you can accept
+and finds the mix with the most expected 10-year growth inside it.
+
+**Method.** Return and crash depth are both linear in the weights, and the
+constraints are box bounds, so the problem is a fractional knapsack, solved
+exactly by filling stock funds in order of extra return per extra crash depth.
+
+- Expected returns: J.P. Morgan 2026 LTCMA — US large cap 6.7% (RSP, XLV, ITA),
+  EAFE 7.4% (VEA). VTIP 4.0%, an assumption between Schwab's 3.3% cash and
+  J.P. Morgan's 5.3% aggregate bonds (no short-TIPS forecast was reachable).
+  The page's own fund views are deliberately not used.
+- Crash depth: actual peak-to-trough falls — RSP 59.92%, VEA 60.68%,
+  ITA 59.72%, XLV 39.17%, all bottoming 9 Mar 2009 so they sum realistically;
+  VTIP 6.27% (March 2020; launched 2012).
+- Guardrails: every fund at least 5%, no stock fund above 30%.
+- Default: the most growth whose worst crash is recovered within five years
+  (half the horizon) at expected returns.
+
+| Choice | Worst crash | Stocks | %/yr | $10k in 10 yrs | Recovery |
+|---|---|---|---|---|---|
+| Least drawdown | 16% | 20% | 4.58 | $15,642 | 3.9 yrs |
+| **Recommended** | **21%** | **35%** | **4.98** | **$16,258** | **4.8 yrs** |
+| Most growth | 54% | 100% | 6.91 | $19,507 | 11.6 yrs |
+
+Recommended weights: VTIP 65, XLV 20, RSP 5, VEA 5, ITA 5. The most-growth
+mix's worst crash would take longer to recover than the 10-year horizon itself.
+As signals fire the budget rises 5 points: 21% → 26% → 31% → 36%
+(35 → 48 → 57 → 66% stocks).
+
+Disclosed on the page: the optimizer leans on XLV (57% of the stock side)
+because healthcare fell least in 2008 and 2020, a pattern not a guarantee; and
+with Schwab's 5.9% US forecast the same budget would hold only 29% stocks,
+switching from XLV to VEA.
+
+A slider and three presets let the reader choose any worst case from 16% to
+54%; the frontier chart can be tapped to pick a mix.
+
+**Environment note.** The environment's network policy blocked
+`portfolioslab.com`, `am.jpmorgan.com`, `schwab.com`, `stooq.com` and
+`query1.finance.yahoo.com`, so figures came from search results rather than
+primary tables or raw price history. Allowing those hosts would let a future
+run compute drawdowns and correlations from daily prices.
+
+**Found and fixed**
+
+| Defect | Fix |
+|---|---|
+| The stock/bond bar drew 35% as 36.7%: flex-grow added each label's padding on top of its share, inflating the smaller segment (the old 45/55 bar had the same flaw at 45.4%, inside the old test's tolerance) | Explicit widths; test tolerance tightened to 0.5 point |
+| Frontier labels collided with the axis labels and the line | Labels moved to a key under the chart; new test fails on any overlapping chart text |
+| Two new test identifiers clashed with existing ones and crashed the suite before it ran | Renamed after checking every declared name against the file |
+
+`tests/audit.py` re-implements the optimizer independently, reproduces all 39
+frontier mixes, and checks 24 numbers the page states. `tests/browser.mjs`
+(84 checks) sweeps every slider position for feasibility, bounds, budget and
+monotonic return.
+
 ### 25 Sep 2026 — whole-portfolio stock / bond allocation
 
 The two tabs disagreed without saying so. The Top 5 sleeve is 27% bonds /
@@ -302,8 +361,8 @@ Both run from the repo root and exit non-zero on failure.
 python3 tests/audit.py        # arithmetic, ranking method, structure, contrast
 node tests/browser.mjs        # both tabs: overflow at 320/360/412/680px, JS errors,
                               # tabs + shared horizon, keyboard nav, ranking vs
-                              # score table, charts, allocation, contrast
-                              # (76 checks)
+                              # score table, charts, allocation optimizer sweep,
+                              # label overlap, contrast (84 checks)
 ```
 
 `browser.mjs` needs Playwright; set `PLAYWRIGHT_MODULE` to its `index.mjs` if

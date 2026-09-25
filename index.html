@@ -645,15 +645,38 @@
   .mix{margin:22px 0 4px}
   .mix-track{position:relative;display:flex;gap:2px;height:44px}
   .mix-seg{
+    flex:none;min-width:0;
     display:flex;align-items:center;padding:0 12px;border-radius:4px;
     color:#fff;font-family:var(--mono);font-size:13px;font-weight:600;
     white-space:nowrap;overflow:hidden;
   }
   .mix-seg.stk{background:var(--accent)}
   .mix-seg.bnd{background:var(--ink-3);justify-content:flex-end}
-  .mix-mark{position:absolute;top:-7px;bottom:-7px;width:2px;margin-left:-1px;background:var(--ink)}
-  .mix-lbl{position:relative;height:16px;margin-top:9px;font-family:var(--mono);font-size:10.5px;color:var(--ink-2)}
-  .mix-lbl span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+
+  /* worst-case budget control */
+  .budget{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px 12px;margin-top:16px}
+  .budget-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .budget-k{font-size:13.5px;font-weight:600}
+  .budget-v{font-family:var(--mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+  .budget input[type=range]{display:block;width:100%;height:32px;margin:8px 0 2px;accent-color:var(--accent);cursor:pointer}
+  .budget input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+  .budget-ends{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .presets button{
+    flex:1 1 auto;min-height:38px;padding:7px 10px;border-radius:6px;cursor:pointer;
+    font-family:var(--mono);font-size:11.5px;font-weight:600;
+    border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink-2);
+  }
+  .presets button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .presets button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .note-line{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);margin:8px 0 0}
+  .why{margin:0;padding-left:18px;display:grid;gap:8px;font-size:14px;color:var(--ink-2)}
+  .why b{color:var(--ink);font-weight:600}
+  .assume{margin:0;padding-left:18px;display:grid;gap:5px;font-size:12.5px;color:var(--ink-2)}
+  .frontier .vchart{min-height:190px}
+  .frontier .vchart svg{height:190px}
+  .vchart .pt.sel{fill:var(--surface);stroke:var(--ink);stroke-width:3}
+  .vchart text.axis{fill:var(--ink-2);font-family:var(--sans);font-size:10.5px}
   #stage-table{min-width:0}
   #stage-table thead th{white-space:normal;vertical-align:bottom;line-height:1.3}
   @media(max-width:359px){
@@ -875,7 +898,7 @@
       <div class="fig"><div class="fig-v">42%</div><div class="fig-k">VTIP + XLV</div></div>
       <div class="fig"><div class="fig-v">27 / 73</div><div class="fig-k">Bonds / stocks</div></div>
     </div>
-    <p class="sec-note" style="margin-top:12px">That 27 / 73 split is the mix inside this five-fund sleeve, which holds a single bond fund. For a whole portfolio today, the same five funds scale to 55% bonds and 45% stocks. <button type="button" class="linkbtn" data-goto="alloc-total">See the total allocation →</button></p>
+    <p class="sec-note" style="margin-top:12px">That 27 / 73 split is the mix inside this five-fund sleeve, which holds a single bond fund. For a whole portfolio, the mix optimized for 10-year growth with a limited worst case is 65% bonds and 35% stocks — weighted differently from this sleeve, because it is built to limit how far the portfolio can fall. <button type="button" class="linkbtn" data-goto="alloc-total">See the total allocation →</button></p>
   </section>
 
   <section>
@@ -1001,14 +1024,14 @@
       </div>
       <div class="kpi">
         <div class="kpi-k">Stocks / bonds</div>
-        <div class="kpi-v">45 / 55</div>
-        <div class="kpi-d"><span class="g">■</span> long-run 60 / 40</div>
+        <div class="kpi-v">35 / 65</div>
+        <div class="kpi-d"><span class="g">■</span> worst case −21%</div>
       </div>
     </div>
 
     <div class="thesis-box">
       <div class="k">The answer, in one line</div>
-      <p><b>Keep short-term money in short-duration bonds; move long-term money into stocks gradually, and faster once the signals start to fire.</b> For a whole portfolio that means about 45% stocks and 55% bonds today, against a long-run 60 / 40. Short bonds now pay about what stocks earn, with a fraction of the risk. That changes when the Fed signals a peak, yields roll over, or a volatility flush makes stocks cheaper — the six signals below. When it does, the regional rankings at the bottom say where to go first.</p>
+      <p><b>Keep short-term money in short-duration bonds; move long-term money into stocks gradually, and faster once the signals start to fire.</b> The mix built for the most 10-year growth within a recoverable worst case puts 35% in stocks and 65% in bonds today. Short bonds now pay about what stocks earn, with a fraction of the risk. That changes when the Fed signals a peak, yields roll over, or a volatility flush makes stocks cheaper — the six signals below. When it does, the regional rankings at the bottom say where to go first.</p>
     </div>
   </header>
 
@@ -1025,35 +1048,65 @@
 
   <section id="alloc-total" tabindex="-1">
     <div class="rule-top">
-      <h2>Total allocation — 45% stocks, 55% bonds today</h2>
-      <p class="sec-note">For a whole portfolio, not just the five funds. Measured against a long-run mix of 60% stocks and 40% bonds for a moderate-risk investor, today's mix carries a 15-point bond overweight. The six signals below unwind it in three 5-point steps.</p>
+      <h2>Total allocation — the most 10-year growth for a worst case you can live with</h2>
+      <p class="sec-note">Maximum growth and minimum drawdown pull against each other: the mix that grows most is the one that falls furthest in a crash. So choose the worst fall you could sit through without selling, and the page finds the mix with the most expected 10-year growth inside it. The default, a 21% worst case, is the most growth whose worst historical crash would be recovered within five years — half the horizon.</p>
+    </div>
+
+    <div class="budget">
+      <div class="budget-top"><label class="budget-k" for="dd-budget">Worst crash you can accept</label><span class="budget-v" id="dd-readout" aria-live="polite">−21%</span></div>
+      <input type="range" id="dd-budget" step="1">
+      <div class="budget-ends"><span id="dd-min-lbl">least drawdown</span><span id="dd-max-lbl">most growth</span></div>
+      <div class="presets" role="group" aria-label="Preset mixes">
+        <button type="button" data-preset="min" aria-pressed="false">Least drawdown</button>
+        <button type="button" data-preset="rec" aria-pressed="true">Recommended</button>
+        <button type="button" data-preset="max" aria-pressed="false">Most growth</button>
+      </div>
     </div>
 
     <div class="mix" id="mix-bar" role="img"></div>
 
+    <div class="figrow" id="total-figs" style="margin-top:12px"></div>
+
     <h3 class="sub-h">By fund</h3>
     <div class="allocbar" id="total-bar" role="img"></div>
     <div class="alloclegend" id="total-legend"></div>
-    <div class="figrow" id="total-figs" style="margin-top:12px"></div>
-    <p class="sec-note" style="margin-top:12px">The stock side keeps the Top 5 proportions, so about two-thirds of it sits in equal-weight US (RSP) and developed international (VEA) rather than the concentrated US index. VTIP carries the whole bond side; splitting it with a short-term Treasury fund is a reasonable variation.</p>
+    <p class="note-line" id="total-costs"></p>
+
+    <div class="fchart frontier">
+      <div class="fchart-t">Growth against worst crash</div>
+      <div class="fchart-s">Expected return a year (up) against worst historical crash (across) · each point is the best mix for one limit · tap to choose</div>
+      <div class="vchart" id="frontier" role="img"></div>
+      <div class="fkey" id="frontier-key"></div>
+    </div>
+
+    <h3 class="sub-h">Why 21%, not the maximum</h3>
+    <ul class="why">
+      <li><b>Most growth</b> — all stocks — turns $10,000 into about $19,507 in ten years at expected returns, $3,249 more than the recommended mix. But its worst historical crash, about 54%, would take roughly 11.6 years to recover: longer than the whole horizon. If that crash came early, maximum growth would not be maximum at all.</li>
+      <li><b>Least drawdown</b> — 80% in VTIP — holds the worst case near 16%, but ends near $15,642.</li>
+      <li><b>Recommended</b> — a 21% worst case — ends near $16,258 and would recover from its worst crash in about 4.8 years, leaving at least five years of compounding even if the crash came first.</li>
+    </ul>
+
+    <h3 class="sub-h">What the optimizer favours, and why</h3>
+    <p class="sec-note">It fills the stock side in order of extra return per extra crash depth. XLV goes first: healthcare fell 39% in 2008 when the other three stock funds fell about 60%, and about 28% in 2020 when the S&amp;P fell 34%. VEA comes next on the highest return forecast. RSP and ITA stay at their 5% floor — they fell as far as the market in 2008 without a higher forecast to compensate. That leaves XLV at 57% of the stock side, a historical pattern rather than a guarantee: drug-pricing or patent shocks are sector risks a crash test cannot see.</p>
+    <p class="sec-note">The answer is sensitive to the forecasts. With Schwab's lower 5.9% for US stocks in place of J.P. Morgan's 6.7%, the same 21% worst case would hold only 29% in stocks and switch its weight from XLV to VEA.</p>
 
     <h3 class="sub-h">By horizon</h3>
     <div class="stance">
       <div class="st" data-h="3m">
         <div class="st-h">3 mo</div>
-        <div><div class="st-a">45% stocks · 55% bonds</div><div class="st-n">Today's mix. Hold it.</div></div>
+        <div><div class="st-a">35% stocks · 65% bonds</div><div class="st-n">Hold the recommended mix. With stocks paying 0.08 points over bonds, extra crash risk is not being paid for.</div></div>
       </div>
       <div class="st" data-h="6m">
         <div class="st-h">6 mo</div>
-        <div><div class="st-a">45% stocks · 55% bonds</div><div class="st-n">Hold. It moves to 50 / 50 once two signals fire.</div></div>
+        <div><div class="st-a">35% stocks · 65% bonds</div><div class="st-n">Hold. The worst-case budget rises to 26% — 48% stocks — once two signals fire.</div></div>
       </div>
       <div class="st" data-h="12m">
         <div class="st-h">12 mo</div>
-        <div><div class="st-a">45% → 60% stocks</div><div class="st-n">Steps up 5 points for every two signals that fire, reaching 60 / 40 when all six have.</div></div>
+        <div><div class="st-a">35% → 66% stocks</div><div class="st-n">The budget rises 5 points for every two signals, from 21% toward 36%.</div></div>
       </div>
       <div class="st" data-h="10y">
         <div class="st-h">10 yr</div>
-        <div><div class="st-a">60% stocks · 40% bonds</div><div class="st-n">The target for money you will not touch for a decade. Reach it in 12 monthly steps of about 1¼ points, starting now; if the signals fire faster, jump ahead.</div></div>
+        <div><div class="st-a">35% stocks, growing as signals fire</div><div class="st-n">The recommended mix is built for this horizon. Choose a larger budget only if you would hold through that fall without selling.</div></div>
       </div>
     </div>
 
@@ -1062,12 +1115,21 @@
       <table id="stage-table">
         <caption>Whole-portfolio weights, % of total</caption>
         <thead>
-          <tr><th scope="col">Signals met</th><th scope="col">Stocks / bonds</th><th scope="col">VTIP</th><th scope="col">RSP</th><th scope="col">VEA</th><th scope="col">XLV</th><th scope="col">ITA</th></tr>
+          <tr><th scope="col">Signals · budget</th><th scope="col">Stocks / bonds</th><th scope="col">VTIP</th><th scope="col">RSP</th><th scope="col">VEA</th><th scope="col">XLV</th><th scope="col">ITA</th></tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
-    <p class="sec-note" style="margin-top:12px">Money you need within about a year belongs in cash or short bonds whatever the signals say. If your own long-run mix is different — 80 / 20 or 40 / 60, say — keep the same 15-point tilt and 5-point steps around your number.</p>
+    <p class="sec-note" style="margin-top:12px">Why raise the budget as signals fire: they mark prices that have already fallen or a Fed that has stopped hiking, so the remaining fall from that point is smaller than the full historical crash. Money you need within about a year belongs in cash or short bonds whatever the budget.</p>
+
+    <h3 class="sub-h">Assumptions</h3>
+    <ul class="assume">
+      <li>Expected returns: J.P. Morgan 2026 long-term assumptions — US large cap 6.7% a year for RSP, XLV and ITA; developed ex-US 7.4% for VEA. None of the page's own fund views are used.</li>
+      <li>VTIP 4.0% a year: no firm reachable here publishes a short-TIPS forecast, so it is set between Schwab's 3.3% for cash and J.P. Morgan's 5.3% for aggregate bonds.</li>
+      <li>Worst crash: each fund's actual peak-to-trough fall — RSP 59.9%, VEA 60.7%, ITA 59.7% and XLV 39.2%, all bottoming on 9 March 2009. VTIP launched in 2012; its worst fall, 6.3% in March 2020, stands in for every scenario.</li>
+      <li>Guardrails: every fund keeps at least 5% and no stock fund exceeds 30%, so no single sector or region dominates. Weights assume periodic rebalancing back to target.</li>
+      <li>Recovery years assume returns at the expected rate after the crash. Past crashes recovered faster than that, so the figure is conservative — and future crashes can be deeper than any on record.</li>
+    </ul>
   </section>
 
   <section>
@@ -1087,11 +1149,11 @@
       </div>
       <div class="st" data-h="12m">
         <div class="st-h">12 mo</div>
-        <div><div class="st-a">Move in stages as the signals fire.</div><div class="st-n">Most of the six signals are likely to be tested within a year. Move a third at a time, not all at once — the rule below sets the pace.</div></div>
+        <div><div class="st-a">Move in stages as the signals fire.</div><div class="st-n">Most of the six signals are likely to be tested within a year. Raise the worst-case budget 5 points for every two that fire — the rule below sets the pace.</div></div>
       </div>
       <div class="st" data-h="10y">
         <div class="st-h">10 yr</div>
-        <div><div class="st-a">Favour stocks, and start adding gradually now.</div><div class="st-n">J.P. Morgan forecasts stocks beating bonds by 1.4 to 2.5 points a year over the next decade. For money untouched for ten years, spreading purchases over 12 months is a sensible alternative to waiting for a perfect signal.</div></div>
+        <div><div class="st-a">Hold the optimized mix and let it grow into stocks.</div><div class="st-n">J.P. Morgan forecasts stocks beating bonds by 1.4 to 2.5 points a year over the next decade — real, but thin against a 54% worst case. The allocation above puts a number on that trade for any fall you can accept.</div></div>
       </div>
     </div>
 
@@ -1154,12 +1216,12 @@
 
     <h3 class="sub-h">The rule</h3>
     <div class="ladder">
-      <div class="rung on"><div class="k">0–1 met</div><div>Stay at 45% stocks / 55% bonds.<span class="here">← now</span></div></div>
-      <div class="rung"><div class="k">2–3 met</div><div>Move 5 points into stocks: 50 / 50.</div></div>
-      <div class="rung"><div class="k">4–5 met</div><div>Another 5 points: 55 / 45.</div></div>
-      <div class="rung"><div class="k">All 6</div><div>Back to the long-run 60 / 40.</div></div>
+      <div class="rung on"><div class="k">0–1 met</div><div>Worst-case budget 21%: 35% stocks / 65% bonds.<span class="here">← now</span></div></div>
+      <div class="rung"><div class="k">2–3 met</div><div>Budget 26%: 48 / 52.</div></div>
+      <div class="rung"><div class="k">4–5 met</div><div>Budget 31%: 57 / 43.</div></div>
+      <div class="rung"><div class="k">All 6</div><div>Budget 36%: 66 / 34.</div></div>
     </div>
-    <p class="sec-note" style="margin-top:12px">Each step keeps the Top 5 proportions on the stock side, so new money leans to equal-weight US and developed international rather than the concentrated US index. The fund-by-fund weights at every step are in the table above.</p>
+    <p class="sec-note" style="margin-top:12px">Each step re-runs the same optimizer with a larger worst-case budget; the fund-by-fund weights at every step are in the allocation table above.</p>
   </section>
 
   <section>
@@ -1362,7 +1424,7 @@
 
   var FUNDS = [
     {
-      tk:"VTIP", asset:"bond", er:0.03, yld:2.21, mk:"var(--s-vtip)", tc:"var(--t-vtip)", w:27, prev:3,
+      tk:"VTIP", asset:"bond", er:0.03, yld:2.21, exp:4.0, crash:6.27, mk:"var(--s-vtip)", tc:"var(--t-vtip)", w:27, prev:3,
       name:"Vanguard Short-Term Inflation-Protected Securities ETF",
       role:"Ballast",
       stats:[["2.21%","30-day SEC yield"],["2.4 yr","Duration"],["0.03%","Expense ratio"]],
@@ -1376,7 +1438,7 @@
       }
     },
     {
-      tk:"RSP", asset:"stock", er:0.2, yld:1.46, mk:"var(--s-rsp)", tc:"var(--t-rsp)", w:24, prev:2,
+      tk:"RSP", asset:"stock", er:0.2, yld:1.46, exp:6.7, crash:59.92, mk:"var(--s-rsp)", tc:"var(--t-rsp)", w:24, prev:2,
       name:"Invesco S&amp;P 500 Equal Weight ETF",
       role:"Concentration hedge",
       stats:[["~1.4%","Mag 7 weight"],["1.46%","Yield"],["0.20%","Expense ratio"]],
@@ -1390,7 +1452,7 @@
       }
     },
     {
-      tk:"VEA", asset:"stock", er:0.03, yld:2.36, mk:"var(--s-vea)", tc:"var(--t-vea)", w:23, prev:1,
+      tk:"VEA", asset:"stock", er:0.03, yld:2.36, exp:7.4, crash:60.68, mk:"var(--s-vea)", tc:"var(--t-vea)", w:23, prev:1,
       name:"Vanguard FTSE Developed Markets ETF",
       role:"Long-run equity engine",
       stats:[["+16.5%","YTD (NAV, TR)"],["19.9&times;","P/E · SPX 19.3"],["0.03%","Expense ratio"]],
@@ -1404,7 +1466,7 @@
       }
     },
     {
-      tk:"XLV", asset:"stock", er:0.08, yld:1.49, mk:"var(--s-xlv)", tc:"var(--t-xlv)", w:15, prev:4,
+      tk:"XLV", asset:"stock", er:0.08, yld:1.49, exp:6.7, crash:39.17, mk:"var(--s-xlv)", tc:"var(--t-xlv)", w:15, prev:4,
       name:"Health Care Select Sector SPDR Fund",
       role:"Low-beta diversifier",
       stats:[["+9.7%","YTD total return"],["1.49%","Yield"],["0.08%","Expense ratio"]],
@@ -1418,7 +1480,7 @@
       }
     },
     {
-      tk:"ITA", asset:"stock", er:0.37, yld:1.29, mk:"var(--s-ita)", tc:"var(--t-ita)", w:11, prev:5,
+      tk:"ITA", asset:"stock", er:0.37, yld:1.29, exp:6.7, crash:59.72, mk:"var(--s-ita)", tc:"var(--t-ita)", w:11, prev:5,
       name:"iShares U.S. Aerospace &amp; Defense ETF",
       role:"Structural policy",
       stats:[["+34%","1-year return"],["$13.3bn","Net assets"],["0.37%","Expense ratio"]],
@@ -1739,68 +1801,198 @@
 
   /* ===================== whole-portfolio allocation ===================== */
 
-  // One model for both tabs. Long-run mix 60/40; today a 15-point bond
-  // overweight; each rung of the signal ladder moves 5 points into stocks.
-  var NEUTRAL_STOCKS = 60, TILT = 15, STEP = 5;
-  var RUNGS = ["0–1 met", "2–3 met", "4–5 met", "All 6"];
+  // Maximise expected 10-year growth subject to a worst-crash budget.
+  // Return and crash depth are both linear in the weights, and the constraints
+  // are box bounds, so this is a fractional knapsack: start each stock fund at
+  // its floor with the bond fund holding the rest, then move 1 point at a time
+  // into the stock fund with the most extra return per extra crash depth.
+  var FLOOR = 5, CAP = 30, HORIZON = 10, RECOVER_WITHIN = HORIZON / 2, STEP_BUDGET = 5;
+  var BOND = FUNDS.filter(function(f){ return f.asset === "bond"; })[0];
+  var STOCKS = FUNDS.filter(function(f){ return f.asset === "stock"; });
+  var cInt = function(f){ return Math.round(f.crash * 100); };   // integer maths: no float drift at the budget edge
 
-  function stageStocks(i){ return NEUTRAL_STOCKS - TILT + i * STEP; }
+  function crashPct(w){ return FUNDS.reduce(function(a,f){ return a + w[f.tk] * cInt(f); }, 0) / 10000; }
 
-  function currentStage(){
-    var met = document.querySelectorAll('.tr[data-status="met"]').length;
-    return met <= 1 ? 0 : met <= 3 ? 1 : met <= 5 ? 2 : 3;
+  function optimize(budget){
+    var w = {};
+    STOCKS.forEach(function(f){ w[f.tk] = FLOOR; });
+    w[BOND.tk] = 100 - FLOOR * STOCKS.length;
+    var limit = budget * 10000, total = function(){ return FUNDS.reduce(function(a,f){ return a + w[f.tk] * cInt(f); }, 0); };
+    if(total() > limit) return null;
+    var eff = function(f){ return (f.exp - BOND.exp) / (f.crash - BOND.crash); };
+    STOCKS.slice().sort(function(a,b){ return eff(b) - eff(a); }).forEach(function(f){
+      while(w[f.tk] < CAP && w[BOND.tk] > 0){
+        w[f.tk]++; w[BOND.tk]--;
+        if(total() > limit){ w[f.tk]--; w[BOND.tk]++; break; }
+      }
+    });
+    return w;
   }
 
-  // Split a stock total across the stock funds in their sleeve proportions,
-  // rounding by largest remainder so whole numbers always add back up.
-  function weightsFor(stocks){
-    var eq = FUNDS.filter(function(f){ return f.asset === "stock"; });
-    var tot = eq.reduce(function(a,f){ return a + f.w; }, 0);
-    var rows = eq.map(function(f){ var raw = stocks * f.w / tot; return {f:f, raw:raw, v:Math.floor(raw)}; });
-    var left = stocks - rows.reduce(function(a,r){ return a + r.v; }, 0);
-    rows.slice().sort(function(a,b){ return ((b.raw - b.v) - (a.raw - a.v)) || (b.f.w - a.f.w); })
-        .slice(0, left).forEach(function(r){ r.v += 1; });
-    var out = {};
-    FUNDS.forEach(function(f){ if(f.asset === "bond") out[f.tk] = 100 - stocks; });
-    rows.forEach(function(r){ out[r.f.tk] = r.v; });
-    return out;
+  function stats(w){
+    var r = FUNDS.reduce(function(a,f){ return a + w[f.tk] * f.exp; }, 0) / 100, d = crashPct(w);
+    return { ret:r, crash:d, grow:10000 * Math.pow(1 + r/100, HORIZON),
+             recover: Math.log(1 / (1 - d/100)) / Math.log(1 + r/100),
+             stocks: 100 - w[BOND.tk] };
   }
 
   function blended(wts, field){
     return FUNDS.reduce(function(a,f){ return a + (wts[f.tk] || 0) / 100 * f[field]; }, 0);
   }
 
+  // the frontier: one optimal mix per whole-percent budget, until nothing more changes
+  var FRONTIER = [];
+  (function(){
+    var last = null;
+    for(var B = 1; B <= 100; B++){
+      var w = optimize(B);
+      if(!w) continue;
+      var key = JSON.stringify(w);
+      if(key === last) break;
+      FRONTIER.push({budget:B, w:w, s:stats(w)}); last = key;
+    }
+  })();
+  var MIN_B = FRONTIER[0].budget, MAX_B = FRONTIER[FRONTIER.length-1].budget;
+  // recommended: the most growth whose worst crash is recovered within half the horizon
+  var REC_B = FRONTIER.reduce(function(best, p){
+    return p.s.recover <= RECOVER_WITHIN && (!best || p.s.ret > best.s.ret) ? p : best;
+  }, null).budget;
+  var budget = REC_B;
+
+  function point(B){
+    for(var i = FRONTIER.length - 1; i >= 0; i--) if(FRONTIER[i].budget <= B) return FRONTIER[i];
+    return FRONTIER[0];
+  }
+
+  function currentRung(){
+    var met = document.querySelectorAll('.tr[data-status="met"]').length;
+    return met <= 1 ? 0 : met <= 3 ? 1 : met <= 5 ? 2 : 3;
+  }
+  var RUNGS = ["0–1", "2–3", "4–5", "All 6"];
+
+  var money = function(x){ return "$" + Math.round(x).toLocaleString("en-US"); };
+
   function renderTotal(){
-    var stage = currentStage(), S = stageStocks(stage), wts = weightsFor(S);
+    var p = point(budget), w = p.w, st = p.s, S = st.stocks;
+
+    document.getElementById("dd-readout").textContent = "−" + budget + "%";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-preset]"), function(b){
+      var v = {min:MIN_B, rec:REC_B, max:MAX_B}[b.getAttribute("data-preset")];
+      b.setAttribute("aria-pressed", String(v === budget));
+    });
 
     var mix = document.getElementById("mix-bar");
-    mix.setAttribute("aria-label", "Total allocation: " + S + " percent stocks, " + (100-S) + " percent bonds. Long-run mix " + NEUTRAL_STOCKS + " percent stocks.");
+    mix.setAttribute("aria-label", "Total allocation: " + S + " percent stocks, " + (100-S) + " percent bonds.");
     mix.innerHTML = '<div class="mix-track">'
-      + '<span class="mix-seg stk" style="flex:'+S+'">Stocks '+S+'%</span>'
-      + '<span class="mix-seg bnd" style="flex:'+(100-S)+'">Bonds '+(100-S)+'%</span>'
-      + '<span class="mix-mark" style="left:'+NEUTRAL_STOCKS+'%"></span></div>'
-      + '<div class="mix-lbl"><span style="left:'+NEUTRAL_STOCKS+'%">long-run '+NEUTRAL_STOCKS+'% stocks</span></div>';
+      // explicit widths: a flex-grow share would add each label's padding on top,
+      // inflating the smaller segment. Each side gives up half the 2px gap.
+      + (S ? '<span class="mix-seg stk" style="width:calc('+S+'% - '+(100-S ? 1 : 0)+'px)">Stocks '+S+'%</span>' : '')
+      + (100-S ? '<span class="mix-seg bnd" style="width:calc('+(100-S)+'% - '+(S ? 1 : 0)+'px)">Bonds '+(100-S)+'%</span>' : '')
+      + '</div>';
+
+    document.getElementById("total-figs").innerHTML =
+        '<div class="fig"><div class="fig-v">'+money(st.grow)+'</div><div class="fig-k">$10,000 after 10 yrs</div></div>'
+      + '<div class="fig"><div class="fig-v">'+st.ret.toFixed(2)+'%</div><div class="fig-k">Expected a year</div></div>'
+      + '<div class="fig"><div class="fig-v">−'+st.crash.toFixed(1)+'%</div><div class="fig-k">Worst historical crash</div></div>'
+      + '<div class="fig"><div class="fig-v">'+st.recover.toFixed(1)+' yrs</div><div class="fig-k">To recover from it</div></div>';
 
     var bar = document.getElementById("total-bar");
-    bar.setAttribute("aria-label", "By fund: " + FUNDS.map(function(f){ return f.tk + " " + wts[f.tk] + " percent"; }).join(", "));
-    bar.innerHTML = FUNDS.map(function(f){ return '<span style="background:'+f.mk+';flex:'+wts[f.tk]+'"></span>'; }).join("");
+    bar.setAttribute("aria-label", "By fund: " + FUNDS.map(function(f){ return f.tk + " " + w[f.tk] + " percent"; }).join(", "));
+    bar.innerHTML = FUNDS.map(function(f){ return w[f.tk] ? '<span style="background:'+f.mk+';flex:'+w[f.tk]+'"></span>' : ''; }).join("");
     document.getElementById("total-legend").innerHTML = FUNDS.map(function(f){
-      return '<div><span class="swatch" style="background:'+f.mk+'"></span><b>'+f.tk+'</b><em>'+wts[f.tk]+'%</em></div>';
+      return '<div><span class="swatch" style="background:'+f.mk+'"></span><b>'+f.tk+'</b><em>'+w[f.tk]+'%</em></div>';
     }).join("");
+    document.getElementById("total-costs").textContent =
+      "Blended fee " + blended(w,"er").toFixed(2) + "% · yield ~" + blended(w,"yld").toFixed(1) + "% · bond side duration about 2.4 years";
 
-    var intl = FUNDS.filter(function(f){ return f.tk === "VEA"; }).reduce(function(a,f){ return a + wts[f.tk]; }, 0);
-    document.getElementById("total-figs").innerHTML =
-        '<div class="fig"><div class="fig-v">'+blended(wts,"er").toFixed(2)+'%</div><div class="fig-k">Blended fee</div></div>'
-      + '<div class="fig"><div class="fig-v">~'+blended(wts,"yld").toFixed(1)+'%</div><div class="fig-k">Blended yield</div></div>'
-      + '<div class="fig"><div class="fig-v">2.4 yr</div><div class="fig-k">Bond-side duration</div></div>'
-      + '<div class="fig"><div class="fig-v">'+intl+'%</div><div class="fig-k">Outside the US</div></div>';
+    drawFrontier();
+  }
 
+  function renderStages(){
+    var rung = currentRung();
     document.querySelector("#stage-table tbody").innerHTML = RUNGS.map(function(k, i){
-      var s = stageStocks(i), w = weightsFor(s);
-      return '<tr class="'+(i===stage?"on":"")+'"><td>'+k+(i===stage?'<span class="sr-only"> (current)</span>':'')+'</td><td>'+s+' / '+(100-s)+'</td>'
+      var B = REC_B + STEP_BUDGET * i, w = point(B).w, S = 100 - w[BOND.tk];
+      return '<tr class="'+(i===rung?"on":"")+'"><td>'+k+' · −'+B+'%'+(i===rung?'<span class="sr-only"> (current)</span>':'')+'</td>'
+        + '<td>'+S+' / '+(100-S)+'</td>'
         + FUNDS.map(function(f, j){ return '<td'+(j===0?' class="grp"':'')+'>'+w[f.tk]+'</td>'; }).join("") + '</tr>';
     }).join("");
   }
+
+  function drawFrontier(){
+    var box = document.getElementById("frontier");
+    if(!box || !box.clientWidth) return;
+    var W = box.clientWidth, H = 190, L = 40, R = 14, T = 16, B = 38;
+    var x0 = 15, x1 = 55, y0 = 4.0, y1 = 7.5;
+    var X = function(v){ return L + (v - x0) / (x1 - x0) * (W - L - R); };
+    var Y = function(v){ return T + (y1 - v) / (y1 - y0) * (H - T - B); };
+    var svg = '<svg viewBox="0 0 '+W+' '+H+'" aria-hidden="true">';
+    [4,5,6,7].forEach(function(t){
+      svg += '<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(t)+'" y2="'+Y(t)+'"/>'
+          +  '<text x="'+(L-6)+'" y="'+(Y(t)+3)+'" text-anchor="end">'+t+'%</text>';
+    });
+    [20,30,40,50].forEach(function(t){
+      svg += '<text x="'+X(t)+'" y="'+(H-B+14)+'" text-anchor="middle">−'+t+'%</text>';
+    });
+    svg += '<text class="axis" x="'+(L + (W-L-R)/2)+'" y="'+(H-4)+'" text-anchor="middle">Worst historical crash →</text>';
+    var pts = FRONTIER.map(function(p){ return [X(p.s.crash), Y(p.s.ret)]; });
+    svg += '<path class="line" d="'+pts.map(function(q,i){ return (i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1); }).join(" ")+'"/>';
+    // the three presets are marked on the line and named in the key below it —
+    // on-chart labels collided with the axis and the line at phone widths
+    var marks = [{b:MIN_B, t:"Least drawdown"}, {b:REC_B, t:"Recommended"}, {b:MAX_B, t:"Most growth"}];
+    marks.forEach(function(m){
+      var p = point(m.b);
+      svg += '<circle class="pt" cx="'+X(p.s.crash)+'" cy="'+Y(p.s.ret)+'" r="4"/>';
+    });
+    document.getElementById("frontier-key").innerHTML = marks.map(function(m){
+      var p = point(m.b);
+      return '<span><i style="background:var(--accent);border-radius:50%"></i>'+m.t+': −'+p.s.crash.toFixed(0)+'% · '+p.s.ret.toFixed(2)+'%/yr</span>';
+    }).join("") + '<span><i style="background:var(--surface);border:2px solid var(--ink);border-radius:50%"></i>Your selection</span>';
+    var cur = point(budget);
+    svg += '<line class="cross" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" style="display:none"/>';
+    svg += '<circle class="pt sel" cx="'+X(cur.s.crash)+'" cy="'+Y(cur.s.ret)+'" r="6"/>';
+    svg += '</svg><div class="vtip" hidden></div>';
+    box.innerHTML = svg;
+    box.setAttribute("aria-label", "Frontier from a " + point(MIN_B).s.crash.toFixed(0) + "% worst crash and " + point(MIN_B).s.ret.toFixed(2)
+      + "% a year to " + point(MAX_B).s.crash.toFixed(0) + "% and " + point(MAX_B).s.ret.toFixed(2) + "%. Selected: " + cur.s.crash.toFixed(1) + "% worst crash, " + cur.s.ret.toFixed(2) + "% a year.");
+
+    var tip = box.querySelector(".vtip"), cross = box.querySelector(".cross");
+    function nearest(clientX){
+      var x = clientX - box.getBoundingClientRect().left, best = FRONTIER[0], bd = Infinity;
+      FRONTIER.forEach(function(p){ var d = Math.abs(X(p.s.crash) - x); if(d < bd){ bd = d; best = p; } });
+      return best;
+    }
+    box.onpointermove = function(e){
+      var p = nearest(e.clientX), cx = X(p.s.crash);
+      cross.setAttribute("x1", cx); cross.setAttribute("x2", cx); cross.style.display = "";
+      tip.textContent = "−" + p.budget + "% · " + p.s.stocks + "% stocks · " + p.s.ret.toFixed(2) + "%/yr · " + money(p.s.grow);
+      tip.style.left = Math.max(90, Math.min(W - 90, cx)) + "px"; tip.style.top = (Y(p.s.ret) - 10) + "px"; tip.hidden = false;
+    };
+    box.onpointerleave = function(e){ if(e.pointerType === "mouse"){ tip.hidden = true; cross.style.display = "none"; } };
+    box.onpointerdown = function(e){ setBudget(nearest(e.clientX).budget); };
+  }
+
+  function setBudget(B){
+    budget = Math.max(MIN_B, Math.min(MAX_B, B));
+    var sl = document.getElementById("dd-budget");
+    if(+sl.value !== budget) sl.value = budget;
+    renderTotal();
+  }
+
+  (function(){
+    var sl = document.getElementById("dd-budget");
+    sl.min = MIN_B; sl.max = MAX_B; sl.value = REC_B;
+    sl.setAttribute("aria-valuetext", "worst crash " + REC_B + " percent");
+    document.getElementById("dd-min-lbl").textContent = "−" + MIN_B + "% · least drawdown";
+    document.getElementById("dd-max-lbl").textContent = "−" + MAX_B + "% · most growth";
+    sl.addEventListener("input", function(){
+      sl.setAttribute("aria-valuetext", "worst crash " + sl.value + " percent");
+      setBudget(+sl.value);
+    });
+    document.querySelector(".presets").addEventListener("click", function(e){
+      var b = e.target.closest("[data-preset]");
+      if(b) setBudget({min:MIN_B, rec:REC_B, max:MAX_B}[b.getAttribute("data-preset")]);
+    });
+  })();
 
   // "See the total allocation" on tab 1 jumps to the section on tab 2
   document.addEventListener("click", function(e){
@@ -1869,7 +2061,7 @@
     });
     try { localStorage.setItem("etf-scanner-tab", id); } catch(e) {}
     syncTopbar();
-    if(id === "tab-regions") drawVol();   // charts need a visible box to measure
+    if(id === "tab-regions"){ drawVol(); drawFrontier(); }   // charts need a visible box to measure
     if(opts.scroll) window.scrollTo(0, 0);
   }
 
@@ -1898,6 +2090,7 @@
   renderForecasts();
   renderScales();
   renderVolTable();
+  renderStages();
   renderTotal();
   setHorizon(current);   // renders both tabs' horizon views and seeds roving tabindex
 
@@ -1907,7 +2100,7 @@
 
   window.addEventListener('resize', function(){
     syncTopbar();
-    if(!document.getElementById("panel-regions").hidden) drawVol();
+    if(!document.getElementById("panel-regions").hidden){ drawVol(); drawFrontier(); }
   });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(syncTopbar);
 })();

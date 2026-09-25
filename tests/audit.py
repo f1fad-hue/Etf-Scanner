@@ -140,45 +140,90 @@ for key in ("vix", "ust"):
     check(all("2026-09-10" <= d <= "2026-09-24" for d in dates) and dates == sorted(dates), f"{key}: dates sorted and inside 10-24 Sep")
 
 
-print("whole-portfolio allocation")
-# the page's own numeric fund fields must match the figures this audit uses
+print("whole-portfolio allocation (max 10-yr growth within a worst-crash budget)")
+import math
+# the documented assumptions (sources on the page); the page's fund data must match them
+EXP = {"VTIP": 4.0, "RSP": 6.7, "VEA": 7.4, "XLV": 6.7, "ITA": 6.7}
+CRASH = {"VTIP": 6.27, "RSP": 59.92, "VEA": 60.68, "XLV": 39.17, "ITA": 59.72}
 for tk in ER:
-    m = re.search(r'tk:"%s", asset:"(\w+)", er:([\d.]+), yld:([\d.]+)' % tk, FUNDS_SRC)
-    check(m and float(m.group(2)) == ER[tk] and float(m.group(3)) == YLD[tk],
-          f"{tk} er/yld in page data match ({m and m.group(2)}, {m and m.group(3)})")
-NEUTRAL, TILT, STEP = 60, 15, 5
-for name, val in [("NEUTRAL_STOCKS", NEUTRAL), ("TILT", TILT), ("STEP", STEP)]:
+    m = re.search(r'tk:"%s", asset:"(\w+)", er:([\d.]+), yld:([\d.]+), exp:([\d.]+), crash:([\d.]+)' % tk, FUNDS_SRC)
+    check(m and float(m.group(2)) == ER[tk] and float(m.group(3)) == YLD[tk], f"{tk} er/yld in page data match")
+    check(m and float(m.group(4)) == EXP[tk] and float(m.group(5)) == CRASH[tk], f"{tk} forecast {EXP[tk]}% and crash {CRASH[tk]}% in page data")
+for name, val in [("FLOOR", 5), ("CAP", 30), ("HORIZON", 10), ("STEP_BUDGET", 5)]:
     check(re.search(r"\b%s = %d\b" % (name, val), js) is not None, f"model constant {name} = {val}")
-eq = {f["tk"]: f["w"] for f in funds if f["tk"] != "VTIP"}
-def split(S):
-    tot = sum(eq.values()); raw = {k: S * v / tot for k, v in eq.items()}
-    fl = {k: int(v) for k, v in raw.items()}
-    for k in sorted(raw, key=lambda k: (-(raw[k] - fl[k]), -eq[k]))[:S - sum(fl.values())]:
-        fl[k] += 1
-    return {"VTIP": 100 - S, **fl}
-for i in range(4):
-    S = NEUTRAL - TILT + i * STEP
-    w = split(S)
-    check(sum(w.values()) == 100, f"rung {i}: {S}/{100-S} weights {w} sum to 100")
-S0 = NEUTRAL - TILT
-w0 = split(S0)
-for txt, why in [(f"Total allocation — {S0}% stocks, {100-S0}% bonds today", "section heading"),
-                 (f'<div class="kpi-v">{S0} / {100-S0}</div>', "tab 2 KPI"),
-                 (f"about {S0}% stocks and {100-S0}% bonds today", "tab 2 thesis"),
-                 (f"scale to {100-S0}% bonds and {S0}% stocks", "tab 1 pointer"),
-                 (f"Stay at {S0}% stocks / {100-S0}% bonds.", "ladder rung 1"),
-                 (f"Move {STEP} points into stocks: {S0+STEP} / {100-S0-STEP}.", "ladder rung 2"),
-                 (f"Another {STEP} points: {S0+2*STEP} / {100-S0-2*STEP}.", "ladder rung 3"),
-                 (f"Back to the long-run {NEUTRAL} / {100-NEUTRAL}.", "ladder rung 4"),
-                 (f"carries a {TILT}-point bond overweight", "tilt stated")]:
-    check(txt in s, f"{why} states the computed mix")
-vtip = next(f["w"] for f in funds if f["tk"] == "VTIP")
-check(f'<div class="fig-v">{vtip} / {100-vtip}</div><div class="fig-k">Bonds / stocks</div>' in s, f"tab 1 sleeve split {vtip} / {100-vtip}")
-share = (eq["RSP"] + eq["VEA"]) / sum(eq.values())
-check(0.60 <= share <= 0.70, f"'about two-thirds' RSP + VEA of the stock side ({share:.1%})")
-check(abs(TILT / 12 - 1.25) < 1e-9 and "about 1¼ points" in s, "10-yr glide 15 pts / 12 months = 1¼ a month")
-fee0 = sum(w0[k] / 100 * ER[k] for k in w0); yld0 = sum(w0[k] / 100 * YLD[k] for k in w0)
-print(f"         (today: fee {fee0:.4f}% -> {fee0:.2f}%, yield {yld0:.4f}% -> ~{yld0:.1f}%, weights {w0})")
+FLOOR, CAP, STEP = 5, 30, 5
+STK = ["RSP", "VEA", "XLV", "ITA"]
+
+def optimize(B):
+    """Independent re-implementation: greedy fractional knapsack in whole points."""
+    w = {k: FLOOR for k in STK}; w["VTIP"] = 100 - FLOOR * len(STK)
+    tot = lambda: sum(w[k] * round(CRASH[k] * 100) for k in w)
+    if tot() > B * 10000: return None
+    eff = lambda k: (EXP[k] - EXP["VTIP"]) / (CRASH[k] - CRASH["VTIP"])
+    for k in sorted(STK, key=lambda k: -eff(k)):
+        while w[k] < CAP and w["VTIP"] > 0:
+            w[k] += 1; w["VTIP"] -= 1
+            if tot() > B * 10000: w[k] -= 1; w["VTIP"] += 1; break
+    return w
+
+def stats(w):
+    r = sum(w[k] * EXP[k] for k in w) / 100; d = sum(w[k] * CRASH[k] for k in w) / 100
+    return r, d, 10000 * (1 + r / 100) ** 10, math.log(1 / (1 - d / 100)) / math.log(1 + r / 100)
+
+front, last = [], None
+for B in range(1, 101):
+    w = optimize(B)
+    if not w: continue
+    if w == last: break
+    front.append((B, w, stats(w))); last = w
+ok_all = all(sum(w.values()) == 100 and w["VTIP"] >= 0 and all(FLOOR <= w[k] <= CAP for k in STK) and st[1] <= B + 1e-9
+             for B, w, st in front)
+check(ok_all, f"all {len(front)} frontier mixes sum to 100, respect 5-30% bounds and stay within budget")
+check(all(front[i][2][0] <= front[i + 1][2][0] for i in range(len(front) - 1)), "expected return never falls as the budget rises")
+MIN_B, MAX_B = front[0][0], front[-1][0]
+REC = max((x for x in front if x[2][3] <= 5.0), key=lambda x: x[2][0])
+REC_B = REC[0]
+print(f"         (frontier -{MIN_B}% .. -{MAX_B}%, recommended -{REC_B}%: {REC[1]})")
+pt = lambda B: [x for x in front if x[0] <= B][-1]
+S = lambda B: 100 - pt(B)[1]["VTIP"]
+r0, d0, g0, rc0 = REC[2]; mn, mx = pt(MIN_B), pt(MAX_B)
+rungs = [REC_B + STEP * i for i in range(4)]
+xlv_share = round(100 * REC[1]["XLV"] / S(REC_B))
+
+# Schwab sensitivity: same budget with US stocks at 5.9%
+_e = dict(EXP)
+for k in ("RSP", "XLV", "ITA"): EXP[k] = 5.9
+alt_s = 100 - optimize(REC_B)["VTIP"]
+EXP.update(_e)
+
+claims = [
+    (f'<div class="kpi-v">{S(REC_B)} / {100-S(REC_B)}</div>', "tab 2 KPI split"),
+    (f"worst case −{REC_B}%</div>", "tab 2 KPI budget"),
+    (f"puts {S(REC_B)}% in stocks and {100-S(REC_B)}% in bonds today", "tab 2 thesis"),
+    (f"is {100-S(REC_B)}% bonds and {S(REC_B)}% stocks", "tab 1 pointer"),
+    (f"The default, a {REC_B}% worst case", "section intro"),
+    (f"Worst-case budget {rungs[0]}%: {S(rungs[0])}% stocks / {100-S(rungs[0])}% bonds.", "ladder rung 1"),
+    (f"Budget {rungs[1]}%: {S(rungs[1])} / {100-S(rungs[1])}.", "ladder rung 2"),
+    (f"Budget {rungs[2]}%: {S(rungs[2])} / {100-S(rungs[2])}.", "ladder rung 3"),
+    (f"Budget {rungs[3]}%: {S(rungs[3])} / {100-S(rungs[3])}.", "ladder rung 4"),
+    (f"{S(REC_B)}% stocks · {100-S(REC_B)}% bonds</div>", "horizon rows 3m/6m"),
+    (f"rises to {rungs[1]}% — {S(rungs[1])}% stocks", "horizon row 6m"),
+    (f"{S(REC_B)}% → {S(rungs[3])}% stocks", "horizon row 12m"),
+    (f"from {rungs[0]}% toward {rungs[3]}%", "horizon row 12m budgets"),
+    (f"Why {REC_B}%, not the maximum", "why heading"),
+    (f"about ${mx[2][2]:,.0f} in ten years", "max-growth ending value"),
+    (f"${mx[2][2]-g0:,.0f} more than the recommended mix", "max vs recommended gap"),
+    (f"about {mx[2][1]:.0f}%, would take roughly {mx[2][3]:.1f} years", "max-growth crash and recovery"),
+    (f"{mn[1]['VTIP']}% in VTIP — holds the worst case near {mn[2][1]:.0f}%, but ends near ${mn[2][2]:,.0f}", "least-drawdown line"),
+    (f"a {REC_B}% worst case — ends near ${g0:,.0f} and would recover from its worst crash in about {rc0:.1f} years", "recommended line"),
+    (f"XLV at {xlv_share}% of the stock side", "XLV share"),
+    (f"would hold only {alt_s}% in stocks", "Schwab sensitivity"),
+    (f"thin against a {mx[2][1]:.0f}% worst case", "10-yr stance crash"),
+    ("RSP 59.9%, VEA 60.7%, ITA 59.7% and XLV 39.2%", "assumptions: crash depths"),
+    ("its worst fall, 6.3% in March 2020", "assumptions: VTIP crash"),
+]
+for txt, why in claims:
+    check(txt in s, f"{why}: \"{txt[:60]}\"")
 
 print()
 print("ALL CHECKS PASSED" if not fails else f"{len(fails)} CHECK(S) FAILED")
