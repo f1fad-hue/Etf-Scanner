@@ -79,9 +79,28 @@
   }
   .topbar-in{
     max-width:680px;margin:0 auto;
-    padding:10px 18px;
+    padding:9px 18px 0;
     display:flex;align-items:center;gap:12px;justify-content:space-between;
   }
+
+  /* ---------- section tabs ----------
+     Underline tabs, deliberately unlike the segmented horizon control, so the
+     two kinds of switch never read as the same thing. */
+  .tabs{
+    max-width:680px;margin:0 auto;
+    padding:0 18px;
+    display:grid;grid-template-columns:1fr 1fr;
+  }
+  .tabs button{
+    font-family:var(--sans);font-size:14px;font-weight:600;
+    color:var(--ink-2);background:none;border:0;
+    border-bottom:3px solid transparent;
+    padding:10px 4px 9px;min-height:44px;cursor:pointer;
+  }
+  @media(max-width:359px){ .tabs button{font-size:13px} }
+  .tabs button:hover{color:var(--ink)}
+  .tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+  .tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:4px}
   .mark{
     font-family:var(--mono);font-size:11px;font-weight:600;
     letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
@@ -118,9 +137,8 @@
     font-family:var(--mono);font-size:11px;color:var(--ink-3);
     border-top:1px solid var(--rule);
     margin-top:20px;padding-top:12px;
-    display:flex;flex-wrap:wrap;gap:4px 0;
+    display:flex;flex-wrap:wrap;gap:4px 16px;
   }
-  .byline span + span::before{content:"·";margin:0 9px;color:var(--rule-strong)}
 
   /* ---------- KPI strip ---------- */
   .kpis{
@@ -229,6 +247,8 @@
     border-radius:7px;padding:7px 10px;
     flex:1 1 auto;min-width:104px;
   }
+  .figrow:has(> .fig:nth-child(4):last-child) > .fig{flex-basis:calc(50% - 4px)}
+  @media(min-width:560px){ .figrow:has(> .fig:nth-child(4):last-child) > .fig{flex-basis:0} }
   .fig-v{
     font-family:var(--mono);font-size:15px;font-weight:600;
     font-variant-numeric:tabular-nums;letter-spacing:-.01em;
@@ -466,6 +486,186 @@
   }
   .ex.dropped .ex-t{color:var(--warn)}
 
+
+  /* ======================= Sentiment & regions tab ======================= */
+  .sub-h{
+    font-family:var(--serif);font-weight:500;font-size:19px;
+    letter-spacing:-.01em;margin:26px 0 10px;text-wrap:balance;
+  }
+
+  /* stance by horizon */
+  .stance{display:grid;gap:8px}
+  .st{
+    display:grid;grid-template-columns:58px 1fr;gap:12px;
+    background:var(--surface);border:1px solid var(--rule);
+    border-radius:9px;padding:12px 14px;
+  }
+  .st.on{background:var(--accent-soft);border-color:var(--accent)}
+  .st-h{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-3);padding-top:2px}
+  .st.on .st-h{color:var(--accent)}
+  .st-a{font-weight:600;font-size:14.5px;line-height:1.35}
+  .st-n{font-size:13px;color:var(--ink-2);margin-top:3px}
+
+  /* the premium arithmetic */
+  .erp{
+    background:var(--surface);border:1px solid var(--rule);
+    border-radius:10px;padding:6px 16px 14px;
+  }
+  .erp-row{
+    display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+    padding:10px 0;border-bottom:1px dashed var(--rule-strong);
+  }
+  .erp-row .k{font-size:13.5px;color:var(--ink-2)}
+  .erp-row .k small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);margin-top:1px}
+  .erp-row .v{font-family:var(--mono);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .erp-row.total{border-bottom:0;border-top:2px solid var(--ink);margin-top:2px}
+  .erp-row:has(+ .erp-row.total){border-bottom:0}
+  .erp-row.total .k{color:var(--ink);font-weight:600}
+  .erp-row.total .v{font-size:19px}
+  .erp-foot{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+
+  /* ten-year forecast bars — one scale, 0 to 9% */
+  .fchart{
+    background:var(--surface);border:1px solid var(--rule);
+    border-radius:10px;padding:14px 16px 12px;margin-top:12px;
+  }
+  .fchart-t{font-size:13.5px;font-weight:600}
+  .fchart-s{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);margin-top:2px}
+  .fbars{display:grid;gap:10px;margin-top:14px}
+  .fbar-top{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+  .fbar-top .n{color:var(--ink-2)}
+  .fbar-top .v{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .fbar-track{position:relative;height:12px;margin-top:4px;background:var(--surface-sunk);border-radius:4px}
+  .fbar-fill{position:absolute;top:0;bottom:0;left:0;border-radius:4px;background:var(--accent)}
+  .fbar-fill.bond{background:var(--ink-3)}
+  .fbar-fill.range{background:var(--accent-soft);border:2px solid var(--accent)}
+  .faxis{
+    display:flex;justify-content:space-between;margin-top:8px;
+    font-family:var(--mono);font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums;
+  }
+  .fkey{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--ink-2)}
+  .fkey span{display:inline-flex;align-items:center;gap:6px}
+  .fkey i{display:inline-block;width:10px;height:10px;border-radius:2px}
+
+  /* the six signals */
+  .sig-sum{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+  .tr{
+    display:grid;grid-template-columns:24px 1fr;gap:10px;
+    padding:13px 0;border-bottom:1px solid var(--rule);
+  }
+  .tr:first-of-type{border-top:1px solid var(--rule)}
+  .tr-i{font-size:16px;line-height:1.35;color:var(--ink-3);text-align:center}
+  .tr-t{font-weight:600;font-size:14px}
+  .tr-c{font-size:13px;color:var(--ink-2);margin-top:2px}
+  .tr-now{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:7px;
+    font-family:var(--mono);font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;
+  }
+  .tr-now b{color:var(--ink);font-weight:600}
+  .tag{
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:.07em;text-transform:uppercase;
+    padding:2px 7px;border-radius:4px;
+    border:1px solid var(--rule-strong);color:var(--ink-2);background:var(--surface);
+  }
+  .tag.part{border-color:var(--warn);color:var(--warn)}
+  .tag.met{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* the rule ladder */
+  .ladder{
+    display:grid;gap:2px;background:var(--rule);
+    border:1px solid var(--rule);border-radius:9px;overflow:hidden;
+  }
+  .rung{
+    background:var(--surface);display:grid;grid-template-columns:86px 1fr;gap:12px;
+    padding:11px 13px;font-size:13.5px;color:var(--ink-2);
+  }
+  .rung .k{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-3)}
+  .rung.on{background:var(--accent-soft);color:var(--ink)}
+  .rung.on .k{color:var(--accent)}
+  .rung .here{
+    display:inline-block;margin-left:6px;
+    font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--accent);
+  }
+
+  /* sentiment gauges */
+  .sgroup{margin-top:18px}
+  .sgroup-h{
+    font-family:var(--mono);font-size:10.5px;font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+    margin:0 0 8px;
+  }
+  .gauges{display:grid;gap:10px}
+  @media(min-width:560px){ .gauges{grid-template-columns:1fr 1fr} }
+  .gauge{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:13px 14px}
+  .g-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .g-name{font-size:13px;color:var(--ink-2)}
+  .g-val{font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .g-read{margin-top:6px}
+  .scale{position:relative;height:6px;background:var(--surface-sunk);border-radius:3px;margin:14px 7px 5px}
+  .scale .ref{position:absolute;top:-5px;bottom:-5px;width:2px;margin-left:-1px;background:var(--ink-3)}
+  .scale .dot{
+    position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+    background:var(--ink);border:2px solid var(--surface);
+    transform:translate(-50%,-50%);
+  }
+  .scale-lbl{
+    display:flex;justify-content:space-between;gap:8px;
+    font-family:var(--mono);font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums;
+  }
+  .g-note{font-size:12.5px;color:var(--ink-2);margin-top:8px}
+  .g-date{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:6px}
+
+  /* regional ranking */
+  .rlist{display:grid;gap:8px}
+  .reg{
+    background:var(--surface);border:1px solid var(--rule);border-radius:10px;
+    padding:12px 14px;display:grid;grid-template-columns:36px 1fr;gap:11px;
+  }
+  .reg-rank{
+    font-family:var(--mono);font-size:12.5px;font-weight:600;
+    height:26px;border-radius:5px;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;background:var(--ink);
+  }
+  .reg-rank.tie{background:var(--surface);color:var(--ink);border:1.5px solid var(--ink)}
+  .reg-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 9px}
+  .reg-n{font-weight:600;font-size:15px}
+  .reg-tk{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+  .reg-ytd{flex-basis:100%;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .reg-m{display:flex;align-items:center;gap:9px;margin:7px 0 6px}
+  .reg-m .meter i{width:13px;height:14px}
+  .reg-note{margin:0;font-size:13px;color:var(--ink-2)}
+  td.sum,th.sum{color:var(--ink-3)}
+
+  /* volatility small multiples */
+  .vchart{position:relative;margin-top:10px;min-height:140px;touch-action:pan-y}
+  .vchart svg{display:block;width:100%;height:140px;overflow:visible}
+  .vchart .grid{stroke:var(--rule);stroke-width:1}
+  .vchart .ref{stroke:var(--ink-3);stroke-width:1.5;stroke-dasharray:4 4}
+  .vchart .area{fill:var(--accent-soft)}
+  .vchart .line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .vchart .pt{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+  .vchart .pt.derived{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+  .vchart .pt.hot{r:6}
+  .vchart .cross{stroke:var(--ink-3);stroke-width:1}
+  .vchart text{fill:var(--ink-3);font-family:var(--mono);font-size:10px}
+  .vchart text.end{fill:var(--ink);font-weight:600;font-size:11px}
+  .vchart text.reflbl{fill:var(--ink-2)}
+  .vtip{
+    position:absolute;pointer-events:none;
+    background:var(--ink);color:#fff;border-radius:6px;
+    padding:5px 8px;font-family:var(--mono);font-size:11px;white-space:nowrap;
+    transform:translate(-50%,-100%);
+  }
+  .vdata{margin-top:10px}
+  .vdata summary{
+    cursor:pointer;font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--accent);
+    padding:6px 0;
+  }
+  .vdata summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
   /* ---------- footer ---------- */
   .disclaim{
     background:var(--surface);
@@ -497,11 +697,20 @@
 <div class="topbar">
   <div class="topbar-in">
     <div class="mark"><span class="dot"></span>ETF Scanner</div>
-    <div class="asof">24 Sep 2026</div>
+    <div class="asof">25 Sep 2026</div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Page sections">
+    <button type="button" role="tab" id="tab-etfs" aria-controls="panel-etfs" aria-selected="true">Top 5 ETFs</button>
+    <button type="button" role="tab" id="tab-regions" aria-controls="panel-regions" aria-selected="false" tabindex="-1">Sentiment &amp; regions</button>
   </div>
 </div>
 
+<!-- one live region for both tabs: a region inside a hidden panel is never announced -->
+<p id="h-status" class="sr-only" role="status" aria-live="polite"></p>
+
 <div class="wrap">
+
+<div role="tabpanel" id="panel-etfs" aria-labelledby="tab-etfs">
 
   <header>
     <h1>The bond market has taken over</h1>
@@ -573,7 +782,7 @@
 
     <div class="lens">
       <div class="lens-h"><span class="lens-n">02</span><span class="lens-t">Broad sentiment — still fearful, slightly less so</span></div>
-      <p>CNN's Fear &amp; Greed Index read 35 on 23 September, up from 29 on the 21st but still in "Fear". It has not reached neutral once during a month in which the Nasdaq set records. One tracker reported 71 for the same day; that figure conflicts with three others and is disregarded here.</p>
+      <p>CNN's Fear &amp; Greed Index read 35 on 23 September, up from 29 on the 21st but still in "Fear". Every September reading found for this page has been in that zone, in a month when the Nasdaq set records. One tracker reported 71 for the same day; that figure conflicts with three others and is disregarded here.</p>
       <p>Institutional positioning agrees with the mood. The S&amp;P Global Investment Manager Index fell 19 points for September, and gold ETFs took in $18bn in August — the second-largest month on record — lifting global gold ETF assets 16% to $615bn.</p>
       <div class="figrow">
         <div class="fig"><div class="fig-v">35</div><div class="fig-k">Fear &amp; Greed</div></div>
@@ -611,7 +820,6 @@
         <button type="button" role="radio" id="h-12m" aria-checked="true"  data-h="12m">12 mo</button>
         <button type="button" role="radio" id="h-10y" aria-checked="false" data-h="10y">10 yr</button>
       </div>
-      <p id="h-status" class="sr-only" role="status" aria-live="polite"></p>
     </div>
 
     <div id="cards"></div>
@@ -723,6 +931,342 @@
       <li><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2026/08">World Gold Council — Gold ETF flows</a></li>
     </ul>
   </div>
+</div><!-- /panel-etfs -->
+
+<div role="tabpanel" id="panel-regions" aria-labelledby="tab-regions" hidden>
+
+  <header>
+    <h1>Stocks pay almost nothing over bonds</h1>
+    <p class="standfirst">The S&amp;P 500's earnings yield is 5.19%; the 10-year Treasury pays 5.11%. That 0.08-point premium for owning stocks is at or near its thinnest since the dot-com bust, against a historical 3–4 points. So when should money move from bonds into stocks? For short-term money, not yet — six signals below say when, and none has fired. For money you will not touch for a decade, the forecasts still favour stocks.</p>
+    <div class="byline">
+      <span>Data through 24 Sep 2026 close</span>
+      <span>Surveys dated individually</span>
+      <span>Educational — not investment advice</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-k">Stock premium</div>
+        <div class="kpi-v">0.08 pts</div>
+        <div class="kpi-d"><span class="g">■</span> history 3–4 pts</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-k">Signals met</div>
+        <div class="kpi-v">0 of 6</div>
+        <div class="kpi-d"><span class="g">◐</span> 1 partial</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-k">VIX</div>
+        <div class="kpi-v">14.21</div>
+        <div class="kpi-d"><span class="g">▲</span> 10-yr +15bp same day</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-k">AAII bears</div>
+        <div class="kpi-v">48.1%</div>
+        <div class="kpi-d"><span class="g">▲</span> average 31.5%</div>
+      </div>
+    </div>
+
+    <div class="thesis-box">
+      <div class="k">The answer, in one line</div>
+      <p><b>Keep short-term money in short-duration bonds; move long-term money into stocks gradually, and faster once the signals start to fire.</b> Short bonds now pay about what stocks earn, with a fraction of the risk. That changes when the Fed signals a peak, yields roll over, or a volatility flush makes stocks cheaper — the six signals below. When it does, the regional rankings at the bottom say where to go first.</p>
+    </div>
+  </header>
+
+  <div class="horizon">
+    <div class="horizon-lbl">Horizon — shared with the Top 5 tab</div>
+    <div class="seg" role="radiogroup" aria-label="Forecast horizon">
+      <button type="button" role="radio" id="r-3m"  aria-checked="false" data-h="3m">3 mo</button>
+      <button type="button" role="radio" id="r-6m"  aria-checked="false" data-h="6m">6 mo</button>
+      <button type="button" role="radio" id="r-12m" aria-checked="true"  data-h="12m">12 mo</button>
+      <button type="button" role="radio" id="r-10y" aria-checked="false" data-h="10y">10 yr</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="rule-top">
+      <h2>When to move from bonds to stocks</h2>
+      <p class="sec-note">The stance for the selected horizon is highlighted. The shorter the horizon, the more today's thin premium and rising rates dominate; the longer it is, the more the decade forecasts do.</p>
+    </div>
+
+    <div class="stance">
+      <div class="st" data-h="3m">
+        <div class="st-h">3 mo</div>
+        <div><div class="st-a">Stay in short-duration bonds.</div><div class="st-n">October is 70% priced for another hike, the 10-year sits at a 19-year high, and stocks pay 0.08 points more than bonds for far more risk.</div></div>
+      </div>
+      <div class="st" data-h="6m">
+        <div class="st-h">6 mo</div>
+        <div><div class="st-a">Hold, and prepare a shopping list.</div><div class="st-n">The turn needs the Fed to signal a peak. The first checkpoint is the 27–28 October meeting; each monthly CPI print tests the core-inflation trend.</div></div>
+      </div>
+      <div class="st" data-h="12m">
+        <div class="st-h">12 mo</div>
+        <div><div class="st-a">Move in stages as the signals fire.</div><div class="st-n">Most of the six signals are likely to be tested within a year. Move a third at a time, not all at once — the rule below sets the pace.</div></div>
+      </div>
+      <div class="st" data-h="10y">
+        <div class="st-h">10 yr</div>
+        <div><div class="st-a">Favour stocks, and start adding gradually now.</div><div class="st-n">J.P. Morgan forecasts stocks beating bonds by 1.4 to 2.5 points a year over the next decade. For money untouched for ten years, spreading purchases over 12 months is a sensible alternative to waiting for a perfect signal.</div></div>
+      </div>
+    </div>
+
+    <h3 class="sub-h">What stocks pay over bonds today</h3>
+    <div class="erp">
+      <div class="erp-row"><div class="k">S&amp;P 500 earnings yield<small>1 ÷ 19.26 forward P/E, 18 Sep</small></div><div class="v">5.19%</div></div>
+      <div class="erp-row"><div class="k">minus 10-year Treasury yield<small>24 Sep close</small></div><div class="v">5.11%</div></div>
+      <div class="erp-row total"><div class="k">Extra paid for owning stocks</div><div class="v">0.08 pts</div></div>
+      <p class="erp-foot">The historical average is 3–4 points. The index closed Thursday within 0.3% of its 18 September level, so the 19.26 multiple still applies. The earnings yield is profit divided by price — what the index earns before any growth, which is why it can be compared with a bond yield.</p>
+    </div>
+
+    <div class="fchart">
+      <div class="fchart-t">What the next decade is forecast to pay</div>
+      <div class="fchart-s">Annualised, 10–15 years · J.P. Morgan LTCMA 2026 · Vanguard VCMM, 30 Jun 2026</div>
+      <div class="fbars" id="fbars"></div>
+      <div class="faxis"><span>0%</span><span>3%</span><span>6%</span><span>9%</span></div>
+      <div class="fkey">
+        <span><i style="background:var(--accent)"></i>Stocks, J.P. Morgan</span>
+        <span><i style="background:var(--ink-3)"></i>Bonds, J.P. Morgan</span>
+        <span><i style="background:var(--accent-soft);border:2px solid var(--accent)"></i>US stocks range, Vanguard</span>
+      </div>
+      <p class="erp-foot" style="margin-top:10px">On J.P. Morgan's numbers stocks beat bonds by 1.4 points a year in the US and 2.5 in emerging markets; its 60/40 portfolio forecast is 6.4%. Vanguard's US range of 3.9–5.9% straddles J.P. Morgan's 5.3% bond forecast — on that view, US stocks may barely beat bonds, which is why the rule below adds international first. The two firms use different methods, so the comparison is indicative.</p>
+    </div>
+
+    <h3 class="sub-h">Six signals to start moving</h3>
+    <div class="sig-sum"><span class="tag">0 met</span><span class="tag part">◐ 1 partial</span><span class="tag">○ 5 not met</span></div>
+    <div class="trig">
+      <div class="tr" data-status="not">
+        <div class="tr-i" aria-hidden="true">○</div>
+        <div><div class="tr-t">Stocks start paying for their risk</div><div class="tr-c">The premium over the 10-year rises to 2 points or more.</div>
+        <div class="tr-now"><span>Now <b>0.08 pts</b></span><span class="tag">Not met</span></div></div>
+      </div>
+      <div class="tr" data-status="not">
+        <div class="tr-i" aria-hidden="true">○</div>
+        <div><div class="tr-t">The Fed signals a peak</div><div class="tr-c">October hike odds fall below 30%, or the Fed drops its tightening bias.</div>
+        <div class="tr-now"><span>Now <b>&gt;70%</b> priced for October</span><span class="tag">Not met</span></div></div>
+      </div>
+      <div class="tr" data-status="not">
+        <div class="tr-i" aria-hidden="true">○</div>
+        <div><div class="tr-t">The 10-year rolls over</div><div class="tr-c">It closes below 4.75%, about 36bp under Thursday's close.</div>
+        <div class="tr-now"><span>Now <b>5.11%</b></span><span class="tag">Not met</span></div></div>
+      </div>
+      <div class="tr" data-status="part">
+        <div class="tr-i" aria-hidden="true">◐</div>
+        <div><div class="tr-t">Core inflation keeps falling</div><div class="tr-c">Core CPI declines three months in a row.</div>
+        <div class="tr-now"><span>Now <b>2.5% → 2.4%</b>, one month so far</span><span class="tag part">Partial</span></div></div>
+      </div>
+      <div class="tr" data-status="not">
+        <div class="tr-i" aria-hidden="true">○</div>
+        <div><div class="tr-t">Everyone is scared, not just retail</div><div class="tr-c">AAII bears above 55% and fund-manager cash above 5%, together.</div>
+        <div class="tr-now"><span>Now <b>48.1%</b> bears · <b>3.9%</b> cash</span><span class="tag">Not met</span></div></div>
+      </div>
+      <div class="tr" data-status="not">
+        <div class="tr-i" aria-hidden="true">○</div>
+        <div><div class="tr-t">A volatility flush</div><div class="tr-c">The VIX spikes above 25, then settles back below 20.</div>
+        <div class="tr-now"><span>Now <b>14.21</b>, no spike yet</span><span class="tag">Not met</span></div></div>
+      </div>
+    </div>
+    <p class="sec-note" style="margin-top:10px">The thresholds are this page's judgment, set between today's readings and historical norms — not an industry standard.</p>
+
+    <h3 class="sub-h">The rule</h3>
+    <div class="ladder">
+      <div class="rung on"><div class="k">0–1 met</div><div>Stay in short-duration bonds.<span class="here">← now</span></div></div>
+      <div class="rung"><div class="k">2–3 met</div><div>Move a third of the bond overweight into stocks.</div></div>
+      <div class="rung"><div class="k">4–5 met</div><div>Move a further third.</div></div>
+      <div class="rung"><div class="k">All 6</div><div>Return to your long-run stock and bond mix.</div></div>
+    </div>
+    <p class="sec-note" style="margin-top:12px">When money does move, add to non-US and equal-weight stocks first — the regions ranked highest below, and RSP and VEA on the first tab — rather than to the concentrated US index.</p>
+  </section>
+
+  <section>
+    <div class="rule-top">
+      <h2>Volatility — calm in stocks, breaking in bonds</h2>
+      <p class="sec-note">Two charts on the same dates. Expected stock-market volatility drifted down toward 13 while the 10-year yield broke above 5%. That split is the most important volatility fact on this page.</p>
+    </div>
+
+    <div class="fchart">
+      <div class="fchart-t">VIX — expected stock-market volatility</div>
+      <div class="fchart-s">Daily closes, 10–23 Sep 2026 · dashed line: one-month high</div>
+      <div class="vchart" id="vc-vix" role="img"></div>
+    </div>
+    <div class="fchart">
+      <div class="fchart-t">10-year Treasury yield</div>
+      <div class="fchart-s">Daily closes, 16–24 Sep 2026 · dashed line: 5%</div>
+      <div class="vchart" id="vc-ust" role="img"></div>
+    </div>
+    <details class="vdata">
+      <summary>Show the numbers</summary>
+      <div class="tablewrap" style="margin-top:8px"><table id="vtable"><thead><tr><th scope="col">Date</th><th scope="col">VIX</th><th scope="col">10-yr</th></tr></thead><tbody></tbody></table></div>
+      <p class="sec-note" style="margin-top:8px">Hollow points are derived, not reported: 22 Sep VIX from Wednesday's 14.21 and its 6.83% gain; 18 Sep yield from Monday's 4.96% and its 4bp fall. Days with no confirmed close are left out rather than filled in.</p>
+    </details>
+
+    <div class="figrow" style="margin-top:14px">
+      <div class="fig"><div class="fig-v">14.21</div><div class="fig-k">VIX, 23 Sep</div></div>
+      <div class="fig"><div class="fig-v">18.94</div><div class="fig-k">VIX 1-month high</div></div>
+      <div class="fig"><div class="fig-v">+15bp</div><div class="fig-k">10-yr, 23 Sep</div></div>
+      <div class="fig"><div class="fig-v">5.0%</div><div class="fig-k">5-yr, first since 2007</div></div>
+    </div>
+    <p class="sec-note" style="margin-top:12px">For scale: the VIX read 21.51 in early June and 20.66 in late July, and sits near its ten-year average. Oil has been the other volatile input — Brent fell from about $109 on 14 September to $100.34 on the 21st, and reports since then conflict.</p>
+
+    <h3 class="sub-h">What volatility means at each horizon</h3>
+    <div class="stance">
+      <div class="st" data-h="3m">
+        <div class="st-h">3 mo</div>
+        <div><div class="st-a">Expect stock volatility to rise.</div><div class="st-n">A VIX near 14 beside a bond market moving 15bp a day is a mismatch, and the calendar is crowded: the Fed on 27–28 October and US midterm elections on 3 November.</div></div>
+      </div>
+      <div class="st" data-h="6m">
+        <div class="st-h">6 mo</div>
+        <div><div class="st-a">Bond volatility should fade once the Fed peaks.</div><div class="st-n">Until then stock volatility has room to catch up. A spike is not a reason to sell — it is the window signal 6 is waiting for.</div></div>
+      </div>
+      <div class="st" data-h="12m">
+        <div class="st-h">12 mo</div>
+        <div><div class="st-a">Use spikes rather than fear them.</div><div class="st-n">A VIX move above 25 that fades is the entry point the rule is built around. Calm markets paying a 0.08-point premium are not.</div></div>
+      </div>
+      <div class="st" data-h="10y">
+        <div class="st-h">10 yr</div>
+        <div><div class="st-a">Volatility matters less than the price you pay.</div><div class="st-n">Over a decade, the starting valuation drives returns more than short-term swings. Buying monthly turns volatility into an averaged entry price.</div></div>
+      </div>
+    </div>
+    <div class="lens" style="margin-top:12px">
+      <p class="verdict" style="margin-top:0"><b>Read:</b> stock-market volatility looks underpriced next to the bond market. That is the case for waiting — and for having the plan above ready when it reprices.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule-top">
+      <h2>Broad sentiment — retail is scared, professionals are not</h2>
+      <p class="sec-note">The contrarian rule — buy when others are fearful — works best when the fear is universal. This month it is not: individual investors are pessimistic, while fund managers stay heavily invested and credit markets price in very little risk.</p>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-h">Individual investors</div>
+      <div class="gauges">
+        <div class="gauge">
+          <div class="g-top"><div class="g-name">CNN Fear &amp; Greed</div><div class="g-val">35</div></div>
+          <div class="g-read"><span class="tag">Fear</span></div>
+          <div class="scale" data-min="0" data-max="100" data-v="35"></div>
+          <div class="scale-lbl"><span>0 extreme fear</span><span>100 extreme greed</span></div>
+          <p class="g-note">Up from 29 on 21 September. Below 45 counts as fear; every September reading found for this page has been in that zone.</p>
+          <div class="g-date">23 Sep</div>
+        </div>
+        <div class="gauge">
+          <div class="g-top"><div class="g-name">AAII bullish share</div><div class="g-val">32.7%</div></div>
+          <div class="g-read"><span class="tag">Below average</span></div>
+          <div class="scale" data-min="0" data-max="100" data-v="32.7" data-ref="37.5"></div>
+          <div class="scale-lbl"><span>0%</span><span>line: 37.5% average</span><span>100%</span></div>
+          <p class="g-note">Bears are 48.1% against a 31.5% average. The prior week's 28.8% bullish reading was a 16-month low.</p>
+          <div class="g-date">Week to 23 Sep</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-h">Professional investors</div>
+      <div class="gauges">
+        <div class="gauge">
+          <div class="g-top"><div class="g-name">BofA fund-manager cash</div><div class="g-val">3.9%</div></div>
+          <div class="g-read"><span class="tag">Sell signal on</span></div>
+          <div class="scale" data-min="2" data-max="6" data-v="3.9" data-ref="4.0"></div>
+          <div class="scale-lbl"><span>2%</span><span>line: 4.0% signal</span><span>6%</span></div>
+          <p class="g-note">Up from 3.5%, the largest monthly rise since March — but still under 4.0%, so BofA's own contrarian sell signal stays switched on.</p>
+          <div class="g-date">September survey</div>
+        </div>
+        <div class="gauge">
+          <div class="g-top"><div class="g-name">Net overweight stocks</div><div class="g-val">49%</div></div>
+          <div class="g-read"><span class="tag">Heavily invested</span></div>
+          <p class="g-note">BofA's composite sentiment eased to 7.0 from 8.0, yet managers remain well overweight. The S&amp;P Global survey of managers shows risk appetite down 19 points for the month.</p>
+          <div class="g-date">September surveys</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-h">Market-implied</div>
+      <div class="gauges">
+        <div class="gauge">
+          <div class="g-top"><div class="g-name">High-yield credit spread</div><div class="g-val">≈270bp</div></div>
+          <div class="g-read"><span class="tag">Complacent</span></div>
+          <div class="scale" data-min="200" data-max="900" data-v="270" data-ref="450"></div>
+          <div class="scale-lbl"><span>200bp</span><span>line: 450bp median</span><span>900bp</span></div>
+          <p class="g-note">In the tightest tenth of its history, pricing in very few defaults. Investment grade trades near 80bp.</p>
+          <div class="g-date">23 Sep</div>
+        </div>
+        <div class="gauge">
+          <div class="g-top"><div class="g-name">Gold ETF inflows</div><div class="g-val">$18bn</div></div>
+          <div class="g-read"><span class="tag">Hedging</span></div>
+          <p class="g-note">The second-largest month on record, lifting global gold ETF assets 16% to $615bn. Protection buyers are real, even where stock-market volatility is not.</p>
+          <div class="g-date">August</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lens" style="margin-top:14px">
+      <p class="verdict" style="margin-top:0"><b>Read:</b> retail fear has been a useful contrarian signal this month. But with managers still 49% overweight and holding little cash, and credit priced for perfection, professionals have room to sell into any weakness. That is why signal 5 needs both groups frightened at once.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule-top">
+      <h2>Regional rankings</h2>
+      <p class="sec-note">Eight regions scored 1–5 for a US-dollar investor at each horizon, weighing trend, flows and sentiment, valuation, and the dollar. Ties share a rank. The horizon switch re-ranks the list. Scores measure relative attractiveness, not a forecast of positive returns.</p>
+    </div>
+    <div class="rlist" id="rlist"></div>
+
+    <h3 class="sub-h">All four horizons</h3>
+    <div class="tablewrap">
+      <table id="rmatrix">
+        <caption>Score, 1 (low) to 5 (high), ordered by four-horizon sum</caption>
+        <thead>
+          <tr><th scope="col">Region</th><th scope="col" data-h="3m">3 mo</th><th scope="col" data-h="6m">6 mo</th><th scope="col" data-h="12m">12 mo</th><th scope="col" data-h="10y">10 yr</th><th scope="col" class="sum">Sum</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="sec-note" style="margin-top:12px">The UK is left out: no reliable 2026 year-to-date figure could be confirmed, and the figure most searches return (+26.4%) is from 2025. Year-to-date figures above carry different dates, which are shown; Korea and Taiwan are as of 1 September and have moved since.</p>
+  </section>
+
+  <div class="disclaim">
+    <b>Before you act on any of this</b>
+    This tab is an educational, rules-based framework built from publicly reported data — not investment advice and not a recommendation to buy or sell any security. The six signals and their thresholds are judgment calls, the regional scores are relative, and the ten-year figures are model forecasts that no one can guarantee. Survey and fund data carry their own dates, and sources disagree at the decimal. Moving money between bonds and stocks has tax and cost consequences that depend on your situation. Consider speaking to a licensed financial adviser.
+  </div>
+
+  <div class="srcs">
+    <h3>Sources</h3>
+    <ul>
+      <li><a href="https://am.jpmorgan.com/us/en/asset-management/adv/about-us/media/press-releases/jp-morgan-releases-2026-long-term-capital-market-assumptions/">J.P. Morgan — 2026 Long-Term Capital Market Assumptions</a></li>
+      <li><a href="https://am.jpmorgan.com/content/dam/jpm-am-aem/americas/us/en/institutional/insights/portfolio-insights/ltcma-full-report.pdf">J.P. Morgan — LTCMA 2026 full report</a></li>
+      <li><a href="https://corporate.vanguard.com/content/corporatesite/us/en/corp/vemo/vemo-return-forecasts.html">Vanguard — Capital Markets Model forecasts</a></li>
+      <li><a href="https://finance.biggo.com/news/7R0SY54BmHHDnbgyH5qD">BigGo Finance — earnings yield nears Treasury rates; lowest premium since dot-com</a></li>
+      <li><a href="https://en.macromicro.me/charts/88437/US-S-P-500-Earnings-Yield-S-P-500-Equity-Risk-Premium-vs-S-P-500">MacroMicro — S&amp;P 500 equity risk premium</a></li>
+      <li><a href="https://streetstats.finance/valuation/market">StreetStats — S&amp;P 500 forward P/E</a></li>
+      <li><a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-24-2026">TheStreet — 24 Sep: 10-year at 5.11%, 2-year 4.95%, October odds above 70%</a></li>
+      <li><a href="https://www.cnbc.com/2026/09/23/treasury-yields-oil-inflation-fed.html">CNBC — 10-year at 19-year high, 23 Sep</a></li>
+      <li><a href="https://www.macroradar.io/vix">MacroRadar — VIX closes 10–18 Sep</a></li>
+      <li><a href="https://finance.yahoo.com/quote/%5EVIX/history/">Yahoo Finance — VIX history</a></li>
+      <li><a href="https://tradingeconomics.com/united-states/government-bond-yield">Trading Economics — 10-year Treasury yield</a></li>
+      <li><a href="https://www.aaii.com/sentimentsurvey">AAII — Investor Sentiment Survey</a></li>
+      <li><a href="https://www.bloomberg.com/news/articles/2026-09-18/investor-sentiment-plunges-to-16-month-low-aaii-survey-shows">Bloomberg — AAII sentiment at 16-month low</a></li>
+      <li><a href="https://atranicapital.substack.com/p/september-2026-bank-of-america-global">September 2026 BofA Global Fund Manager Survey summary</a></li>
+      <li><a href="https://feargreedmeter.com/">Fear &amp; Greed Meter — 35, 23 Sep</a></li>
+      <li><a href="https://fred.stlouisfed.org/series/BAMLH0A0HYM2">FRED — ICE BofA US High Yield option-adjusted spread</a></li>
+      <li><a href="https://streetstats.finance/rates/corporates">StreetStats — investment-grade and high-yield spreads</a></li>
+      <li><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2026/08">World Gold Council — gold ETF flows</a></li>
+      <li><a href="https://www.cnbc.com/2026/09/18/japan-rate-hike-stocks-rise-bond-yields-yen-fall.html">CNBC — Japan's markets after the BoJ hike</a></li>
+      <li><a href="https://www.babypips.com/news/headline-boj-rate-hike-september-2026-yen-falls-dovish-ueda">Babypips — BoJ hikes to 1.25%, yen falls</a></li>
+      <li><a href="https://tradingeconomics.com/japan/stock-market">Trading Economics — Japan stock market</a></li>
+      <li><a href="https://www.morningstar.com/stocks/why-international-stocks-are-having-strong-year">Morningstar — why international stocks have had a strong 2026</a></li>
+      <li><a href="https://www.financecharts.com/etfs/VWO/performance/total-return">FinanceCharts — VWO total return</a></li>
+      <li><a href="https://bajajbrokingmarkets.substack.com/p/two-good-months-one-bad-one-inside">Bajaj Broking — India's foreign-investor whiplash</a></li>
+      <li><a href="https://www.multibagg.ai/market-pulse/articles/fii-outflows-impact-nifty-dii-cmuawwqkr000p2zntn28u1umk">Multibagg — FII outflows and the Nifty</a></li>
+      <li><a href="https://en.sedaily.com/finance/2026/09/22/memory-chip-exports-surge-351-percent-as-kospi-reclaims-7000">Seoul Economic Daily — KOSPI reclaims 7,000</a></li>
+      <li><a href="https://finance.yahoo.com/markets/world-indices/articles/south-koreas-kospi-surges-100-121544935.html">Yahoo Finance — KOSPI up 100% in 2026</a></li>
+      <li><a href="https://www.cnbc.com/2026/05/12/tsmc-samsung-sk-hynixs-south-korea-taiwan-stocks-ai-chipmakers-concentration-risk.html">CNBC — Korea and Taiwan concentration risk</a></li>
+      <li><a href="https://siblisresearch.com/data/emerging-markets-valuations/">Siblis Research — emerging-market valuations</a></li>
+      <li><a href="https://siblisresearch.com/data/pe-ratios-by-country/">Siblis Research — P/E ratios by country</a></li>
+      <li><a href="https://www.etf.com/sections/features/best-performing-etfs-2026-0">ETF.com — best-performing ETFs of 2026</a></li>
+      <li><a href="https://stockanalysis.com/etf/mchi/">StockAnalysis — MCHI</a></li>
+    </ul>
+  </div>
+</div><!-- /panel-regions -->
+
+
 </div>
 
 <script>
@@ -882,37 +1426,305 @@
     });
   }
 
-  function setHorizon(h, focus){
+  /* ===================== Sentiment & regions tab ===================== */
+
+  // Scores are 1-5 for a US-dollar investor. Ranked within a horizon by score;
+  // ties share a rank, and are listed by four-horizon sum, then name.
+  var REGIONS = [
+    {n:"Japan", tk:"EWJ", ytd:"+22.0%", asof:"Sep, total return", h:{
+      "3m":{c:4,n:"The BoJ's hike to 1.25% came with two dissents and no promise of more, so stocks rose; the Nikkei reached 66,618 on 25 Sep."},
+      "6m":{c:4,n:"Earnings momentum has beaten the currency: up 22% in dollars this year even as the yen weakened."},
+      "12m":{c:3,n:"Rates at a 31-year high will keep climbing; if the BoJ turns more hawkish, the easy-policy support fades."},
+      "10y":{c:4,n:"Part of the developed ex-US group both forecasters favour over the US; J.P. Morgan puts that group at 7.4% a year."}}},
+    {n:"Europe", tk:"VGK", ytd:"+9.1%", asof:"Sep", h:{
+      "3m":{c:2,n:"A dollar at a two-month high erodes euro-denominated gains for US investors."},
+      "6m":{c:3,n:"Leadership has rotated to banks, industrials and cyclicals — sectors a hot economy and higher rates suit."},
+      "12m":{c:4,n:"Once the Fed signals a peak, the dollar headwind can reverse — the largest single swing factor for US holders."},
+      "10y":{c:5,n:"The biggest part of the developed ex-US basket that J.P. Morgan (7.4% a year) and Vanguard both rank ahead of US stocks."}}},
+    {n:"Emerging markets", tk:"VWO", ytd:"+14.0%", asof:"22 Sep", h:{
+      "3m":{c:2,n:"5% US yields and a strong dollar pull money out of emerging markets — India's record foreign selling is the live example."},
+      "6m":{c:3,n:"Earnings and AI-infrastructure exposure are real, but flows are unlikely to turn before US rates do."},
+      "12m":{c:4,n:"A Fed peak and a softer dollar would help emerging markets more than any other region."},
+      "10y":{c:5,n:"The highest ten-year equity forecast in J.P. Morgan's 2026 assumptions, at 7.8% a year."}}},
+    {n:"India", tk:"INDA", ytd:"−7.5%", asof:"Sep, total return", h:{
+      "3m":{c:2,n:"Foreign investors have pulled a record ₹2.45 trillion in 2026, more than in all of 2025, with oil, US yields and the rupee still pushing."},
+      "6m":{c:3,n:"The Nifty's P/E has slipped to about 19.6, below its long-run average of 20–21."},
+      "12m":{c:4,n:"The contrarian case: record foreign selling, below-average valuation, and a direct gain if Hormuz reopens and oil falls."},
+      "10y":{c:4,n:"The 2026 selloff has been driven by global factors — oil, US yields, the dollar — rather than India's own growth."}}},
+    {n:"South Korea", tk:"EWY", ytd:"+80.8%", asof:"1 Sep", h:{
+      "3m":{c:3,n:"Memory-chip exports jumped 351% and the KOSPI reclaimed 7,000 on 22 Sep; the forward P/E is only about 7.8."},
+      "6m":{c:3,n:"Samsung and SK Hynix were over 42% of the index in May — one industry's cycle is the whole market's risk."},
+      "12m":{c:2,n:"Memory is the most cyclical corner of chips, and after the index doubled in a year the bar for disappointment is low."},
+      "10y":{c:3,n:"Concentration in one industry leaves the decade outlook hostage to the chip cycle."}}},
+    {n:"Taiwan", tk:"EWT", ytd:"+72.8%", asof:"1 Sep", h:{
+      "3m":{c:2,n:"Among the world's most expensive markets on trailing earnings, and this week's AI selling — Oracle, Nvidia — hits it directly."},
+      "6m":{c:3,n:"TSMC is over 40% of the index, so its earnings visibility is the market's."},
+      "12m":{c:3,n:"AI demand is still growing, but the valuation already assumes it."},
+      "10y":{c:3,n:"A world-class franchise, single-stock concentration and geopolitical risk in roughly equal measure."}}},
+    {n:"United States", tk:"SPY", ytd:"+11.7%", asof:"S&amp;P, 18 Sep, price", h:{
+      "3m":{c:2,n:"Stocks pay 0.08 points over the 10-year, the Fed is hiking, and big tech led Thursday's decline."},
+      "6m":{c:2,n:"At 19.3 times forward earnings with a 5.1% ten-year, there is little valuation room for further rate rises."},
+      "12m":{c:3,n:"Earnings are growing fast — Goldman sees 2026 EPS near $340, up 24% — and can grow into the multiple."},
+      "10y":{c:3,n:"The forecasters split: J.P. Morgan 6.7% a year, Vanguard 3.9–5.9%. Both put the US behind non-US markets."}}},
+    {n:"China", tk:"MCHI", ytd:"−10.3%", asof:"Sep", h:{
+      "3m":{c:2,n:"Down 10% this year; the earlier rally came from rising valuations rather than earnings."},
+      "6m":{c:2,n:"Multiples have recovered while profits stayed largely flat — the rally needs earnings to follow."},
+      "12m":{c:3,n:"Policy support is a live catalyst if earnings growth finally accelerates."},
+      "10y":{c:3,n:"Cheaper than the US, but earnings have lagged the re-rating since 2024."}}}
+  ];
+
+  function regionSum(r){ return ORDER.reduce(function(a,k){ return a + r.h[k].c; }, 0); }
+  function byName(a,b){ return a < b ? -1 : a > b ? 1 : 0; }
+
+  function rankRegions(h){
+    var rows = REGIONS.map(function(r){ return {r:r, c:r.h[h].c, sum:regionSum(r)}; });
+    rows.sort(function(a,b){ return (b.c - a.c) || (b.sum - a.sum) || byName(a.r.n, b.r.n); });
+    // standard competition ranking: equal scores share the rank of the first of them
+    var rank = 0, prev = null;
+    rows.forEach(function(x, i){ if(x.c !== prev){ rank = i + 1; prev = x.c; } x.rank = rank; });
+    rows.forEach(function(x){ x.tie = rows.filter(function(y){ return y.c === x.c; }).length > 1; });
+    return rows;
+  }
+
+  function renderRegions(){
+    var el = document.getElementById("rlist");
+    if(!el) return;
+    el.innerHTML = rankRegions(current).map(function(x){
+      var r = x.r, lbl = (x.tie ? "T" : "") + x.rank;
+      return '<article class="reg">'
+        + '<div class="reg-rank'+(x.tie?' tie':'')+'" aria-label="'+(x.tie?'Tied ':'')+'rank '+x.rank+'">'+lbl+'</div>'
+        + '<div><div class="reg-h"><span class="reg-n">'+r.n+'</span><span class="reg-tk">'+r.tk+'</span>'
+        + '<span class="reg-ytd">YTD '+r.ytd+' · '+r.asof+'</span></div>'
+        + '<div class="reg-m">'+meter(x.c, "var(--accent)")
+        + '<span class="conv-lbl"><b>'+x.c+'/5</b> · '+HLABEL[current]+'</span></div>'
+        + '<p class="reg-note">'+r.h[current].n+'</p></div>'
+        + '</article>';
+    }).join("");
+  }
+
+  function renderRegionMatrix(){
+    var body = document.querySelector("#rmatrix tbody");
+    if(!body) return;
+    var rows = REGIONS.slice().sort(function(a,b){ return (regionSum(b) - regionSum(a)) || byName(a.n, b.n); });
+    body.innerHTML = rows.map(function(r){
+      return '<tr><td>'+r.n+'</td>' + ORDER.map(function(k){
+        return '<td class="'+(k===current?"on":"")+'">'+r.h[k].c+'</td>';
+      }).join("") + '<td class="sum">'+regionSum(r)+'</td></tr>';
+    }).join("");
+    Array.prototype.forEach.call(document.querySelectorAll("#rmatrix thead th[data-h]"), function(th){
+      th.className = th.getAttribute("data-h") === current ? "on" : "";
+    });
+  }
+
+  function renderStance(){
+    Array.prototype.forEach.call(document.querySelectorAll(".st[data-h]"), function(el){
+      el.classList.toggle("on", el.getAttribute("data-h") === current);
+    });
+  }
+
+  // Ten-year forecasts on one 0-9% scale. The Vanguard entry is a range, drawn as one.
+  var FORECASTS = [
+    {n:"Emerging-market stocks", v:7.8, k:"eq"},
+    {n:"Developed ex-US stocks (EAFE)", v:7.4, k:"eq"},
+    {n:"US large-cap stocks", v:6.7, k:"eq"},
+    {n:"US aggregate bonds", v:5.3, k:"bond"},
+    {n:"US stocks, Vanguard range", lo:3.9, hi:5.9, k:"range"}
+  ];
+  var FMAX = 9;
+  function renderForecasts(){
+    var el = document.getElementById("fbars");
+    if(!el) return;
+    el.innerHTML = FORECASTS.map(function(f){
+      var label, style, cls;
+      if(f.k === "range"){
+        label = f.lo.toFixed(1)+"–"+f.hi.toFixed(1)+"%";
+        style = "left:"+(f.lo/FMAX*100)+"%;width:"+((f.hi-f.lo)/FMAX*100)+"%";
+        cls = "range";
+      } else {
+        label = f.v.toFixed(1)+"%";
+        style = "width:"+(f.v/FMAX*100)+"%";
+        cls = f.k === "bond" ? "bond" : "";
+      }
+      return '<div class="fbar"><div class="fbar-top"><span class="n">'+f.n+'</span><span class="v">'+label+'</span></div>'
+        + '<div class="fbar-track"><span class="fbar-fill '+cls+'" style="'+style+'"></span></div></div>';
+    }).join("");
+  }
+
+  // Place each gauge's marker and reference line on its own stated scale.
+  function renderScales(){
+    Array.prototype.forEach.call(document.querySelectorAll(".scale[data-v]"), function(el){
+      var lo = +el.getAttribute("data-min"), hi = +el.getAttribute("data-max");
+      var pos = function(v){ return Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100)); };
+      var html = "";
+      if(el.hasAttribute("data-ref")) html += '<span class="ref" style="left:'+pos(+el.getAttribute("data-ref"))+'%"></span>';
+      html += '<span class="dot" style="left:'+pos(+el.getAttribute("data-v"))+'%"></span>';
+      el.innerHTML = html;
+    });
+  }
+
+  /* ---- volatility small multiples: same dates, separate scales, no dual axis ---- */
+  var VDOMAIN = ["2026-09-10", "2026-09-24"];
+  var VSERIES = {
+    vix: {el:"vc-vix", unit:"", dp:2, y:[12,20], ticks:[12,14,16,18,20],
+      ref:{v:18.94, label:"1-mo high 18.94"},
+      pts:[{d:"2026-09-10",v:17.84},{d:"2026-09-16",v:17.71},{d:"2026-09-17",v:15.44},
+           {d:"2026-09-18",v:14.81},{d:"2026-09-22",v:13.30,derived:true},{d:"2026-09-23",v:14.21}]},
+    ust: {el:"vc-ust", unit:"%", dp:2, y:[4.85,5.20], ticks:[4.9,5.0,5.1,5.2],
+      ref:{v:5.0, label:"5%"},
+      pts:[{d:"2026-09-16",v:5.01},{d:"2026-09-17",v:4.93},{d:"2026-09-18",v:5.00,derived:true},
+           {d:"2026-09-21",v:4.96},{d:"2026-09-22",v:4.96},{d:"2026-09-23",v:5.11},{d:"2026-09-24",v:5.11}]}
+  };
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function fmtDate(iso){ var d = new Date(iso + "T00:00:00Z"); return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]; }
+
+  function drawSeries(key){
+    var s = VSERIES[key], box = document.getElementById(s.el);
+    if(!box || !box.clientWidth) return;
+    var W = box.clientWidth, H = 140, L = 36, R = 12, T = 14, B = 22;
+    var t0 = Date.parse(VDOMAIN[0]), t1 = Date.parse(VDOMAIN[1]);
+    var X = function(d){ return L + (Date.parse(d) - t0) / (t1 - t0) * (W - L - R); };
+    var Y = function(v){ return T + (s.y[1] - v) / (s.y[1] - s.y[0]) * (H - T - B); };
+    var fmt = function(v){ return v.toFixed(s.dp) + s.unit; };
+    var tickFmt = function(v){ return s.unit ? v.toFixed(1) + "%" : String(v); };
+    var svg = '<svg viewBox="0 0 '+W+' '+H+'" aria-hidden="true">';
+    s.ticks.forEach(function(t){
+      svg += '<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(t)+'" y2="'+Y(t)+'"/>'
+          +  '<text x="'+(L-6)+'" y="'+(Y(t)+3)+'" text-anchor="end">'+tickFmt(t)+'</text>';
+    });
+    ["2026-09-10","2026-09-17","2026-09-24"].forEach(function(d, i){
+      svg += '<text x="'+X(d)+'" y="'+(H-6)+'" text-anchor="'+(i===0?"start":i===2?"end":"middle")+'">'+fmtDate(d)+'</text>';
+    });
+    svg += '<line class="ref" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(s.ref.v)+'" y2="'+Y(s.ref.v)+'"/>'
+        +  '<text class="reflbl" x="'+(L+4)+'" y="'+(Y(s.ref.v)-5)+'">'+s.ref.label+'</text>';
+    var p = s.pts;
+    var line = p.map(function(q, i){ return (i ? "L" : "M") + X(q.d).toFixed(1) + " " + Y(q.v).toFixed(1); }).join(" ");
+    var area = line + " L" + X(p[p.length-1].d).toFixed(1) + " " + (H-B) + " L" + X(p[0].d).toFixed(1) + " " + (H-B) + " Z";
+    svg += '<path class="area" d="'+area+'"/><path class="line" d="'+line+'"/>';
+    svg += '<line class="cross" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" style="display:none"/>';
+    p.forEach(function(q, i){
+      svg += '<circle class="pt'+(q.derived?" derived":"")+'" data-i="'+i+'" cx="'+X(q.d)+'" cy="'+Y(q.v)+'" r="4"/>';
+    });
+    var last = p[p.length-1];
+    svg += '<text class="end" x="'+(X(last.d)-7)+'" y="'+(Y(last.v)-9)+'" text-anchor="end">'+fmt(last.v)+'</text>';
+    svg += '</svg><div class="vtip" hidden></div>';
+    box.innerHTML = svg;
+    box.setAttribute("aria-label", (key==="vix" ? "VIX" : "10-year yield") + " from " + fmtDate(p[0].d) + " to " + fmtDate(last.d)
+      + ": " + p.map(function(q){ return fmtDate(q.d) + " " + fmt(q.v) + (q.derived ? " (derived)" : ""); }).join(", "));
+
+    // tap or hover: snap to the nearest dated point
+    var tip = box.querySelector(".vtip"), cross = box.querySelector(".cross"), dots = box.querySelectorAll(".pt");
+    function show(clientX){
+      var rect = box.getBoundingClientRect(), x = clientX - rect.left, best = 0, bd = Infinity;
+      p.forEach(function(q, i){ var dd = Math.abs(X(q.d) - x); if(dd < bd){ bd = dd; best = i; } });
+      var q = p[best];
+      Array.prototype.forEach.call(dots, function(c, i){ c.classList.toggle("hot", i === best); });
+      cross.setAttribute("x1", X(q.d)); cross.setAttribute("x2", X(q.d)); cross.style.display = "";
+      tip.textContent = fmtDate(q.d) + " · " + fmt(q.v) + (q.derived ? " (derived)" : "");
+      tip.style.left = Math.max(48, Math.min(W - 48, X(q.d))) + "px";
+      tip.style.top = (Y(q.v) - 10) + "px";
+      tip.hidden = false;
+    }
+    function hide(){
+      tip.hidden = true; cross.style.display = "none";
+      Array.prototype.forEach.call(dots, function(c){ c.classList.remove("hot"); });
+    }
+    box.onpointermove = function(e){ show(e.clientX); };
+    box.onpointerdown = function(e){ show(e.clientX); };
+    box.onpointerleave = function(e){ if(e.pointerType === "mouse") hide(); };
+  }
+
+  function renderVolTable(){
+    var body = document.querySelector("#vtable tbody");
+    if(!body) return;
+    var dates = {};
+    ["vix","ust"].forEach(function(k){ VSERIES[k].pts.forEach(function(q){ (dates[q.d] = dates[q.d] || {})[k] = q; }); });
+    body.innerHTML = Object.keys(dates).sort().map(function(d){
+      var cell = function(k){
+        var q = dates[d][k], s = VSERIES[k];
+        return q ? q.v.toFixed(s.dp) + s.unit + (q.derived ? "*" : "") : "—";
+      };
+      return '<tr><td>'+fmtDate(d)+'</td><td>'+cell("vix")+'</td><td>'+cell("ust")+'</td></tr>';
+    }).join("");
+  }
+
+  function drawVol(){ drawSeries("vix"); drawSeries("ust"); }
+
+  /* ===================== shared horizon ===================== */
+
+  function setHorizon(h){
     current = h;
-    Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+    // every horizon switch on the page mirrors the same state
+    Array.prototype.forEach.call(document.querySelectorAll(".seg button[data-h]"), function(b){
       var on = b.getAttribute("data-h") === h;
       b.setAttribute("aria-checked", String(on));
-      // roving tabindex: the group is one tab stop, arrows move within it
-      b.tabIndex = on ? 0 : -1;
-      if(on && focus) b.focus();
+      b.tabIndex = on ? 0 : -1;   // roving tabindex: each group is one tab stop
     });
     renderCards();
     renderMatrix();
+    renderRegions();
+    renderRegionMatrix();
+    renderStance();
     var st = document.getElementById("h-status");
     if(st) st.textContent = "Showing " + HLABEL[h] + " horizon.";
   }
 
-  var seg = document.querySelector(".seg");
-
-  seg.addEventListener("click", function(e){
-    var btn = e.target.closest("button[data-h]");
-    if(btn) setHorizon(btn.getAttribute("data-h"));
+  Array.prototype.forEach.call(document.querySelectorAll(".seg"), function(seg){
+    seg.addEventListener("click", function(e){
+      var btn = e.target.closest("button[data-h]");
+      if(btn) setHorizon(btn.getAttribute("data-h"));
+    });
+    seg.addEventListener("keydown", function(e){
+      var i = ORDER.indexOf(current);
+      if(i < 0) return;
+      var next = null;
+      if(e.key === "ArrowRight" || e.key === "ArrowDown") next = ORDER[(i+1) % ORDER.length];
+      else if(e.key === "ArrowLeft" || e.key === "ArrowUp") next = ORDER[(i-1+ORDER.length) % ORDER.length];
+      else if(e.key === "Home") next = ORDER[0];
+      else if(e.key === "End") next = ORDER[ORDER.length-1];
+      if(next){
+        e.preventDefault();
+        setHorizon(next);
+        // keep focus inside the group the key was pressed in
+        var b = seg.querySelector('button[data-h="'+next+'"]');
+        if(b) b.focus();
+      }
+    });
   });
 
-  seg.addEventListener("keydown", function(e){
-    var i = ORDER.indexOf(current);
+  /* ===================== section tabs ===================== */
+
+  var TABS = ["tab-etfs", "tab-regions"];
+
+  function setTab(id, opts){
+    opts = opts || {};
+    TABS.forEach(function(t){
+      var b = document.getElementById(t), panel = document.getElementById(b.getAttribute("aria-controls"));
+      var on = t === id;
+      b.setAttribute("aria-selected", String(on));
+      b.tabIndex = on ? 0 : -1;
+      panel.hidden = !on;
+      if(on && opts.focus) b.focus();
+    });
+    try { localStorage.setItem("etf-scanner-tab", id); } catch(e) {}
+    syncTopbar();
+    if(id === "tab-regions") drawVol();   // charts need a visible box to measure
+    if(opts.scroll) window.scrollTo(0, 0);
+  }
+
+  var tablist = document.querySelector(".tabs");
+  tablist.addEventListener("click", function(e){
+    var b = e.target.closest('[role="tab"]');
+    if(b && b.getAttribute("aria-selected") !== "true") setTab(b.id, {scroll:true});
+  });
+  tablist.addEventListener("keydown", function(e){
+    var i = TABS.indexOf(document.activeElement && document.activeElement.id);
     if(i < 0) return;
     var next = null;
-    if(e.key === "ArrowRight" || e.key === "ArrowDown") next = ORDER[(i+1) % ORDER.length];
-    else if(e.key === "ArrowLeft" || e.key === "ArrowUp") next = ORDER[(i-1+ORDER.length) % ORDER.length];
-    else if(e.key === "Home") next = ORDER[0];
-    else if(e.key === "End") next = ORDER[ORDER.length-1];
-    if(next){ e.preventDefault(); setHorizon(next, true); }
+    if(e.key === "ArrowRight") next = TABS[(i+1) % TABS.length];
+    else if(e.key === "ArrowLeft") next = TABS[(i-1+TABS.length) % TABS.length];
+    else if(e.key === "Home") next = TABS[0];
+    else if(e.key === "End") next = TABS[TABS.length-1];
+    if(next){ e.preventDefault(); setTab(next, {focus:true, scroll:true}); }
   });
 
   function syncTopbar(){
@@ -921,9 +1733,19 @@
   }
 
   renderAlloc();
-  setHorizon(current);   // renders cards + matrix and seeds roving tabindex
-  syncTopbar();
-  window.addEventListener('resize', syncTopbar);
+  renderForecasts();
+  renderScales();
+  renderVolTable();
+  setHorizon(current);   // renders both tabs' horizon views and seeds roving tabindex
+
+  var saved = null;
+  try { saved = localStorage.getItem("etf-scanner-tab"); } catch(e) {}
+  setTab(TABS.indexOf(saved) >= 0 ? saved : "tab-etfs");
+
+  window.addEventListener('resize', function(){
+    syncTopbar();
+    if(!document.getElementById("panel-regions").hidden) drawVol();
+  });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(syncTopbar);
 })();
 </script>

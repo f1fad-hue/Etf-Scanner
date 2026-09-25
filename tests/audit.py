@@ -23,9 +23,16 @@ def check(cond, msg):
 ER = {"VTIP": .03, "RSP": .20, "VEA": .03, "XLV": .08, "ITA": .37}
 YLD = {"VTIP": 2.21, "RSP": 1.46, "VEA": 2.36, "XLV": 1.49, "ITA": 1.29}
 
+def block(name):
+    """Source text of a top-level `var NAME = [ ... ];` array in the page script."""
+    a = js.find("var %s = [" % name)
+    assert a >= 0, name + " not found"
+    return js[a:js.find("\n  ];", a)]
+
+FUNDS_SRC = block("FUNDS")
 funds = []
-for tk in re.findall(r'tk:"(\w+)"', js):
-    blk = js[js.find('tk:"%s"' % tk):]
+for tk in re.findall(r'tk:"(\w+)"', FUNDS_SRC):
+    blk = FUNDS_SRC[FUNDS_SRC.find('tk:"%s"' % tk):]
     blk = blk[:blk.find("\n    },")]
     funds.append({
         "tk": tk,
@@ -80,6 +87,57 @@ for t in ["--ink", "--ink-2", "--ink-3", "--accent", "--warn"]:
 check(True, "ink tokens >= 4.5:1 on all three surfaces")
 for t in [k for k in tok if k.startswith("--t-")]:
     check(ratio(tok[t], tok["--surface"]) >= 4.5, f"chip text {t} {ratio(tok[t], tok['--surface']):.2f}:1")
+
+
+print("sentiment & regions tab")
+REG_SRC = block("REGIONS")
+regions = []
+for m in re.finditer(r'\{n:"([^"]+)", tk:"(\w+)"', REG_SRC):
+    blk = REG_SRC[m.start():]
+    blk = blk[:blk.find("}}}") + 3]
+    regions.append({"n": m.group(1), "tk": m.group(2),
+                    "c": {h: int(c) for h, c in re.findall(r'"(3m|6m|12m|10y)":\{c:(\d)', blk)}})
+check(len(regions) == 8, f"8 regions ({len(regions)})")
+for r in regions:
+    check(set(r["c"]) == {"3m", "6m", "12m", "10y"} and all(1 <= v <= 5 for v in r["c"].values()),
+          f'{r["n"]} scored 1-5 at all four horizons')
+
+# the premium arithmetic shown on the page
+ey = 100 / 19.26
+check(f"{ey:.2f}" == "5.19", f"earnings yield 1/19.26 = {ey:.3f}% -> 5.19%")
+check(f"{5.19 - 5.11:.2f}" == "0.08", "premium 5.19 - 5.11 = 0.08 pts")
+check(round(6.7 - 5.3, 1) == 1.4 and round(7.8 - 5.3, 1) == 2.5, "JPM stock-over-bond edge 1.4 (US) to 2.5 (EM)")
+lvl = 7706.03 * (1 - 0.0051)
+check(abs(lvl / 7650.50 - 1) < 0.003, f"S&P {lvl:.1f} within 0.3% of 18 Sep 7,650.50 ({(lvl/7650.50-1)*100:+.2f}%)")
+check(abs(14.21 / 1.0683 - 13.30) < 0.005, f"derived 22 Sep VIX 14.21/1.0683 = {14.21/1.0683:.3f}")
+check(abs(4.96 + 0.04 - 5.00) < 1e-9, "derived 18 Sep 10-yr 4.96 + 0.04 = 5.00")
+check(abs(5.11 - 4.75 - 0.36) < 1e-9, "4.75% threshold is 36bp under 5.11%")
+
+# signal tallies: statuses in the markup must match every summary of them
+st = re.findall(r'class="tr" data-status="(\w+)"', s)
+met, part, no = st.count("met"), st.count("part"), st.count("not")
+check(len(st) == 6, f"six signals ({len(st)})")
+check(f'<div class="kpi-v">{met} of 6</div>' in s, f"KPI says {met} of 6 met")
+check(f'<span class="tag">{met} met</span>' in s and f"◐ {part} partial" in s and f"○ {no} not met" in s,
+      f"summary tags {met} met / {part} partial / {no} not met")
+rung = {0: "0–1 met", 1: "0–1 met", 2: "2–3 met", 3: "2–3 met", 4: "4–5 met", 5: "4–5 met", 6: "All 6"}[met]
+check(f'<div class="rung on"><div class="k">{rung}</div>' in s and s.count('class="rung on"') == 1,
+      f'rule ladder highlights "{rung}" only')
+
+# gauge markers and reference lines must sit inside their stated scales
+for m in re.finditer(r'class="scale" data-min="([\d.]+)" data-max="([\d.]+)" data-v="([\d.]+)"(?: data-ref="([\d.]+)")?', s):
+    lo, hi, v, ref = float(m.group(1)), float(m.group(2)), float(m.group(3)), m.group(4)
+    check(lo <= v <= hi and (ref is None or lo <= float(ref) <= hi), f"gauge {v} (ref {ref}) inside {lo}-{hi}")
+
+# chart points must fall inside their axes, or the SVG clips them silently
+for key in ("vix", "ust"):
+    blk = js[js.find("    %s: {el:" % key):]
+    blk = blk[:blk.find("]}") + 2]
+    y0, y1 = map(float, re.search(r"y:\[([\d.]+),([\d.]+)\]", blk).groups())
+    vals = [float(v) for v in re.findall(r"v:([\d.]+)", blk)]
+    dates = re.findall(r'd:"(2026-\d\d-\d\d)"', blk)
+    check(all(y0 <= v <= y1 for v in vals), f"{key}: all {len(vals)} values (incl. ref) inside y {y0}-{y1}")
+    check(all("2026-09-10" <= d <= "2026-09-24" for d in dates) and dates == sorted(dates), f"{key}: dates sorted and inside 10-24 Sep")
 
 print()
 print("ALL CHECKS PASSED" if not fails else f"{len(fails)} CHECK(S) FAILED")

@@ -1,8 +1,12 @@
 # ETF Scanner — September 2026 Brief
 
-A single-page, mobile-first market brief that ranks five ETFs against the
-September 2026 regime, with conviction scored across four horizons
-(3-month, 6-month, 12-month, 10-year).
+A mobile-first, light-theme market brief with two tabs:
+
+- **Top 5 ETFs** — five ETFs ranked against the September 2026 regime, with
+  conviction scored across 3-month, 6-month, 12-month and 10-year horizons.
+- **Sentiment & regions** — when to move from bonds into stocks (six signals
+  and a staged rule), volatility analysis, broad sentiment split by investor
+  type, and eight regions ranked at each horizon.
 
 **Live page:** https://claude.ai/artifact/D1jcssxQKUavM9MQ9W7YE9
 
@@ -48,6 +52,61 @@ and why.
 - `tests/` — static audit and browser regression suite (see Tests).
 
 ## Edition log
+
+### 25 Sep 2026 — second tab: sentiment, volatility and regions
+
+Adds a **Sentiment & regions** tab answering one question: when should money
+move from bonds into stocks? Data through the 24 Sep close; surveys dated
+individually. The Top 5 tab is unchanged apart from one correction below.
+
+**The answer:** not yet for short-term money; gradually for decade money.
+
+- *The arithmetic.* S&P forward earnings yield 5.19% (1 / 19.26) minus the
+  10-year at 5.11% = **0.08 points** extra for owning stocks, at or near its
+  thinnest since the dot-com bust against a historical 3–4 points.
+- *The decade.* J.P. Morgan's 2026 LTCMA: EM stocks 7.8%, EAFE 7.4%, US large
+  cap 6.7%, US aggregate bonds 5.3% — stocks ahead by 1.4 to 2.5 points a year.
+  Vanguard's US range of 3.9–5.9% straddles that bond forecast, so the move
+  into stocks favours international first.
+- *Six signals*, each with today's reading: premium ≥ 2 pts (0.08); October hike
+  odds < 30% (>70%); 10-year below 4.75% (5.11%); core CPI down three months
+  running (one so far — partial); AAII bears > 55% **and** fund-manager cash > 5%
+  (48.1% and 3.9%); VIX above 25 then back below 20 (14.21). **0 met, 1 partial.**
+  A ladder moves a third of the bond overweight for every two signals.
+
+**Volatility.** Two charts on the same dates, separate scales rather than a
+dual axis: the VIX drifting toward 13 while the 10-year broke above 5%. Only
+dated closes are plotted; two derived points are drawn hollow and explained,
+and days without a confirmed close are left out rather than filled in.
+
+**Sentiment, split three ways.** Retail is fearful (Fear & Greed 35; AAII bulls
+32.7% after a 16-month low). Professionals are not (BofA cash 3.9%, under the
+4.0% line that keeps BofA's own sell signal on; 49% net overweight stocks).
+Credit is complacent (high-yield spread ≈270bp, tightest tenth of history).
+That is why the capitulation signal requires retail and professionals together.
+
+**Regional rankings.** Eight regions scored 1–5 at each horizon for a US-dollar
+investor. Ties share a rank (standard competition ranking) instead of being
+split arbitrarily. Four-horizon sums: Japan 15, Europe 14, EM 14, India 13,
+Korea 11, Taiwan 11, US 10, China 10.
+
+**Horizon state is shared** — changing it on either tab updates both.
+
+**Errors found and fixed this round**
+
+| Defect | Where | Fix |
+|---|---|---|
+| "Fear & Greed has not reached neutral once" this month — only a handful of September readings exist, not a daily series | Top 5 tab, since 21 Sep | Now "every September reading found has been in that zone" |
+| A search returned the UK at +26.4% YTD — a **2025** figure | research | UK excluded, with the reason on the page |
+| A search returned Hong Kong at +29% YTD — also 2025 | research | Not used; China uses MCHI −10.3% |
+| Fund parser matched every `tk:` in the script, so regions would have been read as funds | `tests/audit.py` | Parsers scoped to their own arrays |
+| Browser test expected 9 rows in the numbers table; the true union of dates is 8 | `tests/browser.mjs` | Test corrected — the page was right |
+| Hover test moved the pointer over a chart 4,000px below the viewport | `tests/browser.mjs` | Scrolls first; added a tap test for phones |
+| Region cards carried ~50px of dead space from a default paragraph margin | layout | Margin reset, now 13px |
+| YTD line sat in different places on different region cards | layout | Fixed to its own line on every card |
+| Double rule above the premium total | layout | One rule |
+| Byline separators orphaned at the start of wrapped lines | both tabs, since 19 Sep v2 | Separators replaced by spacing |
+| Four-tile stat rows split 3 + 1 on phones | both tabs | 2 × 2 on phones |
 
 ### 24 Sep 2026 — thesis corrected, re-ranked, three latent bugs fixed
 
@@ -203,9 +262,9 @@ Both run from the repo root and exit non-zero on failure.
 
 ```sh
 python3 tests/audit.py        # arithmetic, ranking method, structure, contrast
-node tests/browser.mjs        # overflow at 320/360/412/680px, JS errors, horizon
-                              # switching, keyboard nav, sticky bars, rendered
-                              # chip contrast (38 checks)
+node tests/browser.mjs        # both tabs: overflow at 320/360/412/680px, JS errors,
+                              # tabs + shared horizon, keyboard nav, ranking vs
+                              # score table, charts, contrast (65 checks)
 ```
 
 `browser.mjs` needs Playwright; set `PLAYWRIGHT_MODULE` to its `index.mjs` if
