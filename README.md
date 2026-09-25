@@ -53,6 +53,44 @@ and why.
 
 ## Edition log
 
+### 25 Sep 2026 — whole-portfolio stock / bond allocation
+
+The two tabs disagreed without saying so. The Top 5 sleeve is 27% bonds /
+73% stocks, because it is five picks with one bond fund; the second tab says to
+keep short-term money in short bonds. Adds one whole-portfolio model that both
+tabs now use.
+
+| Signals met | Stocks / bonds | VTIP | RSP | VEA | XLV | ITA |
+|---|---|---|---|---|---|---|
+| **0–1 (now)** | **45 / 55** | 55 | 15 | 14 | 9 | 7 |
+| 2–3 | 50 / 50 | 50 | 16 | 16 | 10 | 8 |
+| 4–5 | 55 / 45 | 45 | 18 | 18 | 11 | 8 |
+| All 6 | 60 / 40 | 40 | 20 | 19 | 12 | 9 |
+
+- Long-run mix 60 / 40 for a moderate-risk investor (stated as an assumption);
+  today a 15-point bond overweight, unwound in 5-point steps as signals fire.
+- The stock side keeps the Top 5 proportions (RSP + VEA are 64% of it); VTIP
+  carries the bond side. Rounded by largest remainder so every row sums to 100.
+- By horizon: 45 / 55 at 3 and 6 months, 45 → 60 over 12 months as signals
+  fire, 60 / 40 target for decade money reached in 12 monthly steps of 1¼ points.
+- Today's blended fee 0.08%, yield ~2.0%, 14% outside the US.
+- Tab 1 shows the sleeve's 27 / 73 and links to the total allocation.
+
+The page computes every weight from one set of constants and the fund data;
+`tests/audit.py` recomputes them independently and checks that each place the
+page states the mix (heading, KPI, thesis, tab-1 pointer, all four ladder
+rungs) agrees, and that the page's numeric fee and yield fields match the
+figures shown on the fund cards.
+
+**Found and fixed**
+
+| Defect | Fix |
+|---|---|
+| The two tabs gave conflicting allocation signals with no reconciliation | One model, stated on both tabs |
+| Fund legends showed an empty grey cell after five items (tab 1 since v1) | Items grow to fill the last row |
+| Steps table cut off two columns on phones | The Bonds column always equalled VTIP; merged into one "stocks / bonds" column. Fits at 360px and 412px |
+| A 320px rule widened the table instead of narrowing it: an id-level `font-size` overrode the 10px header size | Font size applied to data cells only |
+
 ### 25 Sep 2026 — second tab: sentiment, volatility and regions
 
 Adds a **Sentiment & regions** tab answering one question: when should money
@@ -264,7 +302,8 @@ Both run from the repo root and exit non-zero on failure.
 python3 tests/audit.py        # arithmetic, ranking method, structure, contrast
 node tests/browser.mjs        # both tabs: overflow at 320/360/412/680px, JS errors,
                               # tabs + shared horizon, keyboard nav, ranking vs
-                              # score table, charts, contrast (65 checks)
+                              # score table, charts, allocation, contrast
+                              # (76 checks)
 ```
 
 `browser.mjs` needs Playwright; set `PLAYWRIGHT_MODULE` to its `index.mjs` if

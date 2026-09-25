@@ -128,7 +128,7 @@ const sync = await p.evaluate(()=>({
   hdr: document.querySelector('#rmatrix thead th.on')?.textContent
 }));
 ok(sync.t1==='true', 'horizon chosen on tab 2 is mirrored on tab 1');
-ok(sync.on.length===2 && sync.on.every(h=>h==='3m'), `stance + volatility rows highlight 3m (${sync.on})`);
+ok(sync.on.length===3 && sync.on.every(h=>h==='3m'), `allocation, stance and volatility rows all highlight 3m (${sync.on})`);
 ok(sync.hdr==='3 mo', 'region matrix highlights the 3-month column');
 
 // the ranked list must agree with the score table, under the stated rule
@@ -203,6 +203,42 @@ const c2 = await p.evaluate(()=>{
 });
 const worst = c2.reduce((a,b)=>a.r<b.r?a:b);
 ok(c2.every(c=>c.r>=4.5), `tab 2 small text all >=4.5:1 across ${c2.length} elements (lowest "${worst.t}" ${worst.r}:1)`);
+
+
+console.log('\n--- whole-portfolio allocation ---');
+const al = await p.evaluate(()=>{
+  const tr=document.querySelector('#mix-bar .mix-track').getBoundingClientRect();
+  const stk=document.querySelector('#mix-bar .mix-seg.stk').getBoundingClientRect();
+  const mk=document.querySelector('#mix-bar .mix-mark').getBoundingClientRect();
+  const legend=Object.fromEntries(Array.from(document.querySelectorAll('#total-legend div')).map(d=>[d.querySelector('b').textContent, parseInt(d.querySelector('em').textContent)]));
+  const rows=Array.from(document.querySelectorAll('#stage-table tbody tr')).map(tr=>Array.from(tr.querySelectorAll('td')).map(td=>td.textContent));
+  const figs=Array.from(document.querySelectorAll('#total-figs .fig-v')).map(x=>x.textContent);
+  return {stkPct:(stk.width)/(tr.width)*100, mkPct:(mk.left+mk.width/2-tr.left)/tr.width*100, legend, rows, figs,
+          on:Array.from(document.querySelectorAll('#stage-table tr.on')).map(r=>r.rowIndex)};
+});
+ok(Math.abs(al.stkPct-45)<1.5, `stock segment drawn at 45% of the bar (${al.stkPct.toFixed(1)})`);
+ok(Math.abs(al.mkPct-60)<0.5, `long-run marker at 60% (${al.mkPct.toFixed(1)})`);
+ok(JSON.stringify(al.legend)===JSON.stringify({VTIP:55,RSP:15,VEA:14,XLV:9,ITA:7}), `fund weights ${JSON.stringify(al.legend)}`);
+// columns: signals | "stocks / bonds" | VTIP RSP VEA XLV ITA
+const mixOf = r=>r[1].split('/').map(x=>+x.trim());
+ok(al.rows.length===4 && al.rows.every(r=>{const [st,bd]=mixOf(r);return st+bd===100 && r.slice(2).reduce((a,b)=>a+ +b,0)===100 && +r[2]===bd;}),
+   'every rung: stocks + bonds = 100, funds = 100, VTIP = bond side');
+ok(JSON.stringify(al.rows.map(r=>mixOf(r).join('/')))===JSON.stringify(['45/55','50/50','55/45','60/40']), `rungs ${al.rows.map(r=>mixOf(r).join('/'))}`);
+ok(/\(current\)/.test(al.rows[0][0]) && !al.rows.slice(1).some(r=>/current/.test(r[0])), 'current rung carries a text marker, not colour alone');
+ok(al.on.length===1 && al.on[0]===1, 'only the current rung is highlighted');
+ok(JSON.stringify(al.figs)===JSON.stringify(['0.08%','~2.0%','2.4 yr','14%']), `blended figures ${al.figs}`);
+
+// jump link from tab 1 lands on the section, clear of the sticky bars
+await p.click('#tab-etfs'); await p.waitForTimeout(250);
+await p.click('[data-goto="alloc-total"]'); await p.waitForTimeout(400);
+const jump = await p.evaluate(()=>{
+  const h2=document.querySelector('#alloc-total h2').getBoundingClientRect();
+  const hz=document.querySelector('#panel-regions .horizon').getBoundingClientRect();
+  return {shown:!document.getElementById('panel-regions').hidden, h2top:Math.round(h2.top), hzBottom:Math.round(hz.bottom), vh:innerHeight, focus:document.activeElement.id};
+});
+ok(jump.shown, 'jump link switches to the Sentiment & regions tab');
+ok(jump.h2top>=jump.hzBottom-1 && jump.h2top<jump.vh, `heading lands visible below the sticky bars (${jump.h2top} >= ${jump.hzBottom})`);
+ok(jump.focus==='alloc-total', 'focus moves to the section for keyboard and screen-reader users');
 
 // remembered tab survives a reload
 await p.reload({waitUntil:'domcontentloaded'}); await p.waitForTimeout(500);

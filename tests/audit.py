@@ -139,6 +139,47 @@ for key in ("vix", "ust"):
     check(all(y0 <= v <= y1 for v in vals), f"{key}: all {len(vals)} values (incl. ref) inside y {y0}-{y1}")
     check(all("2026-09-10" <= d <= "2026-09-24" for d in dates) and dates == sorted(dates), f"{key}: dates sorted and inside 10-24 Sep")
 
+
+print("whole-portfolio allocation")
+# the page's own numeric fund fields must match the figures this audit uses
+for tk in ER:
+    m = re.search(r'tk:"%s", asset:"(\w+)", er:([\d.]+), yld:([\d.]+)' % tk, FUNDS_SRC)
+    check(m and float(m.group(2)) == ER[tk] and float(m.group(3)) == YLD[tk],
+          f"{tk} er/yld in page data match ({m and m.group(2)}, {m and m.group(3)})")
+NEUTRAL, TILT, STEP = 60, 15, 5
+for name, val in [("NEUTRAL_STOCKS", NEUTRAL), ("TILT", TILT), ("STEP", STEP)]:
+    check(re.search(r"\b%s = %d\b" % (name, val), js) is not None, f"model constant {name} = {val}")
+eq = {f["tk"]: f["w"] for f in funds if f["tk"] != "VTIP"}
+def split(S):
+    tot = sum(eq.values()); raw = {k: S * v / tot for k, v in eq.items()}
+    fl = {k: int(v) for k, v in raw.items()}
+    for k in sorted(raw, key=lambda k: (-(raw[k] - fl[k]), -eq[k]))[:S - sum(fl.values())]:
+        fl[k] += 1
+    return {"VTIP": 100 - S, **fl}
+for i in range(4):
+    S = NEUTRAL - TILT + i * STEP
+    w = split(S)
+    check(sum(w.values()) == 100, f"rung {i}: {S}/{100-S} weights {w} sum to 100")
+S0 = NEUTRAL - TILT
+w0 = split(S0)
+for txt, why in [(f"Total allocation — {S0}% stocks, {100-S0}% bonds today", "section heading"),
+                 (f'<div class="kpi-v">{S0} / {100-S0}</div>', "tab 2 KPI"),
+                 (f"about {S0}% stocks and {100-S0}% bonds today", "tab 2 thesis"),
+                 (f"scale to {100-S0}% bonds and {S0}% stocks", "tab 1 pointer"),
+                 (f"Stay at {S0}% stocks / {100-S0}% bonds.", "ladder rung 1"),
+                 (f"Move {STEP} points into stocks: {S0+STEP} / {100-S0-STEP}.", "ladder rung 2"),
+                 (f"Another {STEP} points: {S0+2*STEP} / {100-S0-2*STEP}.", "ladder rung 3"),
+                 (f"Back to the long-run {NEUTRAL} / {100-NEUTRAL}.", "ladder rung 4"),
+                 (f"carries a {TILT}-point bond overweight", "tilt stated")]:
+    check(txt in s, f"{why} states the computed mix")
+vtip = next(f["w"] for f in funds if f["tk"] == "VTIP")
+check(f'<div class="fig-v">{vtip} / {100-vtip}</div><div class="fig-k">Bonds / stocks</div>' in s, f"tab 1 sleeve split {vtip} / {100-vtip}")
+share = (eq["RSP"] + eq["VEA"]) / sum(eq.values())
+check(0.60 <= share <= 0.70, f"'about two-thirds' RSP + VEA of the stock side ({share:.1%})")
+check(abs(TILT / 12 - 1.25) < 1e-9 and "about 1¼ points" in s, "10-yr glide 15 pts / 12 months = 1¼ a month")
+fee0 = sum(w0[k] / 100 * ER[k] for k in w0); yld0 = sum(w0[k] / 100 * YLD[k] for k in w0)
+print(f"         (today: fee {fee0:.4f}% -> {fee0:.2f}%, yield {yld0:.4f}% -> ~{yld0:.1f}%, weights {w0})")
+
 print()
 print("ALL CHECKS PASSED" if not fails else f"{len(fails)} CHECK(S) FAILED")
 sys.exit(1 if fails else 0)

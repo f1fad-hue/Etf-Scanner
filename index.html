@@ -419,12 +419,12 @@
   }
   .allocbar span{display:block;border-radius:3px;min-width:3px}
   .alloclegend{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(118px,1fr));
+    display:flex;flex-wrap:wrap;
     gap:2px;background:var(--rule);
     border:1px solid var(--rule);border-radius:9px;overflow:hidden;
   }
   .alloclegend div{
+    flex:1 1 104px;
     background:var(--surface);padding:9px 11px;
     display:flex;align-items:center;gap:8px;
   }
@@ -639,6 +639,43 @@
   .reg-note{margin:0;font-size:13px;color:var(--ink-2)}
   td.sum,th.sum{color:var(--ink-3)}
 
+  /* whole-portfolio stock / bond mix */
+  #alloc-total{scroll-margin-top:calc(var(--topbar-h, 88px) + 96px)}
+  #alloc-total:focus{outline:none}
+  .mix{margin:22px 0 4px}
+  .mix-track{position:relative;display:flex;gap:2px;height:44px}
+  .mix-seg{
+    display:flex;align-items:center;padding:0 12px;border-radius:4px;
+    color:#fff;font-family:var(--mono);font-size:13px;font-weight:600;
+    white-space:nowrap;overflow:hidden;
+  }
+  .mix-seg.stk{background:var(--accent)}
+  .mix-seg.bnd{background:var(--ink-3);justify-content:flex-end}
+  .mix-mark{position:absolute;top:-7px;bottom:-7px;width:2px;margin-left:-1px;background:var(--ink)}
+  .mix-lbl{position:relative;height:16px;margin-top:9px;font-family:var(--mono);font-size:10.5px;color:var(--ink-2)}
+  .mix-lbl span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  #stage-table{min-width:0}
+  #stage-table thead th{white-space:normal;vertical-align:bottom;line-height:1.3}
+  @media(max-width:359px){
+    /* padding only on headers: an id-level font-size here would override the
+       10px header size and make the widest cells wider, not narrower */
+    #stage-table th,#stage-table td{padding-left:4px;padding-right:4px}
+    #stage-table td{font-size:11.5px}
+    #stage-table th:first-child,#stage-table td:first-child{padding-left:10px}
+    #stage-table th:last-child,#stage-table td:last-child{padding-right:10px}
+  }
+  #stage-table th,#stage-table td{padding:9px 6px}
+  #stage-table th:first-child,#stage-table td:first-child{padding-left:12px}
+  #stage-table th:last-child,#stage-table td:last-child{padding-right:12px}
+  #stage-table tr.on td{background:var(--accent-soft);color:var(--ink);font-weight:600}
+  #stage-table td.grp{border-left:1px solid var(--rule-strong)}
+  .linkbtn{
+    display:inline-block;padding:6px 0;background:none;border:0;
+    font:inherit;font-weight:600;color:var(--accent);
+    text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+  }
+  .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
   /* volatility small multiples */
   .vchart{position:relative;margin-top:10px;min-height:140px;touch-action:pan-y}
   .vchart svg{display:block;width:100%;height:140px;overflow:visible}
@@ -836,7 +873,9 @@
       <div class="fig"><div class="fig-v">0.12%</div><div class="fig-k">Blended fee</div></div>
       <div class="fig"><div class="fig-v">~1.9%</div><div class="fig-k">Blended yield</div></div>
       <div class="fig"><div class="fig-v">42%</div><div class="fig-k">VTIP + XLV</div></div>
+      <div class="fig"><div class="fig-v">27 / 73</div><div class="fig-k">Bonds / stocks</div></div>
     </div>
+    <p class="sec-note" style="margin-top:12px">That 27 / 73 split is the mix inside this five-fund sleeve, which holds a single bond fund. For a whole portfolio today, the same five funds scale to 55% bonds and 45% stocks. <button type="button" class="linkbtn" data-goto="alloc-total">See the total allocation →</button></p>
   </section>
 
   <section>
@@ -961,15 +1000,15 @@
         <div class="kpi-d"><span class="g">▲</span> 10-yr +15bp same day</div>
       </div>
       <div class="kpi">
-        <div class="kpi-k">AAII bears</div>
-        <div class="kpi-v">48.1%</div>
-        <div class="kpi-d"><span class="g">▲</span> average 31.5%</div>
+        <div class="kpi-k">Stocks / bonds</div>
+        <div class="kpi-v">45 / 55</div>
+        <div class="kpi-d"><span class="g">■</span> long-run 60 / 40</div>
       </div>
     </div>
 
     <div class="thesis-box">
       <div class="k">The answer, in one line</div>
-      <p><b>Keep short-term money in short-duration bonds; move long-term money into stocks gradually, and faster once the signals start to fire.</b> Short bonds now pay about what stocks earn, with a fraction of the risk. That changes when the Fed signals a peak, yields roll over, or a volatility flush makes stocks cheaper — the six signals below. When it does, the regional rankings at the bottom say where to go first.</p>
+      <p><b>Keep short-term money in short-duration bonds; move long-term money into stocks gradually, and faster once the signals start to fire.</b> For a whole portfolio that means about 45% stocks and 55% bonds today, against a long-run 60 / 40. Short bonds now pay about what stocks earn, with a fraction of the risk. That changes when the Fed signals a peak, yields roll over, or a volatility flush makes stocks cheaper — the six signals below. When it does, the regional rankings at the bottom say where to go first.</p>
     </div>
   </header>
 
@@ -982,6 +1021,54 @@
       <button type="button" role="radio" id="r-10y" aria-checked="false" data-h="10y">10 yr</button>
     </div>
   </div>
+
+
+  <section id="alloc-total" tabindex="-1">
+    <div class="rule-top">
+      <h2>Total allocation — 45% stocks, 55% bonds today</h2>
+      <p class="sec-note">For a whole portfolio, not just the five funds. Measured against a long-run mix of 60% stocks and 40% bonds for a moderate-risk investor, today's mix carries a 15-point bond overweight. The six signals below unwind it in three 5-point steps.</p>
+    </div>
+
+    <div class="mix" id="mix-bar" role="img"></div>
+
+    <h3 class="sub-h">By fund</h3>
+    <div class="allocbar" id="total-bar" role="img"></div>
+    <div class="alloclegend" id="total-legend"></div>
+    <div class="figrow" id="total-figs" style="margin-top:12px"></div>
+    <p class="sec-note" style="margin-top:12px">The stock side keeps the Top 5 proportions, so about two-thirds of it sits in equal-weight US (RSP) and developed international (VEA) rather than the concentrated US index. VTIP carries the whole bond side; splitting it with a short-term Treasury fund is a reasonable variation.</p>
+
+    <h3 class="sub-h">By horizon</h3>
+    <div class="stance">
+      <div class="st" data-h="3m">
+        <div class="st-h">3 mo</div>
+        <div><div class="st-a">45% stocks · 55% bonds</div><div class="st-n">Today's mix. Hold it.</div></div>
+      </div>
+      <div class="st" data-h="6m">
+        <div class="st-h">6 mo</div>
+        <div><div class="st-a">45% stocks · 55% bonds</div><div class="st-n">Hold. It moves to 50 / 50 once two signals fire.</div></div>
+      </div>
+      <div class="st" data-h="12m">
+        <div class="st-h">12 mo</div>
+        <div><div class="st-a">45% → 60% stocks</div><div class="st-n">Steps up 5 points for every two signals that fire, reaching 60 / 40 when all six have.</div></div>
+      </div>
+      <div class="st" data-h="10y">
+        <div class="st-h">10 yr</div>
+        <div><div class="st-a">60% stocks · 40% bonds</div><div class="st-n">The target for money you will not touch for a decade. Reach it in 12 monthly steps of about 1¼ points, starting now; if the signals fire faster, jump ahead.</div></div>
+      </div>
+    </div>
+
+    <h3 class="sub-h">As the signals fire</h3>
+    <div class="tablewrap">
+      <table id="stage-table">
+        <caption>Whole-portfolio weights, % of total</caption>
+        <thead>
+          <tr><th scope="col">Signals met</th><th scope="col">Stocks / bonds</th><th scope="col">VTIP</th><th scope="col">RSP</th><th scope="col">VEA</th><th scope="col">XLV</th><th scope="col">ITA</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="sec-note" style="margin-top:12px">Money you need within about a year belongs in cash or short bonds whatever the signals say. If your own long-run mix is different — 80 / 20 or 40 / 60, say — keep the same 15-point tilt and 5-point steps around your number.</p>
+  </section>
 
   <section>
     <div class="rule-top">
@@ -1067,12 +1154,12 @@
 
     <h3 class="sub-h">The rule</h3>
     <div class="ladder">
-      <div class="rung on"><div class="k">0–1 met</div><div>Stay in short-duration bonds.<span class="here">← now</span></div></div>
-      <div class="rung"><div class="k">2–3 met</div><div>Move a third of the bond overweight into stocks.</div></div>
-      <div class="rung"><div class="k">4–5 met</div><div>Move a further third.</div></div>
-      <div class="rung"><div class="k">All 6</div><div>Return to your long-run stock and bond mix.</div></div>
+      <div class="rung on"><div class="k">0–1 met</div><div>Stay at 45% stocks / 55% bonds.<span class="here">← now</span></div></div>
+      <div class="rung"><div class="k">2–3 met</div><div>Move 5 points into stocks: 50 / 50.</div></div>
+      <div class="rung"><div class="k">4–5 met</div><div>Another 5 points: 55 / 45.</div></div>
+      <div class="rung"><div class="k">All 6</div><div>Back to the long-run 60 / 40.</div></div>
     </div>
-    <p class="sec-note" style="margin-top:12px">When money does move, add to non-US and equal-weight stocks first — the regions ranked highest below, and RSP and VEA on the first tab — rather than to the concentrated US index.</p>
+    <p class="sec-note" style="margin-top:12px">Each step keeps the Top 5 proportions on the stock side, so new money leans to equal-weight US and developed international rather than the concentrated US index. The fund-by-fund weights at every step are in the table above.</p>
   </section>
 
   <section>
@@ -1275,7 +1362,7 @@
 
   var FUNDS = [
     {
-      tk:"VTIP", mk:"var(--s-vtip)", tc:"var(--t-vtip)", w:27, prev:3,
+      tk:"VTIP", asset:"bond", er:0.03, yld:2.21, mk:"var(--s-vtip)", tc:"var(--t-vtip)", w:27, prev:3,
       name:"Vanguard Short-Term Inflation-Protected Securities ETF",
       role:"Ballast",
       stats:[["2.21%","30-day SEC yield"],["2.4 yr","Duration"],["0.03%","Expense ratio"]],
@@ -1289,7 +1376,7 @@
       }
     },
     {
-      tk:"RSP", mk:"var(--s-rsp)", tc:"var(--t-rsp)", w:24, prev:2,
+      tk:"RSP", asset:"stock", er:0.2, yld:1.46, mk:"var(--s-rsp)", tc:"var(--t-rsp)", w:24, prev:2,
       name:"Invesco S&amp;P 500 Equal Weight ETF",
       role:"Concentration hedge",
       stats:[["~1.4%","Mag 7 weight"],["1.46%","Yield"],["0.20%","Expense ratio"]],
@@ -1303,7 +1390,7 @@
       }
     },
     {
-      tk:"VEA", mk:"var(--s-vea)", tc:"var(--t-vea)", w:23, prev:1,
+      tk:"VEA", asset:"stock", er:0.03, yld:2.36, mk:"var(--s-vea)", tc:"var(--t-vea)", w:23, prev:1,
       name:"Vanguard FTSE Developed Markets ETF",
       role:"Long-run equity engine",
       stats:[["+16.5%","YTD (NAV, TR)"],["19.9&times;","P/E · SPX 19.3"],["0.03%","Expense ratio"]],
@@ -1317,7 +1404,7 @@
       }
     },
     {
-      tk:"XLV", mk:"var(--s-xlv)", tc:"var(--t-xlv)", w:15, prev:4,
+      tk:"XLV", asset:"stock", er:0.08, yld:1.49, mk:"var(--s-xlv)", tc:"var(--t-xlv)", w:15, prev:4,
       name:"Health Care Select Sector SPDR Fund",
       role:"Low-beta diversifier",
       stats:[["+9.7%","YTD total return"],["1.49%","Yield"],["0.08%","Expense ratio"]],
@@ -1331,7 +1418,7 @@
       }
     },
     {
-      tk:"ITA", mk:"var(--s-ita)", tc:"var(--t-ita)", w:11, prev:5,
+      tk:"ITA", asset:"stock", er:0.37, yld:1.29, mk:"var(--s-ita)", tc:"var(--t-ita)", w:11, prev:5,
       name:"iShares U.S. Aerospace &amp; Defense ETF",
       role:"Structural policy",
       stats:[["+34%","1-year return"],["$13.3bn","Net assets"],["0.37%","Expense ratio"]],
@@ -1649,6 +1736,81 @@
 
   function drawVol(){ drawSeries("vix"); drawSeries("ust"); }
 
+
+  /* ===================== whole-portfolio allocation ===================== */
+
+  // One model for both tabs. Long-run mix 60/40; today a 15-point bond
+  // overweight; each rung of the signal ladder moves 5 points into stocks.
+  var NEUTRAL_STOCKS = 60, TILT = 15, STEP = 5;
+  var RUNGS = ["0–1 met", "2–3 met", "4–5 met", "All 6"];
+
+  function stageStocks(i){ return NEUTRAL_STOCKS - TILT + i * STEP; }
+
+  function currentStage(){
+    var met = document.querySelectorAll('.tr[data-status="met"]').length;
+    return met <= 1 ? 0 : met <= 3 ? 1 : met <= 5 ? 2 : 3;
+  }
+
+  // Split a stock total across the stock funds in their sleeve proportions,
+  // rounding by largest remainder so whole numbers always add back up.
+  function weightsFor(stocks){
+    var eq = FUNDS.filter(function(f){ return f.asset === "stock"; });
+    var tot = eq.reduce(function(a,f){ return a + f.w; }, 0);
+    var rows = eq.map(function(f){ var raw = stocks * f.w / tot; return {f:f, raw:raw, v:Math.floor(raw)}; });
+    var left = stocks - rows.reduce(function(a,r){ return a + r.v; }, 0);
+    rows.slice().sort(function(a,b){ return ((b.raw - b.v) - (a.raw - a.v)) || (b.f.w - a.f.w); })
+        .slice(0, left).forEach(function(r){ r.v += 1; });
+    var out = {};
+    FUNDS.forEach(function(f){ if(f.asset === "bond") out[f.tk] = 100 - stocks; });
+    rows.forEach(function(r){ out[r.f.tk] = r.v; });
+    return out;
+  }
+
+  function blended(wts, field){
+    return FUNDS.reduce(function(a,f){ return a + (wts[f.tk] || 0) / 100 * f[field]; }, 0);
+  }
+
+  function renderTotal(){
+    var stage = currentStage(), S = stageStocks(stage), wts = weightsFor(S);
+
+    var mix = document.getElementById("mix-bar");
+    mix.setAttribute("aria-label", "Total allocation: " + S + " percent stocks, " + (100-S) + " percent bonds. Long-run mix " + NEUTRAL_STOCKS + " percent stocks.");
+    mix.innerHTML = '<div class="mix-track">'
+      + '<span class="mix-seg stk" style="flex:'+S+'">Stocks '+S+'%</span>'
+      + '<span class="mix-seg bnd" style="flex:'+(100-S)+'">Bonds '+(100-S)+'%</span>'
+      + '<span class="mix-mark" style="left:'+NEUTRAL_STOCKS+'%"></span></div>'
+      + '<div class="mix-lbl"><span style="left:'+NEUTRAL_STOCKS+'%">long-run '+NEUTRAL_STOCKS+'% stocks</span></div>';
+
+    var bar = document.getElementById("total-bar");
+    bar.setAttribute("aria-label", "By fund: " + FUNDS.map(function(f){ return f.tk + " " + wts[f.tk] + " percent"; }).join(", "));
+    bar.innerHTML = FUNDS.map(function(f){ return '<span style="background:'+f.mk+';flex:'+wts[f.tk]+'"></span>'; }).join("");
+    document.getElementById("total-legend").innerHTML = FUNDS.map(function(f){
+      return '<div><span class="swatch" style="background:'+f.mk+'"></span><b>'+f.tk+'</b><em>'+wts[f.tk]+'%</em></div>';
+    }).join("");
+
+    var intl = FUNDS.filter(function(f){ return f.tk === "VEA"; }).reduce(function(a,f){ return a + wts[f.tk]; }, 0);
+    document.getElementById("total-figs").innerHTML =
+        '<div class="fig"><div class="fig-v">'+blended(wts,"er").toFixed(2)+'%</div><div class="fig-k">Blended fee</div></div>'
+      + '<div class="fig"><div class="fig-v">~'+blended(wts,"yld").toFixed(1)+'%</div><div class="fig-k">Blended yield</div></div>'
+      + '<div class="fig"><div class="fig-v">2.4 yr</div><div class="fig-k">Bond-side duration</div></div>'
+      + '<div class="fig"><div class="fig-v">'+intl+'%</div><div class="fig-k">Outside the US</div></div>';
+
+    document.querySelector("#stage-table tbody").innerHTML = RUNGS.map(function(k, i){
+      var s = stageStocks(i), w = weightsFor(s);
+      return '<tr class="'+(i===stage?"on":"")+'"><td>'+k+(i===stage?'<span class="sr-only"> (current)</span>':'')+'</td><td>'+s+' / '+(100-s)+'</td>'
+        + FUNDS.map(function(f, j){ return '<td'+(j===0?' class="grp"':'')+'>'+w[f.tk]+'</td>'; }).join("") + '</tr>';
+    }).join("");
+  }
+
+  // "See the total allocation" on tab 1 jumps to the section on tab 2
+  document.addEventListener("click", function(e){
+    var g = e.target.closest("[data-goto]");
+    if(!g) return;
+    setTab("tab-regions");
+    var t = document.getElementById(g.getAttribute("data-goto"));
+    if(t){ t.scrollIntoView({block:"start"}); t.focus({preventScroll:true}); }
+  });
+
   /* ===================== shared horizon ===================== */
 
   function setHorizon(h){
@@ -1736,6 +1898,7 @@
   renderForecasts();
   renderScales();
   renderVolTable();
+  renderTotal();
   setHorizon(current);   // renders both tabs' horizon views and seeds roving tabindex
 
   var saved = null;
