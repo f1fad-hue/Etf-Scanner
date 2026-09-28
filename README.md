@@ -3,7 +3,7 @@
 A light-theme, phone-first market brief: five ETFs for a hiking-cycle market,
 an allocation that maximises 10-year growth within a worst-crash limit, and a
 market view across 3-month, 6-month, 12-month and 10-year horizons.
-Data to the 24 Sep 2026 close.
+Data to the 28 Sep 2026 close.
 
 **Live page:** https://claude.ai/artifact/D1jcssxQKUavM9MQ9W7YE9
 (private: open it from the owner's account, or share it from the page's Share menu)
@@ -31,6 +31,9 @@ fees, whose worst historical crash stays within the chosen budget.
   VEA 60.68%, ITA 59.72% and XLV 39.17%, and all four bottomed on 9 Mar 2009.
   VTIP launched in 2012, so its worst fall, 6.27% in March 2020, is used.
 - **Bounds:** every fund holds at least 5%, and no stock fund holds more than 30%.
+- **Sensitivities on the page:** Schwab's 5.9% for US stocks gives 29% stocks at
+  the same 21% budget; VTIP at 4.9% (about the two-year yield) gives 44% under
+  the recovery rule.
 - **Solver:** weights move in whole points. The first three stock funds are
   enumerated, and the last one is solved directly. The tests confirm that this
   matches a brute-force search at every budget.
@@ -45,7 +48,9 @@ fees, whose worst historical crash stays within the chosen budget.
 | Most growth | 53.9% | 100% | 6.78 | $19,271 | 11.8 yrs |
 
 **Data policy.**
-- Charts plot reported closes only, and days without a confirmed close are left out.
+- Charts plot reported closes only (AP for the S&P 500 and 10-year, Saxo and
+  Cboe-based reports for the VIX and MOVE). Days without a confirmed close are
+  left out, and intraday quotes are never mixed in.
 - Where sources conflict, the page shows a range (for example, October hike
   odds of 70–78%).
 - Every survey reading carries its date.
@@ -65,9 +70,10 @@ fees, whose worst historical crash stays within the chosen budget.
 
 - `index.html` is the whole page. There is no build step, and the only external
   dependency is Google Fonts.
-- `tests/audit.py` is a static audit. It re-implements the optimizer, recomputes
-  every number the page states, and checks for stale text, duplicate sources,
-  structure and contrast.
+- `tests/audit.py` is a static audit. It holds one keyed table of dated closes
+  and checks the page's chart data against it, re-implements the optimizer,
+  recomputes every number the page states, and checks for stale text,
+  duplicate sources, structure and contrast.
 - `tests/browser.mjs` runs Playwright checks:
   - overflow at four widths, the tabs, the keyboard and the shared horizon;
   - every slider position against brute force;
@@ -86,8 +92,9 @@ Both exit non-zero on failure.
 ## Network note
 
 This cloud environment blocks portfolioslab.com, am.jpmorgan.com, schwab.com,
-stooq.com, query1.finance.yahoo.com, cnbc.com, ishares.com, ssga.com and
-morningstar.com. As a result, figures were checked through search results
+stooq.com, finance.yahoo.com, cnbc.com, ishares.com, ssga.com, morningstar.com,
+thestreet.com, advisorperspectives.com, fred.stlouisfed.org, federalreserve.gov
+and home.treasury.gov. As a result, figures were checked through search results
 instead of primary tables. Allowing these hosts (cloud environment → Edit →
 Network access) would let a future run compute drawdowns and correlations
 from daily prices.

@@ -3,6 +3,47 @@
 Each edition was fact-checked, recomputed and code-reviewed. Errors are listed
 with the edition that fixed them.
 
+## 28 Sep 2026: data refresh to the 28 Sep close, second scrub
+
+Fresh data through Monday's close (S&P 500 7,683.69, 10-year 5.23%, VIX 16.1),
+then every figure, calculation and claim on the page was re-checked. Scores and
+the allocation are unchanged: the evidence moved the notes, not the rankings.
+
+**Errors found in the 25 Sep edition and fixed**
+
+| # | Error | Fix |
+|---|---|---|
+| 1 | The 10-year close for 24 Sep was shown as 5.11%, which was the 23 Sep close repeated. AP reported 5.20%. The chart drew a flat step where the yield jumped 9bp | Series rebuilt from AP closes |
+| 2 | The yield chart, titled "reported daily closes", mixed CNBC mid-session snapshots (5.01, 4.93, 4.96, 4.96) with closes | Both charts now plot only AP (10-year) and Saxo/Cboe-based (VIX) closes for 17–28 Sep. The VIX series also lacked 21 Sep (14.87) |
+| 3 | VEA was called "level with the S&P" by comparing a trailing P/E (19.9×) with the S&P's forward P/E. The error dates from the 19 Sep audit | Like for like, EAFE is on 18.0× forward against 19.2×: a 6% discount, not parity |
+| 4 | ITA was shown as "+34% 1-year" and a 1.29% yield. It is about flat this year, and iShares' SEC yield is 0.34% | Corrected. The risk note now says defence shares fell 3% on 22 Sep on a Hormuz reopening report, so they are not immune to oil news |
+| 5 | Semiconductors were "up 82% and 113% in the first half", which cannot be squared with SOXX's 52-week high of 655.95 | Replaced with a checkable figure: SOXX is 13% below that high |
+| 6 | The stock premium of 0.04–0.13 points combined 5.15–5.24% with a 24 Sep yield of 5.11% | Re-priced to the 28 Sep close: 5.19–5.24% against 5.23%, so −0.04 to +0.01. The page now says "≈0" because the range straddles zero. FactSet's P/E is rounded to 0.1, and the range says so |
+| 7 | Region notes were stale or unsourced: Taiwan "hit directly by AI selling" (it closed at a record on 23 Sep), Korea "back above 7,000" (6,890 on 28 Sep), India "P/E near 19.6", Japan "up 22% in dollars", Europe "banks and cyclicals lead", China "down about 10%" | Rewritten from dated facts. Samsung and SK Hynix are 47% of KOSPI, not "over 40%" |
+| 8 | Iran and oil: "a phased Hormuz deal is being discussed; Brent $106.60" | Trump rejected Iran's offer on 26 Sep but expects talks to resume, so the XLE re-entry rule has not fired. Brent settled at $105.28 |
+| 9 | Smaller figures: hike odds 70–78% (now 70–73%; FedWatch 70.3% from 64.2%), Fear & Greed 35 (34), high-yield spread 270bp (273), breadth "about 33%" (31%, dated), "tightest tenth" (softened), VTIP yield 2.24%, RSP 1.49%, XLV 1.51% and 20.5× | Updated and dated |
+| 10 | The "history 3–4 pts" comparison had no source | Sourced: the 1871–2026 average of earnings yield minus the 10-year |
+
+**Added:** the MOVE index (bond volatility, 104.6 on 24 Sep, above all 60 prior
+readings) beside the VIX, and a second allocation sensitivity: with VTIP at
+4.9%, about the two-year Treasury yield, the recovery rule would allow 44% in
+stocks instead of 35%. The 4.0% assumption stays because it is the conservative
+one, and the forecasts are now dated (J.P. Morgan October 2025, Schwab January
+2026, both before yields rose).
+
+**Code review findings applied:** the sensitivity wording, forecast dates, the
+VEA tile and prose on one basis, restored RSP sources, and the MOVE claim
+restated from the readings shown.
+
+**Tests:** `audit.py` (230 checks) now holds one keyed table of dated closes
+and checks the page's chart data against it, chains AP's reported point changes
+from close to close, and checks reported VIX percentage moves. `browser.mjs`
+(83 checks) is unchanged in scope apart from the new chart values and a stricter numbers-table check.
+
+**Checked and left alone:** a 21 Sep and a 25 Sep VIX close that are both
+14.87. Percentage moves reported on 22 Sep (+0.41%) and 28 Sep (+8.33% and
++8.75%) both start from that same base, so they agree.
+
 ## 25 Sep 2026: concise edition, data to the 24 Sep close
 
 The page is now three tabs: Top 5 ETFs, Allocation and Markets. The static text

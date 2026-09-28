@@ -160,7 +160,7 @@ ok(A.readout === '−21%' && A.pressed === 'rec', `default is the recommended �
 ok(JSON.stringify(A.w) === JSON.stringify(brute(21).w), `recommended weights ${JSON.stringify(A.w)} equal brute force`);
 ok(JSON.stringify(A.figs) === JSON.stringify(['$16,157', '4.91%', '−20.9%', '4.9 yrs']), `recommended figures ${A.figs}`);
 const fee = Object.keys(A.w).reduce((a, k) => a + A.w[k] * ER[k], 0) / 100;
-const YL = {VTIP:2.21, RSP:1.46, VEA:2.36, XLV:1.49, ITA:1.29}, yl = Object.keys(A.w).reduce((a, k) => a + A.w[k] * YL[k], 0) / 100;
+const YL = {VTIP:2.24, RSP:1.49, VEA:2.36, XLV:1.51, ITA:0.34}, yl = Object.keys(A.w).reduce((a, k) => a + A.w[k] * YL[k], 0) / 100;
 ok(A.costs.includes(`Fee ${fee.toFixed(2)}%`) && A.costs.includes(`yield ~${yl.toFixed(1)}%`), `blended fee ${fee.toFixed(4)} and yield ${yl.toFixed(3)} match "${A.costs}"`);
 ok(Math.abs(A.stk - 35) < 0.5, `stock segment drawn to scale at 35% (${A.stk.toFixed(2)})`);
 
@@ -225,7 +225,7 @@ const ch = await p.evaluate(() => ['vc-vix', 'vc-ust'].map(id => {
   const inside = Array.from(svg.querySelectorAll('circle.pt, text')).every(e => { const q = e.getBoundingClientRect(); return q.left >= r.left - 2 && q.right <= r.right + 2 && q.top >= r.top - 2 && q.bottom <= r.bottom + 2; });
   return {n:svg.querySelectorAll('circle.pt').length, inside, label:box.getAttribute('aria-label') || ''};
 }));
-ok(ch[0].n === 7 && ch[1].n === 6, `VIX 7 and 10-yr 6 reported closes plotted (${ch[0].n}/${ch[1].n})`);
+ok(ch[0].n === 8 && ch[1].n === 8, `VIX and 10-yr: 8 reported closes each, 17–28 Sep (${ch[0].n}/${ch[1].n})`);
 ok(ch.every(c => c.inside) && ch.every(c => c.label.length > 20), 'chart points and labels inside the drawing; charts described in text');
 const overlaps = await p.evaluate(() => ['vc-vix', 'vc-ust'].map(id => {
   const t = Array.from(document.querySelectorAll('#' + id + ' svg text')).map(e => e.getBoundingClientRect()); let n = 0;
@@ -236,13 +236,14 @@ await p.evaluate(() => document.getElementById('vc-vix').scrollIntoView({block:'
 const vb = await (await p.$('#vc-vix')).boundingBox();
 await p.mouse.move(vb.x + vb.width - 14, vb.y + 60); await p.waitForTimeout(100);
 const tip = await p.evaluate(() => { const t = document.querySelector('#vc-vix .vtip'); return t.hidden ? null : t.textContent; });
-ok(tip === '24 Sep · 15.67', `hover snaps to the nearest close ("${tip}")`);
+ok(tip === '28 Sep · 16.11', `hover snaps to the nearest close ("${tip}")`);
 await p.evaluate(() => document.getElementById('vc-ust').scrollIntoView({block:'center'})); await p.waitForTimeout(150);
 const ub = await (await p.$('#vc-ust')).boundingBox();
 await p.mouse.move(ub.x + 45, ub.y + 70); await p.mouse.down(); await p.mouse.up(); await p.waitForTimeout(100);
 const tap = await p.evaluate(() => { const t = document.querySelector('#vc-ust .vtip'); return t.hidden ? null : t.textContent; });
-ok(tap === '16 Sep · 5.01%', `a tap shows the value ("${tap}")`);
-ok(await p.evaluate(() => document.querySelectorAll('#vtable tbody tr').length) === 8, 'numbers table lists each of the 8 dates once');
+ok(tap === '17 Sep · 4.93%', `a tap shows the value ("${tap}")`);
+const vt = await p.evaluate(() => Array.from(document.querySelectorAll('#vtable tbody tr')).map(tr => Array.from(tr.cells).map(c => c.textContent)));
+ok(vt.length === 8 && vt.every(r => r[1] !== '—' && r[2] !== '—') && vt[0][0] === '17 Sep' && vt[7].join() === '28 Sep,16.11,5.23%', 'numbers table: 8 dates, both readings on every row, first 17 Sep, last 28 Sep 16.11 / 5.23%');
 
 const bars = await p.evaluate(() => Array.from(document.querySelectorAll('.fbar')).map(el => {
   const t = el.querySelector('.fbar-track').getBoundingClientRect(), f = el.querySelector('.fbar-fill').getBoundingClientRect();
