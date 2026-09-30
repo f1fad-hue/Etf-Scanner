@@ -7,7 +7,7 @@ The allocation model is re-implemented here from the documented assumptions,
 independently of the page's JavaScript; every number the page states in prose
 is then recomputed and matched against the text.
 """
-import math, re, sys, pathlib
+import json, math, re, sys, pathlib
 
 PAGE = pathlib.Path(__file__).resolve().parent.parent / "index.html"
 s = PAGE.read_text(encoding="utf-8")
@@ -28,10 +28,8 @@ def block(name):
 
 # ---------------------------------------------------------------- fund data
 # documented inputs (sources on the page): fee, yield, J.P. Morgan forecast, worst crash
-ER    = {"VTIP": .03, "RSP": .20, "VEA": .03, "XLV": .08, "ITA": .37}
-YLD   = {"VTIP": 2.24, "RSP": 1.49, "VEA": 2.36, "XLV": 1.51, "ITA": 0.34}
-EXP   = {"VTIP": 4.0, "RSP": 6.7, "VEA": 7.4, "XLV": 6.7, "ITA": 6.7}
-CRASH = {"VTIP": 6.27, "RSP": 59.92, "VEA": 60.68, "XLV": 39.17, "ITA": 59.72}
+DATA  = json.loads((pathlib.Path(__file__).resolve().parent / "data.json").read_text(encoding="utf-8"))
+ER, YLD, EXP, CRASH = ({k: v[f] for k, v in DATA["funds"].items()} for f in ("er", "yld", "exp", "crash"))
 
 FUNDS_SRC = block("FUNDS")
 funds = []
@@ -69,29 +67,26 @@ for f in funds:
     for label, band in zip(("3m", "6m", "12m", "10y"), f["b"]):
         lo, hi = num(band)[:2]
         check(lo < hi, f'{f["tk"]} {label} range "{band}" is low-to-high')
+    w = [num(b)[1] - num(b)[0] for b in f["b"][:3]]      # 3m, 6m, 12m widths in points
+    if f["asset"] == "stock":
+        check(1.25 <= w[1] / w[0] <= 1.55 and 1.75 <= w[2] / w[0] <= 2.25,
+              f'{f["tk"]}: range widths {w} widen with the square root of time (6m ≈ 1.4×, 12m ≈ 2× the 3-month width)')
+    else:
+        check(w[0] < w[1] < w[2], f'{f["tk"]}: range widths {w} widen with the horizon')
     lo, hi = num(f["b"][3])[:2]
+    if f["tk"] == "XLV":
+        others = [num(g["b"][2])[1] - num(g["b"][2])[0] for g in funds if g["asset"] == "stock" and g["tk"] != "XLV"]
+        check(w[2] < min(others), f'XLV 12-month width {w[2]} is below every other stock fund {others}, as its 39% worst crash (vs about 60%) implies')
     check(lo <= f["exp"] <= hi, f'{f["tk"]} 10-yr range {lo}–{hi}% contains the {f["exp"]}% forecast the optimizer uses')
 
 
 # ------------------------------------------------------------- market inputs
-# Keyed once, from the cited sources: S&P 500 close, AP-reported point change and 10-year
-# close (AP "How major US stock indexes fared"); VIX cash close and reported percentage
-# change (Saxo Options Briefs, Cboe-based reports). Everything below is checked against
-# this table, and the page's own chart data is checked against it too.
+# tests/data.json holds the dated closes, keyed once from the cited sources. Everything
+# below is checked against that table, and the page's own chart data is checked against it too.
 # date: (S&P close, AP point change, 10-yr %, VIX close, reported VIX % change)
-DAYS = {
-    "2026-09-16": (7551.81, None,    None, 17.71, +2.97),
-    "2026-09-17": (7637.76, +85.95,  4.93, 15.44, None),
-    "2026-09-18": (7650.50, +12.74,  5.00, 14.81, -4.08),
-    "2026-09-21": (7764.70, +114.20, 4.95, 14.87, +0.41),
-    "2026-09-22": (7764.64, -0.06,   4.96, 14.21, None),
-    "2026-09-23": (7706.03, -58.61,  5.11, 15.18, +6.83),
-    "2026-09-24": (7704.13, -1.90,   5.20, 15.67, None),
-    "2026-09-25": (7743.41, +39.28,  5.17, 14.87, -5.10),
-    "2026-09-28": (7683.69, -59.72,  5.23, 16.11, +8.33),
-}
+DAYS = {d: tuple(v) for d, v in DATA["days"].items() if not d.startswith("_")}
 CHART_DATES = [d for d in DAYS if d >= "2026-09-17"]
-SP24, SP28, TEN28 = DAYS["2026-09-24"][0], DAYS["2026-09-28"][0], DAYS["2026-09-28"][2]
+SP24, SP29, TEN29 = DAYS["2026-09-24"][0], DAYS["2026-09-29"][0], DAYS["2026-09-29"][2]
 
 print("market data table")
 dates = list(DAYS)
@@ -101,7 +96,9 @@ for i in range(1, len(dates)):
         check(abs(sp0 + chg - sp1) < 0.005, f"{dates[i]}: S&P {sp0:,.2f} {chg:+.2f} = {sp1:,.2f}, as AP reports")
     if vpct is not None:
         check(abs((v1 / v0 - 1) * 100 - vpct) < 0.06, f"{dates[i]}: VIX {v0} -> {v1} = {(v1/v0-1)*100:+.2f}% (reported {vpct:+.2f}%)")
-check(abs(16.17 / 14.87 - 1 - 0.0875) < 0.0005, "the other 28 Sep VIX print, 16.17, is +8.75% from the same 14.87 base: sources differ by 0.06, the base agrees")
+check(max(16.07, 16.11, 16.17) - min(16.07, 16.11, 16.17) <= 0.10 + 1e-9 and "up to about 0.1 (28 Sep VIX: 16.07 to 16.17)" in s,
+      "the three 28 Sep VIX prints span 0.10, and the page says so")
+check(abs((16.11 / 14.87 - 1) * 100 - 8.33) < 0.01 and abs((16.17 / 14.87 - 1) * 100 - 8.74) < 0.02, "the 16.11 (+8.33%) and 16.17 (+8.75%) reports share the 14.87 base with Saxo's 16.07")
 ten = lambda d: DAYS[d][2]
 check([round((ten(b) - ten(a)) * 100) for a, b in (("2026-09-22", "2026-09-23"), ("2026-09-23", "2026-09-24"), ("2026-09-25", "2026-09-28"))] == [15, 9, 6],
       "10-year moves match AP: +15bp (23 Sep), +9bp (24 Sep), +6bp (28 Sep)")
@@ -115,7 +112,7 @@ for key, col in (("vix", 3), ("ust", 2)):
     ref = float(re.search(r"ref:\{v:([\d.]+)", blk).group(1))
     pts = [(d, float(v)) for d, v in re.findall(r'\{d:"(2026-\d\d-\d\d)",v:([\d.]+)\}', blk)]
     series[key] = (pts, ref)
-    check(pts == [(d, DAYS[d][col]) for d in CHART_DATES], f"{key}: the page's {len(pts)} plotted closes equal the keyed table, 17–28 Sep")
+    check(pts == [(d, DAYS[d][col]) for d in CHART_DATES], f"{key}: the page's {len(pts)} plotted closes equal the keyed table, 17–29 Sep")
     check(all(y0 <= v <= y1 for _, v in pts) and y0 <= ref <= y1, f"{key}: closes and reference line inside y {y0}–{y1}")
 vix, vref = series["vix"]; ust, _ = series["ust"]
 check(vref == 20 and "dashed line: 20, where signal 6 needs it back below" in s, "VIX reference line is the signal-6 level, 20")
@@ -216,7 +213,7 @@ claims = [
     (f"thin against a {mx[2][1]:.0f}% worst case", "10-yr stance"),
     (f"RSP {CRASH['RSP']:.1f}%, VEA {CRASH['VEA']:.1f}%, ITA {CRASH['ITA']:.1f}%, XLV {CRASH['XLV']:.1f}%", "assumptions: crash depths"),
     (f"its worst, {CRASH['VTIP']:.1f}% in March 2020", "assumptions: VTIP crash"),
-    (f"US large cap {EXP['RSP']}% a year (RSP, XLV, ITA), developed ex-US {EXP['VEA']}% (VEA)", "assumptions: forecasts"),
+    (f"US large cap {EXP['RSP']}% a year (RSP, XLV, ITA), developed ex-US {EXP['VEA']}% (VEA, a proxy: the forecast covers EAFE, which leaves out Canada and South Korea, 20% of VEA)", "assumptions: forecasts"),
     (f"VTIP {EXP['VTIP']}% is an assumption", "assumptions: VTIP forecast"),
     (f"Every fund at least {FLOOR}%, no stock fund above {CAP}%", "assumptions: bounds"),
     (f"Each two of the six signals on the Markets tab raise the budget {STEP} points", "signal step"),
@@ -230,23 +227,26 @@ print("markets arithmetic")
 # StreetStats quotes 19.32 from forward EPS $398.74. Both are re-priced to the 28 Sep close.
 ss_eps = 398.74
 check(abs(SP24 / ss_eps - 19.32) < 0.005, f"StreetStats P/E {SP24/ss_eps:.3f} = reported 19.32")
-fs_hi, fs_lo = (SP28 / (SP24 / pe) for pe in (19.25, 19.15))      # FactSet P/E range at the 28 Sep close
-pe_ss = SP28 / ss_eps
-check(f"{fs_lo:.2f}" == "19.10" and f"{fs_hi:.2f}" == "19.20" and f"{pe_ss:.2f}" == "19.27"
-      and "19.10–19.20 (FactSet, rounded) to 19.27 (StreetStats), re-priced to the 28 Sep close" in s,
-      f"P/E at the 28 Sep close: FactSet {fs_lo:.3f}–{fs_hi:.3f}, StreetStats {pe_ss:.3f}")
+fs_hi, fs_lo = (SP29 / (SP24 / pe) for pe in (19.25, 19.15))      # FactSet P/E range at the 29 Sep close
+pe_ss = SP29 / ss_eps
+check(f"{fs_lo:.2f}" == "19.07" and f"{fs_hi:.2f}" == "19.17" and f"{pe_ss:.2f}" == "19.24"
+      and "19.07–19.17 (FactSet, rounded) to 19.24 (StreetStats), re-priced to the 29 Sep close" in s,
+      f"P/E at the 29 Sep close: FactSet {fs_lo:.3f}–{fs_hi:.3f}, StreetStats {pe_ss:.3f}")
 ey_lo, ey_hi = 100 / pe_ss, 100 / fs_lo
-check(f"{ey_lo:.2f}–{ey_hi:.2f}%" == "5.19–5.24%" and '<div class="v">5.19–5.24%</div>' in s, f"earnings yield {ey_lo:.3f}–{ey_hi:.3f}% -> 5.19–5.24%")
-p_lo, p_hi = ey_lo - TEN28, ey_hi - TEN28
-check(f"{p_lo:+.2f} to {p_hi:+.2f}" == "-0.04 to +0.01" and '<div class="v">−0.04 to +0.01 pts</div>' in s, f"premium {p_lo:+.3f} to {p_hi:+.3f} pts -> −0.04 to +0.01")
-check(p_lo < 0 < p_hi and s.count("≈0 pt") >= 2 and "about zero" in s, "the range straddles zero, so the page says ≈0 rather than claiming a sign")
+check(f"{ey_lo:.2f}–{ey_hi:.2f}%" == "5.20–5.24%" and '<div class="v">5.20–5.24%</div>' in s, f"earnings yield {ey_lo:.3f}–{ey_hi:.3f}% -> 5.20–5.24%")
+p_lo, p_hi = ey_lo - TEN29, ey_hi - TEN29
+check(f"{p_lo:+.2f} to {p_hi:+.2f}" == "-0.05 to -0.01" and '<div class="v">−0.05 to −0.01 pts</div>' in s, f"premium {p_lo:+.3f} to {p_hi:+.3f} pts -> −0.05 to −0.01")
+check(max(abs(p_lo), abs(p_hi)) < 0.1 and s.count("≈0 pt") >= 2 and "about zero" in s, "the whole range sits within 0.1 point of zero, so the page says ≈0")
 check(round(6.7 - 5.3, 1) == 1.4 and round(7.8 - 5.3, 1) == 2.5 and "by 1.4–2.5 points a year" in s, "J.P. Morgan stock-over-bond edge 1.4 (US) to 2.5 (EM)")
 fc = re.findall(r'\{n:"[^"]+", v:([\d.]+)', block("FORECASTS"))
 check([float(x) for x in fc] == [7.8, 7.4, 6.7, 5.3] and "lo:3.9, hi:5.9" in js, "forecast bars 7.8 / 7.4 / 6.7 / 5.3 and Vanguard 3.9–5.9")
-check(abs(7 / 503 * 100 - 1.4) < 0.05 and '["~1.4%","Mag 7 weight"]' in s, f"RSP Mag 7 weight 7/503 = {7/503*100:.2f}%")
-check(f"{(SP28 / DAYS['2026-09-25'][0] - 1) * 100:.2f}" == "-0.77" and '<div class="kpi-v">7,684</div>' in s and "−0.8% Monday" in s,
-      "S&P 500 28 Sep: 7,683.69 = −0.77% on the day, shown as 7,684 / −0.8%")
-check(round((SP28 / DAYS["2026-09-21"][0] - 1) * 100, 1) == -1.0, "S&P is 1.0% below its 21 Sep close")
+check(abs(8 / 503 * 100 - 1.6) < 0.05 and '["~1.6%","Mag 7 weight"]' in s and "about 1.6% here" in s,
+      f"RSP Mag 7 weight: 7 companies but 8 lines (Alphabet A and C), 8/503 = {8/503*100:.2f}%")
+check(round(11.02 + 8.64) == 20 and "South Korea is 8.6% of the fund and Samsung and SK Hynix 4.6%" in s and abs(2.60 + 2.00 - 4.6) < 1e-9,
+      "VEA: Canada 11.02% + South Korea 8.64% = 20%; Samsung 2.60% + SK Hynix 2.00% = 4.6%")
+check(round(15.31) == 15 and "Eli Lilly alone is 15% of the fund" in s, "XLV: Eli Lilly 15.31% of the fund")
+check(f"{(SP29 / DAYS['2026-09-28'][0] - 1) * 100:.2f}" == "-0.17", "S&P 500 29 Sep: 7,670.84 = −0.17% on the day (AP: −0.2%)")
+check(round((SP29 / DAYS["2026-09-21"][0] - 1) * 100, 1) == -1.2 and "(7,671) is 1.2% below its 21 Sep close" in s, "S&P is 1.2% below its 21 Sep close")
 check(round((1 - 17.97 / 19.2) * 100) == 6 and "about 18× forward earnings against 19.2× for the S&amp;P" in s and '["18.0×","EAFE fwd P/E"]' in s,
       "EAFE forward P/E 17.97 (18.0×) vs S&P 19.2: a 6% discount, stated on the same forward basis in the tile and the prose")
 check(abs(572.68 / 655.95 - 1 + 0.127) < 0.001 and "SOXX is 13% below its 52-week high" in s, "SOXX 572.68 vs 52-week high 655.95: 12.7% below")
@@ -255,6 +255,11 @@ check(round((48157.29 / 45511.49 - 1) * 100, 1) == 5.8 and "5.8% rise in six ses
 check(round(20.51 + 16.13 + 8.40) == 45 and round(20.42 + 16.38 + 7.72) == 45 and "about 45% of the fund" in s, "ITA: GE Aerospace + RTX + Boeing = 45% of the fund on both holdings snapshots")
 check(round(52617 / 17131, 1) == 3.1 and "about three times what foreigners sold" in s, "India: domestic ₹52,617cr vs foreign ₹17,131cr = 3.1×")
 check(round((6889.74 / (6889.74 + 191.18) - 1) * 100, 1) == -2.7 and "KOSPI fell 2.7% to 6,890" in s, "KOSPI 6,889.74, −191.18 pts = −2.7%")
+check(302 - 241 == 61 and "only 61bp above the 2007 record low" in s and 'data-v="302" data-ref="241"' in s, "high-yield spread 302bp is 61bp above the 241bp record low")
+check(round((102.59 / 105.28 - 1) * 100, 1) == -2.6 and round((102.59 / 99.25 - 1) * 100) == 3 and "down 2.6% on the day but 3% above its $99.25 close on 22 Sep" in s,
+      "Brent front month: 105.28 -> 102.59 = −2.6% (29 Sep); 3% above the 99.25 close of 22 Sep")
+check(round(88.6 - 6.7, 1) == 81.9 and "Down 6.7 points to its lowest since 2014" in s and round(74.6 - 49.4, 1) == 25.2 and "from 75% (30 Sep a.m.)" in s,
+      "consumer confidence 88.6 - 6.7 = 81.9; October hike odds 74.6% -> 49.4%")
 check(round(46.94) == 47 and "nearly half of the index (47% in May)" in s, "Samsung 26.04% + SK Hynix 20.90% = 46.94% of KOSPI")
 
 print("signals")
@@ -264,17 +269,27 @@ check(len(st) == 6, f"six signals ({len(st)})")
 check(f'<div class="kpi-v">{met} of 6</div>' in s and f"◐ {part} partial" in s, f"KPI: {met} of 6 met, {part} partial")
 
 print("charts and gauges")
-v28, v25 = DAYS["2026-09-28"][3], DAYS["2026-09-25"][3]
-check(round((v28 / v25 - 1) * 100, 1) == 8.3 and "▲ +8% on Monday" in s and "rose 8% on Monday" in s, f"VIX {v25} -> {v28} = {(v28/v25-1)*100:+.2f}%")
-check(f'<div class="kpi-v">{v28:.1f}</div>' in s and f'<div class="sig-now">{v28:.1f}</div>' in s and f"VIX {v28:.1f}" in s, f"VIX {v28:.1f} consistent in KPI, signal and summary")
-u21, u28 = ten("2026-09-21"), ten("2026-09-28")
-check(round((u28 - u21) * 100) == 28 and "up 28bp in five sessions" in s, f"10-year {u21} (21 Sep) -> {u28} (28 Sep) = 28bp")
-check(f'<div class="kpi-v">{u28:.2f}%</div>' in s and f'<div class="sig-now">{u28:.2f}%</div>' in s, f"10-year {u28:.2f}% consistent")
-check(u28 == max(ten(d) for d in CHART_DATES) and ten("2026-09-24") == 5.20, "10-year hit 5.20% on 24 Sep and closed 28 Sep at 5.23%, the highest close in the window")
+v28, v25, v29 = DAYS["2026-09-28"][3], DAYS["2026-09-25"][3], DAYS["2026-09-29"][3]
+check(round((v28 / v25 - 1) * 100, 1) == 8.1 and "■ +8% Monday, flat Tuesday" in s and abs(v29 / v28 - 1) < 0.005, f"VIX {v25} -> {v28} = {(v28/v25-1)*100:+.2f}% Monday, then {v29}")
+check(f'<div class="kpi-v">{v29:.1f}</div>' in s and f'<div class="sig-now">{v29:.1f}</div>' in s and f"VIX {v29:.1f}" in s, f"VIX {v29:.1f} consistent in KPI, signal and summary")
+u21, u29 = ten("2026-09-21"), ten("2026-09-29")
+check(round((u29 - u21) * 100) == 30 and "up 30bp in six sessions" in s, f"10-year {u21} (21 Sep) -> {u29} (29 Sep) = 30bp")
+check(f'<div class="kpi-v">{u29:.2f}%</div>' in s and f'<div class="sig-now">{u29:.2f}%</div>' in s, f"10-year {u29:.2f}% consistent")
+check(u29 == max(ten(d) for d in CHART_DATES) and ten("2026-09-24") == 5.20, "10-year closed 29 Sep at 5.25%, the highest close in the window (5.20% on 24 Sep)")
+# stocks against yields: correlation of daily moves, last eight sessions
+sp = [DAYS[d][0] for d in CHART_DATES]; tn = [ten(d) for d in CHART_DATES]
+ret = [(b / a - 1) * 100 for a, b in zip(sp, sp[1:])]; dy = [(b - a) * 100 for a, b in zip(tn, tn[1:])]
+def corr(x, y):
+    n = len(x); mx, my = sum(x) / n, sum(y) / n
+    return sum((i - mx) * (j - my) for i, j in zip(x, y)) / math.sqrt(sum((i - mx) ** 2 for i in x) * sum((j - my) ** 2 for j in y))
+opp = sum(1 for r, d in zip(ret, dy) if r * d < 0)      # strict signs; 22 Sep (−0.06 pts) counts
+check(len(ret) == 8 and round(corr(ret, dy), 2) == -0.78 and opp == 7 and "In seven of the last eight sessions" in s and "correlation of daily moves is −0.78" in s,
+      f"S&P return vs 10-year change: correlation {corr(ret, dy):.3f} over {len(ret)} sessions, opposite moves on {opp}")
 # MOVE (bond volatility) figures quoted on the page: Saxo Options Briefs
 check(abs(80.73 * (1 - .0559) - 76.22) < 0.01 and abs(95.45 * 1.0956 - 104.58) < 0.02,
       "MOVE 80.73 (16 Sep) -> 76.22 (17 Sep, −5.59%); 95.45 (23 Sep, +21.5%) -> 104.58 (24 Sep, +9.56%)")
-check("rose 21.5% on 23 Sep and 9.6% on 24 Sep to 104.6" in s and "76.2 on 17 Sep, 95.5 on 23 Sep (+21.5%), 104.6 on 24 Sep (+9.6%)" in s, "MOVE figures as stated on the page")
+check(abs(101.82 / 1.0606 - 96.0) < 0.01 and "was still 101.8 on 28 Sep" in s, "MOVE 101.82 on 28 Sep (+6.06%) implies 96.0 on 25 Sep; the page quotes 101.8")
+check("rose 21.5% on 23 Sep and 9.6% on 24 Sep to 104.6" in s and "76.2 on 17 Sep, 95.5 on 23 Sep (+21.5%), 104.6 on 24 Sep (+9.6%), 101.8 on 28 Sep (+6.1%)" in s, "MOVE figures as stated on the page")
 for m in re.finditer(r'class="scale" data-min="([\d.]+)" data-max="([\d.]+)" data-v="([\d.]+)"(?: data-ref="([\d.]+)")?', s):
     lo, hi, val, ref = float(m.group(1)), float(m.group(2)), float(m.group(3)), m.group(4)
     check(lo <= val <= hi and (ref is None or lo <= float(ref) <= hi), f"gauge {val} (ref {ref}) inside {lo}–{hi}")
@@ -291,18 +306,27 @@ for m in re.finditer(r'\{n:"([^"]+)", tk:"(\w+)"', REG_SRC):
 check(len(regions) == 8, f"8 regions ({len(regions)})")
 for r in regions:
     check(set(r["c"]) == {"3m", "6m", "12m", "10y"} and all(1 <= x <= 5 for x in r["c"].values()), f'{r["n"]} scored 1–5 at all four horizons')
-want_sum = {"Japan": 15, "Europe": 14, "Emerging markets": 14, "India": 13, "South Korea": 11, "Taiwan": 11, "United States": 10, "China": 10}
-check({r["n"]: sum(r["c"].values()) for r in regions} == want_sum, f"region score sums unchanged {want_sum}")
+want_sum = {"Japan": 15, "Europe": 14, "India": 13, "Emerging markets": 12, "South Korea": 11, "Taiwan": 11, "United States": 10, "China": 10}
+check({r["n"]: sum(r["c"].values()) for r in regions} == want_sum, f"region score sums {want_sum}")
+# consistency: MSCI EM is 81% Taiwan, Korea, China and India (iShares EEM fact sheet, 30 Jun 2026);
+# its score must stay within one point of their weighted average at every horizon
+W = {k: v for k, v in DATA["em_weights"].items() if not k.startswith("_")}
+R = {r["n"]: r["c"] for r in regions}
+for h in ("3m", "6m", "12m", "10y"):
+    avg = sum(W[k] * R[k][h] for k in W) / sum(W.values())
+    check(abs(R["Emerging markets"][h] - avg) <= 1, f"EM {h} score {R['Emerging markets'][h]} is within 1 of its four biggest markets' weighted average {avg:.2f}")
+check(round(27.28 + 23.67) == 51 and "Taiwan and Korea are half the index" in s and "half the index is Taiwan and Korea" in s, "Taiwan 27.28% + Korea 23.67% = 51% of MSCI EM, as the notes say")
 
 # ------------------------------------------------------------ consistency
 print("consistency and stale text")
-for phrase in ["70–73%", "33.9%", "5.23%"]:
+for phrase in ["33.9%", "5.25%", "~49%"]:
     check(s.count(phrase) >= 2, f'"{phrase}" repeated consistently ({s.count(phrase)}×)')
 for stale in ["within 0.3%", "−0.51%", "13.30", "long-run 60", "third daily rise", "31.5% average",
               "5.16–", "0.05–0.13", "level with the S&amp;P", "0.08 points", "1 / 19.26",
               "70–78%", "5.15–5.24%", "0.04–0.13", "≈0.1 pt", "+34%", "19.9×", "trailing earnings", "up two days running",
               "1-mo high", "Tightest tenth", "82% and 113%", "Fear &amp; Greed 35", "hit directly by AI selling", "phased Hormuz deal",
-              "5.11%", "2.21%", "1.29%", "Data to 24 Sep"]:
+              "5.11%", "2.21%", "1.29%", "still tight against a 2008 peak", "Data to 24 Sep", "Data to 28 Sep", "70–73%", "Fear &amp; Greed 34", "~1.4%", "2.4 years of duration",
+              "Demand written into treaties", "adds over €800bn", "VWO", "450bp median", "1 ÷ forward P/E of 19.10"]:
     check(stale not in s, f'stale text "{stale}" is gone')
 hrefs = re.findall(r'href="([^"]+)"', s)
 dups = sorted({h for h in hrefs if hrefs.count(h) > 1 and h.startswith("http")})

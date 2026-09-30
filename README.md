@@ -3,7 +3,7 @@
 A light-theme, phone-first market brief: five ETFs for a hiking-cycle market,
 an allocation that maximises 10-year growth within a worst-crash limit, and a
 market view across 3-month, 6-month, 12-month and 10-year horizons.
-Data to the 28 Sep 2026 close.
+Data to the 29 Sep 2026 close (Fed odds as of the morning of 30 Sep).
 
 **Live page:** https://claude.ai/artifact/D1jcssxQKUavM9MQ9W7YE9
 (private: open it from the owner's account, or share it from the page's Share menu)
@@ -20,7 +20,10 @@ Data to the 28 Sep 2026 close.
 
 **Ranking.** Funds are ordered by the sum of their four horizon scores (ties go
 to the 10-year score, then the previous order). Regions are ranked by the score
-at the chosen horizon, and tied regions share a rank.
+at the chosen horizon, and tied regions share a rank. The emerging-markets score
+must stay within one point of the weighted average of its four biggest markets.
+The 3-, 6- and 12-month fund ranges are scenarios that widen with the square
+root of time.
 
 **Allocation.** This finds the mix with the highest expected return, net of
 fees, whose worst historical crash stays within the chosen budget.
@@ -70,10 +73,12 @@ fees, whose worst historical crash stays within the chosen budget.
 
 - `index.html` is the whole page. There is no build step, and the only external
   dependency is Google Fonts.
-- `tests/audit.py` is a static audit. It holds one keyed table of dated closes
-  and checks the page's chart data against it, re-implements the optimizer,
-  recomputes every number the page states, and checks for stale text,
-  duplicate sources, structure and contrast.
+- `tests/data.json` holds the inputs the audit checks the page against (fund
+  fees, yields, forecasts and worst crashes; dated closes; index weights), each
+  keyed once with its source.
+- `tests/audit.py` is a static audit. It checks the page's chart data against
+  `data.json`, re-implements the optimizer, recomputes every number the page
+  states, and checks for stale text, duplicate sources, structure and contrast.
 - `tests/browser.mjs` runs Playwright checks:
   - overflow at four widths, the tabs, the keyboard and the shared horizon;
   - every slider position against brute force;
