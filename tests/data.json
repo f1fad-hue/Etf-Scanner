@@ -45,7 +45,7 @@
    "VIX close",
    "reported VIX % change"
   ],
-  "_sources": "S&P and 10-year: AP 'How major US stock indexes fared' (10-year for 22 Sep also CNN: +15bp on 23 Sep). VIX: Saxo Options Briefs, Portfolio Terminal (25 Sep), Yahoo history (29 Sep). 28 Sep VIX prints: 16.07 (Saxo), 16.11, 16.17.",
+  "_sources": "S&P and 10-year: AP 'How major US stock indexes fared' (10-year for 22 Sep also CNN: +15bp on 23 Sep). VIX: Saxo Options Briefs, Portfolio Terminal (25 Sep), Yahoo history (29 Sep). 28 Sep VIX prints: 16.07 (Saxo), 16.11, 16.17. 30 Sep: AP close and 10-year; VIX 16.34 (+1.87%) and MOVE from Saxo's 1 Oct brief. 29 Sep 10-year prints: 5.25% (AP close), 5.236% (Saxo), 5.26% (AP, late).",
   "2026-09-16": [
    7551.81,
    null,
@@ -115,6 +115,13 @@
    5.25,
    16.04,
    null
+  ],
+  "2026-09-30": [
+   7651.54,
+   -19.3,
+   5.29,
+   16.34,
+   1.87
   ]
  },
  "em_weights": {
@@ -123,5 +130,15 @@
   "South Korea": 23.67,
   "China": 18.99,
   "India": 11.06
+ },
+ "move": {
+  "_source": "Saxo Options Briefs, each dated the morning after the session",
+  "2026-09-16": 80.73,
+  "2026-09-17": 76.22,
+  "2026-09-23": 95.45,
+  "2026-09-24": 104.58,
+  "2026-09-28": 101.82,
+  "2026-09-29": 106.61,
+  "2026-09-30": 110.46
  }
 }

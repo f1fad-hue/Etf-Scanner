@@ -3,6 +3,50 @@
 Each edition was fact-checked, recomputed and code-reviewed. Errors are listed
 with the edition that fixed them.
 
+## 1 Oct 2026: data to the 30 Sep close, top 5 re-ranked
+
+Quarter-end data (S&P 500 7,651.54, 10-year 5.29%, VIX 16.3, MOVE 110.5) and
+the August PCE report (core 3.0% against 3.3% expected; October hike odds fell
+to about 35% from 71% a week earlier). The five funds were re-scored and
+re-ranked, and candidates were screened.
+
+**Top 5 update**
+
+| Fund | Scores 3m/6m/12m/10y | Sum | Change |
+|---|---|---|---|
+| VTIP | 5/5/4/2 | 16 | unchanged, still first |
+| XLV | 3/4/4/4 | 15 | up from fourth: 6-month score 3 → 4 (consumer confidence at a 12-year low, job openings at a five-month low) |
+| VEA | 2/3/4/5 | 14 | unchanged |
+| RSP | 2/3/4/4 | 13 | down from second: equal weight fell 5.0% in the month to 28 Sep while the S&P fell 0.4%; three in four stocks fell in September |
+| ITA | 2/3/4/4 | 13 | stays fifth: 3-month score 3 → 2 (about −3% this year, 19% below its 52-week high) |
+
+Screened and not added: SGOV (13; same job as VTIP without the inflation
+link), EWJ (Japan ranks first of the regions, but VEA already holds it at a
+fraction of the fee), QUAL and SPY (add back the concentration RSP hedges). The
+allocation is unchanged at 35% stocks and 65% bonds, because no fund's fee,
+forecast or worst crash changed.
+
+**Errors found and fixed**
+
+| # | Error | Fix |
+|---|---|---|
+| 1 | Re-ranking would have broken the allocation: the stage table wrote fund columns in the ranked order under a header hard-coded in the old order, so weights would have sat under the wrong tickers | One fixed allocation order (`ALLOC`) drives the optimizer, sums, bar, legend and the stage-table header, which is now generated. Tests check the header and legend agree |
+| 2 | The stocks-and-yields correlation was stated as −0.78; with 30 Sep it is −0.7748, which rounds to −0.77 | Corrected; the audit computes it |
+| 3 | Fear & Greed for 29 Sep was shown as 32, from a tracker site. Benzinga, which reports CNN's daily close, gives 29 | 29 on 29 Sep, 31 on 30 Sep |
+| 4 | "Above all 60 prior readings" (24 Sep) and "above all 84" (30 Sep) for MOVE cannot both describe one history; Saxo's own store count changed | The page now says "a new high in Saxo's records" |
+| 5 | The core-inflation signal did not name its measure, while core PCE was flat in August | It is core CPI (one decline so far); the page says core PCE was flat |
+| 6 | SGOV's 3.67% SEC yield (a trailing 30-day figure) sat beside T-bills "at about 4.1%" | SGOV is quoted by yield to maturity, about 4.0% |
+| 7 | The XLV note "up about 12% in three months" could not be confirmed against the September sector table, where every sector but technology fell | Replaced with the sourced sector fact |
+| 8 | The ranking note said ITA fell to fifth; it was already fifth | Corrected |
+
+**Updated:** the stock premium is now below zero on every estimate (−0.08 to
+−0.03 points), so the Markets headline reads "Stocks pay less than bonds"; the
+high-yield spread widened to 308bp (+40bp in a week); gold fell about 8.5% in
+September; the MOVE index replaced Fear & Greed in the Markets KPIs. All six
+signals are still unmet (one partial).
+
+`audit.py` 282 checks; `browser.mjs` 84.
+
 ## 30 Sep 2026: data to the 29 Sep close, fund and region scrub
 
 New data through Tuesday's close (S&P 500 7,670.84, 10-year 5.25%, VIX 16.0) and

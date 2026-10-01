@@ -3,7 +3,7 @@
 A light-theme, phone-first market brief: five ETFs for a hiking-cycle market,
 an allocation that maximises 10-year growth within a worst-crash limit, and a
 market view across 3-month, 6-month, 12-month and 10-year horizons.
-Data to the 29 Sep 2026 close (Fed odds as of the morning of 30 Sep).
+Data to the 30 Sep 2026 close (the end of the third quarter).
 
 **Live page:** https://claude.ai/artifact/D1jcssxQKUavM9MQ9W7YE9
 (private: open it from the owner's account, or share it from the page's Share menu)
@@ -12,7 +12,7 @@ Data to the 29 Sep 2026 close (Fed odds as of the morning of 30 Sep).
 
 | Tab | What it answers |
 |---|---|
-| **Top 5 ETFs** | VTIP, RSP, VEA, XLV, ITA, each scored 1–5 at four horizons, plus what was left out and why |
+| **Top 5 ETFs** | VTIP, XLV, VEA, RSP, ITA (re-ranked 30 Sep), each scored 1–5 at four horizons, plus what was left out and why |
 | **Allocation** | How much in stocks versus bonds: pick the worst crash you can accept and get the mix with the most expected growth. Today: 35% stocks, 65% bonds |
 | **Markets** | When to move from bonds to stocks: the stock premium, six signals, volatility, sentiment and eight regions ranked |
 

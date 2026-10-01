@@ -78,7 +78,7 @@ const seen = new Set();
 for (const h of ['3m', '6m', '12m', '10y']) {
   await p.click(`#h-${h}`); await p.waitForTimeout(150);
   const s = await snap(); seen.add(s.band);
-  ok(s.cards.join() === 'VTIP,RSP,VEA,XLV,ITA', `${h}: five cards in rank order`);
+  ok(s.cards.join() === 'VTIP,XLV,VEA,RSP,ITA', `${h}: five cards in rank order (${s.cards})`);
   ok(s.onCells === 5 && !!s.onHdr, `${h}: matrix column "${s.onHdr}" highlighted (${s.onCells} cells)`);
   ok(/horizon/.test(s.status), `${h}: live region says "${s.status}"`);
 }
@@ -167,6 +167,9 @@ ok(Math.abs(A.stk - 35) < 0.5, `stock segment drawn to scale at 35% (${A.stk.toF
 const ladder = await p.evaluate(() => Array.from(document.querySelectorAll('#stage-table tbody tr')).map(tr => ({c:Array.from(tr.cells).map(td => td.textContent), on:tr.classList.contains('on')})));
 ok(ladder.map(r => r.c[1]).join() === '35,48,57,66' && ladder.every(r => +r.c[1] + +r.c[2] === 100), `signal rows: stocks ${ladder.map(r => r.c[1])}, VTIP the rest`);
 ok(ladder.map(r => r.c[0].match(/−\d+%/)[0]).join() === '−21%,−26%,−31%,−36%', 'each row names its budget');
+const hdr = await p.evaluate(() => Array.from(document.querySelectorAll('#stage-table thead th')).slice(2).map(th => th.textContent).join());
+const legendOrder = await p.evaluate(() => Array.from(document.querySelectorAll('#total-legend b')).map(b => b.textContent).join());
+ok(hdr === 'VTIP,RSP,VEA,XLV,ITA' && legendOrder === hdr, `stage-table header and legend share one fund order (${hdr} / ${legendOrder})`);
 ladder.forEach((r, i) => {
   const want = brute(21 + 5 * i).w;
   ok(r.c.slice(2).map(Number).join() === ['VTIP', 'RSP', 'VEA', 'XLV', 'ITA'].map(k => want[k]).join(), `row −${21 + 5 * i}%: ${r.c.slice(2)} equals brute force`);
@@ -225,7 +228,7 @@ const ch = await p.evaluate(() => ['vc-vix', 'vc-ust'].map(id => {
   const inside = Array.from(svg.querySelectorAll('circle.pt, text')).every(e => { const q = e.getBoundingClientRect(); return q.left >= r.left - 2 && q.right <= r.right + 2 && q.top >= r.top - 2 && q.bottom <= r.bottom + 2; });
   return {n:svg.querySelectorAll('circle.pt').length, inside, label:box.getAttribute('aria-label') || ''};
 }));
-ok(ch[0].n === 9 && ch[1].n === 9, `VIX and 10-yr: 9 reported closes each, 17–29 Sep (${ch[0].n}/${ch[1].n})`);
+ok(ch[0].n === 10 && ch[1].n === 10, `VIX and 10-yr: 10 reported closes each, 17–30 Sep (${ch[0].n}/${ch[1].n})`);
 ok(ch.every(c => c.inside) && ch.every(c => c.label.length > 20), 'chart points and labels inside the drawing; charts described in text');
 const overlaps = await p.evaluate(() => ['vc-vix', 'vc-ust'].map(id => {
   const t = Array.from(document.querySelectorAll('#' + id + ' svg text')).map(e => e.getBoundingClientRect()); let n = 0;
@@ -236,14 +239,14 @@ await p.evaluate(() => document.getElementById('vc-vix').scrollIntoView({block:'
 const vb = await (await p.$('#vc-vix')).boundingBox();
 await p.mouse.move(vb.x + vb.width - 14, vb.y + 60); await p.waitForTimeout(100);
 const tip = await p.evaluate(() => { const t = document.querySelector('#vc-vix .vtip'); return t.hidden ? null : t.textContent; });
-ok(tip === '29 Sep · 16.04', `hover snaps to the nearest close ("${tip}")`);
+ok(tip === '30 Sep · 16.34', `hover snaps to the nearest close ("${tip}")`);
 await p.evaluate(() => document.getElementById('vc-ust').scrollIntoView({block:'center'})); await p.waitForTimeout(150);
 const ub = await (await p.$('#vc-ust')).boundingBox();
 await p.mouse.move(ub.x + 45, ub.y + 70); await p.mouse.down(); await p.mouse.up(); await p.waitForTimeout(100);
 const tap = await p.evaluate(() => { const t = document.querySelector('#vc-ust .vtip'); return t.hidden ? null : t.textContent; });
 ok(tap === '17 Sep · 4.93%', `a tap shows the value ("${tap}")`);
 const vt = await p.evaluate(() => Array.from(document.querySelectorAll('#vtable tbody tr')).map(tr => Array.from(tr.cells).map(c => c.textContent)));
-ok(vt.length === 9 && vt.every(r => r[1] !== '—' && r[2] !== '—') && vt[0][0] === '17 Sep' && vt[8].join() === '29 Sep,16.04,5.25%', 'numbers table: 9 dates, both readings on every row, first 17 Sep, last 29 Sep 16.04 / 5.25%');
+ok(vt.length === 10 && vt.every(r => r[1] !== '—' && r[2] !== '—') && vt[0][0] === '17 Sep' && vt[9].join() === '30 Sep,16.34,5.29%', 'numbers table: 10 dates, both readings on every row, first 17 Sep, last 30 Sep 16.34 / 5.29%');
 
 const bars = await p.evaluate(() => Array.from(document.querySelectorAll('.fbar')).map(el => {
   const t = el.querySelector('.fbar-track').getBoundingClientRect(), f = el.querySelector('.fbar-fill').getBoundingClientRect();
